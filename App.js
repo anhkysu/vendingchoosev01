@@ -1,37 +1,14 @@
-
-
 import React, {Component} from 'react';
-import {
-  View,
-} from 'react-native';
+import {View} from 'react-native';
 
-import {createAppContainer} from 'react-navigation';
+import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
-
-
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import SettingPage1 from "./pages/SettingPage1";
 import SettingPage2 from "./pages/SettingPage2";
 
-class App extends Component {
-  render(){
-    return (
-      <View style={{ display: "flex", flex: 1 }}>
-          <HomePage/>
-      </View>
-    );
-  }
-};
-
-const AppNavigator = createStackNavigator({
-  Home: {
-    screen: HomePage,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "WELCOME TO ICOCO"
-    }),
-  },
+const StackNavigator = createStackNavigator({
   LoginPage: {
     screen: LoginPage,
     navigationOptions: ({navigation})=>({
@@ -53,8 +30,23 @@ const AppNavigator = createStackNavigator({
       title: "SETTING PAGE 2"
     }),
   },
+}, {
+  initialRouteName: "LoginPage"
 });
 
-const AppContainer = createAppContainer(AppNavigator);
+const SwitchNavigator = createSwitchNavigator({
+  Home: {
+    screen: HomePage,
+    navigationOptions: ({navigation})=>({
+      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
+      title: "WELCOME TO ICOCO"
+    }),
+  },
+  SettingFlow: {
+    screen: StackNavigator,
+  },
+});
+
+const AppContainer = createAppContainer(SwitchNavigator);
 
 export default AppContainer;

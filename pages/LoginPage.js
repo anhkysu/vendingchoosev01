@@ -44,7 +44,7 @@ export default class LoginPage extends Component {
                 
                 <View style={{ height: 50, width: "100%", alignItems: "center", justifyContent: "center", flexDirection: "row" }}>
                     <View style={{ width: 200, height: "100%", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
-                        <Button title="Quay lại Home" />
+                        <Button title="Quay lại Home" onPress={()=>{this.props.navigation.navigate("Home")}}/>
 
                     </View>
                     <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
