@@ -1,12 +1,17 @@
 import React, {Component} from 'react';
 import {View} from 'react-native';
-
+import {Provider} from 'react-redux';
+import {createStore} from 'redux';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import SettingPage1 from "./pages/SettingPage1";
 import SettingPage2 from "./pages/SettingPage2";
+import settingpage1reducer from "./redux/reducers/SettingPage1Reducer"
+
+
+const store = createStore(settingpage1reducer);
 
 const StackNavigator = createStackNavigator({
   LoginPage: {
@@ -49,4 +54,12 @@ const SwitchNavigator = createSwitchNavigator({
 
 const AppContainer = createAppContainer(SwitchNavigator);
 
-export default AppContainer;
+export default class App extends Component{
+  render(){
+    return (
+      <Provider store={store}>
+          <AppContainer/>
+      </Provider>
+    );
+  }
+}

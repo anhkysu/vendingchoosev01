@@ -16,32 +16,32 @@ import PageButtonItem from "../components/PageButtonItem";
 
 var exampleData = [
   {
-      slotSetting: "1",
-      validSlots: "2",
-      name: "Coca Cola",
-      price: "10000",
-      imageSource: "https://truwena.co.za/wp-content/uploads/2019/01/coca-cola-can.png"
+    slotSetting: "1",
+    validSlots: "2",
+    name: "Coca Cola",
+    price: "10000",
+    imageSource: "https://truwena.co.za/wp-content/uploads/2019/01/coca-cola-can.png"
   },
   {
-      slotSetting: "2",
-      validSlots: "5",
-      name: "Trà Xanh Không Độ",
-      price: "10000",
-      imageSource: "https://sieuthitt.com/images/stories/virtuemart/product/Tr___xanh_kh__ng_543a3bd0566d0.png"
+    slotSetting: "2",
+    validSlots: "5",
+    name: "Trà Xanh Không Độ",
+    price: "10000",
+    imageSource: "https://sieuthitt.com/images/stories/virtuemart/product/Tr___xanh_kh__ng_543a3bd0566d0.png"
   },
   {
-      slotSetting: "3",
-      validSlots: "6",
-      name: "Trà Bí Đao Wonder",
-      price: "10000",
-      imageSource: "http://www.fujimart.vn/image/cache/catalog/%C4%90%E1%BB%93%20u%E1%BB%91ng/IMG_0624-502x502.png"
+    slotSetting: "3",
+    validSlots: "6",
+    name: "Trà Bí Đao Wonder",
+    price: "10000",
+    imageSource: "http://www.fujimart.vn/image/cache/catalog/%C4%90%E1%BB%93%20u%E1%BB%91ng/IMG_0624-502x502.png"
   },
   {
-      slotSetting: "4",
-      validSlots: "6",
-      name: "Bò Húc",
-      price: "10000",
-      imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+    slotSetting: "4",
+    validSlots: "6",
+    name: "Bò Húc",
+    price: "10000",
+    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
   },
   {
     slotSetting: "5",
@@ -49,28 +49,28 @@ var exampleData = [
     name: "Trà Bí Đao Wonder",
     price: "10000",
     imageSource: "http://www.fujimart.vn/image/cache/catalog/%C4%90%E1%BB%93%20u%E1%BB%91ng/IMG_0624-502x502.png"
-},
-{
+  },
+  {
     slotSetting: "6",
     validSlots: "6",
     name: "Bò Húc",
     price: "10000",
     imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-},
-{
-  slotSetting: "7",
-  validSlots: "6",
-  name: "Bò Húc",
-  price: "10000",
-  imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-},
-{
-  slotSetting: "8",
-  validSlots: "6",
-  name: "Bò Húc",
-  price: "10000",
-  imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-},
+  },
+  {
+    slotSetting: "7",
+    validSlots: "6",
+    name: "Bò Húc",
+    price: "10000",
+    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+  },
+  {
+    slotSetting: "8",
+    validSlots: "6",
+    name: "Bò Húc",
+    price: "10000",
+    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+  },
 ];
 
 export default class HomePage extends Component {
@@ -82,48 +82,48 @@ export default class HomePage extends Component {
       minbeverageitemwidth: 50,
       minbeverageitemheight: 130,
       numberofpages: 1,
-      numberofpages_fakearray: [{id:"1"}],
-      importantdata : []
+      numberofpages_fakearray: [{ id: "1" }],
+      importantdata: []
     }
   }
 
-  findMaxNumberOfCol(){
-      const minbeverageitemwidth = 150 + 10;
-      var screenwidth = Dimensions.get('window').width;
-      var availablewidthforrow = screenwidth - 40;
-      var maxnumberofcol = Math.floor(availablewidthforrow / minbeverageitemwidth);
-      return maxnumberofcol;
+  findMaxNumberOfCol() {
+    const minbeverageitemwidth = 150 + 10;
+    var screenwidth = Dimensions.get('window').width;
+    var availablewidthforrow = screenwidth - 40;
+    var maxnumberofcol = Math.floor(availablewidthforrow / minbeverageitemwidth);
+    return maxnumberofcol;
   }
 
-  findMaxNumberOfRow(){
-      const mincolheight = 130 + 10;
-      var screenheight = Dimensions.get('window').height;
-      var availableheight = screenheight - 20;
-      var maxnumberofrow = Math.floor(availableheight / mincolheight);
-      return maxnumberofrow;
+  findMaxNumberOfRow() {
+    const mincolheight = 130 + 10;
+    var screenheight = Dimensions.get('window').height;
+    var availableheight = screenheight - 20;
+    var maxnumberofrow = Math.floor(availableheight / mincolheight);
+    return maxnumberofrow;
   }
 
-  findLayoutArrangementInfo(noofcol, noofslot){
-      const maxnumberofcol = this.findMaxNumberOfCol();
-      const maxnumberofrow = this.findMaxNumberOfRow();
-      if(noofcol > maxnumberofcol){
-        Alert.alert("Error", `Due to screen width constraint, the maximum number of column is ${maxnumberofcol}`);
-        return;
-      }
-      var noofpages = Math.ceil (noofslot/(maxnumberofrow*noofcol));
-      
-      this.setState({numberofpages: noofpages});
-      setTimeout(()=>{this.createFakeArray(this.state.numberofpages)},1);
-      return noofpages;
+  findLayoutArrangementInfo(noofcol, noofslot) {
+    const maxnumberofcol = this.findMaxNumberOfCol();
+    const maxnumberofrow = this.findMaxNumberOfRow();
+    if (noofcol > maxnumberofcol) {
+      Alert.alert("Error", `Due to screen width constraint, the maximum number of column is ${maxnumberofcol}`);
+      return;
+    }
+    var noofpages = Math.ceil(noofslot / (maxnumberofrow * noofcol));
+
+    this.setState({ numberofpages: noofpages });
+    setTimeout(() => { this.createFakeArray(this.state.numberofpages) }, 1);
+    return noofpages;
   }
 
   createFakeArray(numberofpages) {
     var myArray1 = [];
     setTimeout(() => {
       for (var i = 1; i <= this.state.numberofpages; i++) {
-        myArray1.push({ id: `${i}`});
+        myArray1.push({ id: `${i}` });
       };
-      this.setState({numberofpages_fakearray: myArray1});
+      this.setState({ numberofpages_fakearray: myArray1 });
     }, 1);
   }
 
@@ -132,11 +132,9 @@ export default class HomePage extends Component {
     var noofrow = Math.ceil(noofslot / (noofpages * noofcol));
     console.log(noofrow);
     var count = 1;
-    if(pagenumber > 1)
-    {
+    if (pagenumber > 1) {
       count = count + noofrow * noofcol;
     }
-    
     var processedData = [];
 
     for (var i = 1; i <= noofrow; i++) {
@@ -145,20 +143,20 @@ export default class HomePage extends Component {
         rowdata: [],
       });
       for (var c = 1; c <= noofcol; c++) {
-        processedData[i-1].rowdata.push(data[count-1]);
+        processedData[i - 1].rowdata.push(data[count - 1]);
         count = count + 1;
-        if(count>data.length) {break;}
+        if (count > data.length) { break; }
       }
-      if(i == noofrow){
+      if (i == noofrow) {
         console.log(processedData);
-        this.setState({importantdata: processedData});
+        this.setState({ importantdata: processedData });
       }
-      if(count>data.length) {break;}
+      if (count > data.length) { break; }
     }
   }
 
-  componentDidMount(){
-    this.processFullData(2,8,exampleData,1);
+  componentDidMount() {
+    this.processFullData(2, 8, exampleData, 1);
   }
 
   render() {
@@ -185,7 +183,7 @@ export default class HomePage extends Component {
         </View>
         <View style={{ height: 50, width: "100%", backgroundColor: "lightblue", alignItems: "center", justifyContent: "center", display: "flex", flexDirection: "row" }}>
           <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
-            <TouchableOpacity style={{ marginRight: 15 }} onPress={()=>{}}>
+            <TouchableOpacity style={{ marginRight: 15 }} onPress={() => { }}>
               <Icon
                 size={40}
                 name="md-help-circle"
@@ -203,7 +201,7 @@ export default class HomePage extends Component {
 
           <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
             <View style={{ height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row" }}>
-              <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center"}}>
+              <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <TouchableOpacity>
                   <Icon
                     size={40}
@@ -215,10 +213,10 @@ export default class HomePage extends Component {
 
               <View style={{ display: "flex", alignItems: "center", paddingHorizontal: 10, flexDirection: "row" }}>
                 {
-                  this.state.numberofpages_fakearray.map((pageArray)=>{
+                  this.state.numberofpages_fakearray.map((pageArray) => {
                     return (
-                      <TouchableOpacity key={pageArray.id} onPress={(index)=>{this.processFullData(2, 8, exampleData, pageArray.id)}}>
-                          <PageButtonItem pagenumber={pageArray.id}/>
+                      <TouchableOpacity key={pageArray.id} onPress={(index) => { this.processFullData(2, 8, exampleData, pageArray.id) }}>
+                        <PageButtonItem pagenumber={pageArray.id} />
                       </TouchableOpacity>
                     )
                   })
