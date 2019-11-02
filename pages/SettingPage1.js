@@ -8,51 +8,9 @@ import {
   Button,
 } from 'react-native';
 import DataInputItem from "../components/DataInputItem";
+import {connect} from "react-redux"
 
-const datainputitemlist = [
-    {
-        itemlabel: "Số Lượng Slot",
-        datainputtype: "TextInput",
-        options: {"nope":"nope"}
-    },
-    {
-        itemlabel: "Số Cột Hiển Thị",
-        datainputtype: "TextInput",
-        options: {"nope":"nope"}
-    },
-    {
-        itemlabel: "Time Chuyển Trang",
-        datainputtype: "TextInput",
-        options: {"nope":"nope"}
-    },
-    {
-        itemlabel: "COM",
-        datainputtype: "Picker",
-        options: {"COM1":"COM1", "COM2": "COM2"}
-    },
-    {
-        itemlabel: "Baudrate",
-        datainputtype: "Picker",
-        options: {"115200": "115200", "62500": "62500"}
-    },
-    {
-        itemlabel: "Databits",
-        datainputtype: "Picker",
-        options: {"8":"8", "16": "16"}
-    },
-    {
-        itemlabel: "Parity",
-        datainputtype: "Picker",
-        options: {"odd":"odd", "even": "even"}
-    },
-    {
-        itemlabel: "Stop Bit",
-        datainputtype: "Picker",
-        options: {"1":"1", "2": "2"}
-    },
-];
-
-const datainputitemlist2 = [
+const oneslotdata = [
     {
         itemlabel: "Slot Setting",
         datainputtype: "TextInput",
@@ -75,18 +33,25 @@ const datainputitemlist2 = [
     },
 ];
 
-export default class SettingPage1 extends Component {
+class SettingPage1 extends Component {
+    constructor(props){
+        super(props);
+        
+        this.state = {
+            
+        }
+    }
 
     render() {
+        
         return (
             <View style={{ flex: 1 }}>
-
                 <View style={{ flex: 1, flexDirection: "row", backgroundColor: "whitesmoke" }}>
                     <View style={{ flex: 2, paddingVertical: 7, overflow: "hidden" }}>
                         <ScrollView setScrollbarFadingEnabled={false}>
                             {
-                                datainputitemlist.map((datainput,index)=>{
-                                    return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} pickeroptions={datainput.options}/>)
+                                this.props.settingdatalist.map((datainput,index)=>{
+                                    return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options}/>)
                                 })
                             }
                         </ScrollView>
@@ -96,8 +61,8 @@ export default class SettingPage1 extends Component {
                         <View style={{ flex: 1, marginBottom: 10 }}>
                             <ScrollView style={{ flex: 1 }}>
                                 {
-                                    datainputitemlist2.map((datainput,index)=>{
-                                        return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} pickeroptions={datainput.options}/>)
+                                    oneslotdata.map((datainput,index)=>{
+                                        return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options}/>)
                                     })
                                 }
 
@@ -115,9 +80,7 @@ export default class SettingPage1 extends Component {
                                             <Button title="Chọn" />
                                         </View>
                                     </View>
-
                                 </View>
-
                             </ScrollView>
                         </View>
                         <View style={{ height: 40, width: "100%", display: "flex", flexDirection: "row", justifyContent: "flex-start", paddingVertical: 2 }}>
@@ -126,7 +89,6 @@ export default class SettingPage1 extends Component {
                         </View>
                     </View>
                 </View>
-
 
                 <View style={{ height: 50, width: "100%", alignItems: "center", backgroundColor: "white", justifyContent: "center", flexDirection: "row" }}>
                     <View style={{ width: 200, height: "100%", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
@@ -145,6 +107,21 @@ export default class SettingPage1 extends Component {
             </View>
         );
     }
+
   
 };
 
+
+function mapStateToProps(state){
+    return {
+        settingdatalist: state.settingdatalist
+    }
+}
+
+function mapDispatchToProps(dispatch){
+    return {
+        
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SettingPage1);

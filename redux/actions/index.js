@@ -1,11 +1,12 @@
-export const changeNumberOfCol = numberofcol => ({
-    type: 'CHANGE_NUMBER_OF_COLUMN',
-    noofcol: numberofcol,
+export const changeCoupleInput = (itemlabel, datainput) => ({
+    type: 'CHANGE_COUPLE_INPUT',
+    itemlabel: itemlabel,
+    datainput: datainput,
 })
 
-export const changeNumberOfSlot = numberofslot => ({
-    type: 'CHANGE_NUMBER_OF_SLOT',
-    noofslot: numberofslot,
+export const testFunc = testVar => ({
+    type: 'HIHI',
+    testvar: testVar
 })
 
 export const updateDataInput = (datatag, data) => ({

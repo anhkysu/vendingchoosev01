@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { View, Text, Picker, TextInput } from 'react-native';
 import { connect } from 'react-redux';
-import { changeNumberOfCol } from '../redux/actions';
+import { testFunc, changeCoupleInput } from '../redux/actions'
+
 const testpickeroptions = {
     "Love": "1",
     "Promotion": "2",
@@ -14,18 +15,10 @@ class DataInputItem extends Component {
         super(props);
     }
 
-    callFunctionCorrespondingToDataInput(itemlabel,datainput){
-        switch(itemlabel){
-            case "Số Cột Hiển Thị":
-                this.props.changeNoOfCol(datainput)
-            default:
-                return
-        }
-    }
-
     render() {
         const itemlabel = this.props.itemlabel;
         const datainputtype = this.props.datainputtype; //TextInput //Picker
+        var itemdefaultvalue = this.props.defaultvalue;
         var pickeroptions = this.props.pickeroptions;
         if (pickeroptions === undefined) {
             pickeroptions = testpickeroptions;
@@ -40,16 +33,17 @@ class DataInputItem extends Component {
                         ?
                         (<View style={{ flex: 1 }}>
                             <TextInput 
-                                style={{ height: 40, borderRadius: 3, borderWidth: 0.5, borderColor: "gray", backgroundColor: "white" }} 
-                                onChangeText={(text)=>{this.callFunctionCorrespondingToDataInput(itemlabel,text)}}
+                                style={{ height: 40, borderRadius: 3, borderWidth: 0.5, borderColor: "gray", backgroundColor: "white", textAlign: "center", fontSize: 16 }} 
+                                onChangeText={(text)=>{this.props.changeCoupleInput(this.props.itemlabel,text)}}
+                                value={itemdefaultvalue}
                             />
                         </View>)
                         :
                         (<View style={{ flex: 1, display: "flex", alignItems: "flex-end", justifyContent: "center", backgroundColor: "white", borderColor: "gray", borderRadius: 3 }}>
                             <Picker
-                                //selectedValue={"java"}
+                                selectedValue={itemdefaultvalue}
                                 style={{ height: 50, width: 100 }}
-                                onValueChange={(itemValue, itemIndex) => { alert(itemValue); }}>
+                                onValueChange={(itemValue, itemIndex) => { this.props.changeCoupleInput(this.props.itemlabel, itemValue) }}>
                                 {
                                     Object.keys(pickeroptions).map((key) => {
                                         return (
@@ -65,15 +59,19 @@ class DataInputItem extends Component {
     }
 }
 
-function mapStateToProps(state ) {
+function mapStateToProps(state) {
 	return {
-    noofcol: state.noofcol
+        settingdatalist: state.settingdatalist
 	}
 }
 
-const mapDispatchToProps = dispatch => ({
-    changeNoOfCol: numberofcolumn => dispatch(changeNumberOfCol(numberofcolumn)) ,
-})
+function mapDispatchToProps( dispatch ) {
+    return {
+        changeCoupleInput: (itemlabel, datainput) => dispatch(changeCoupleInput(itemlabel,datainput)),
+        testFunc: testVarInput => dispatch(testFunc(testVarInput)),
+    }
+    
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataInputItem);
 

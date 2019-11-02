@@ -22,6 +22,9 @@ export default class LoginPage extends Component {
             loading: false,
         }
     }
+    test(){
+        this.props.navigation.navigate('SettingPage1');
+    }
 
     attemptToLogin(token) {
         this.setState({loading:false});
@@ -114,7 +117,7 @@ export default class LoginPage extends Component {
                                 </View>
 
                                 <View style={{ width: "100%", height: 40, marginTop: 10 }}>
-                                    <Button title="SIGN IN" onPress={() => { this.authorize(this.state.username, this.state.passwords) }} />
+                                    <Button title="SIGN IN" onPress={() => { /*this.authorize(this.state.username, this.state.passwords)*/ this.test() }} />
                                 </View>
                             </View>
                         </View>

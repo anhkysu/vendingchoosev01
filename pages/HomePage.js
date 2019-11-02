@@ -11,8 +11,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import RenderRow from "../components/RenderRow";
 import myBeverageDataInput1 from "../data/beverageDataInput1";
 import PageButtonItem from "../components/PageButtonItem";
-
-
+import {connect} from 'react-redux';
 
 var exampleData = [
   {
@@ -73,7 +72,7 @@ var exampleData = [
   },
 ];
 
-export default class HomePage extends Component {
+class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -157,6 +156,7 @@ export default class HomePage extends Component {
 
   componentDidMount() {
     this.processFullData(2, 8, exampleData, 1);
+    console.log(this.props.settingdatalist);
   }
 
   render() {
@@ -245,3 +245,16 @@ export default class HomePage extends Component {
 
 };
 
+function mapStateToProps(state){
+  return {
+    settingdatalist: state.settingdatalist
+  }
+}
+
+function mapDispatchToProps(dispatch){
+  return {
+    
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomePage);

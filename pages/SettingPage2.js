@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { connect } from 'react-redux';
 
+
 function RenderRow({ idNumber, name, number, price }) {
   return (
     <View style={{ width: "100%", height: 60, display: "flex", flexDirection: "row" }}>
@@ -72,7 +73,7 @@ class SettingPage2 extends Component {
             <Button title="Quay về Settings" />
           </View>
           <View style={{ width: 200, height: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
-            <Button title="Lưu thay đổi" onPress={()=>{alert(this.props.noofcol)}}/>
+            <Button title="Lưu thay đổi" onPress={()=>{console.log(this.props.settingdatalist)}}/>
           </View>
         </View>
       </View>
@@ -83,11 +84,12 @@ class SettingPage2 extends Component {
 
 function mapStateToProps(state ) {
 	return {
-    noofcol: state.noofcol
+    settingdatalist: state.settingdatalist,
+    noofcol: state.noofcol,
 	}
 }
 const mapDispatchToProps = dispatch => ({
-
+  
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SettingPage2);
