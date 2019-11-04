@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, Picker, TextInput } from 'react-native';
 import { connect } from 'react-redux';
-import { testFunc, changeCoupleInput } from '../redux/actions'
+import { testFunc, changeCoupleInput, changeCurrentSlotSetting, updateOneSlotData } from '../redux/actions'
 
 const testpickeroptions = {
     "Love": "1",
@@ -13,6 +13,19 @@ const testpickeroptions = {
 class DataInputItem extends Component {
     constructor(props) {
         super(props);
+    }
+
+    processCoupleInput(label, text){
+        console.log(label);
+        if(label == "Slot Setting"){
+            
+            this.props.changeCurrentSlotSetting(text);
+            
+        }
+        else {
+            this.props.changeCoupleInput(label, text);
+            console.log("NG");
+        }
     }
 
     render() {
@@ -34,7 +47,7 @@ class DataInputItem extends Component {
                         (<View style={{ flex: 1 }}>
                             <TextInput 
                                 style={{ height: 40, borderRadius: 3, borderWidth: 0.5, borderColor: "gray", backgroundColor: "white", textAlign: "center", fontSize: 16 }} 
-                                onChangeText={(text)=>{this.props.changeCoupleInput(this.props.itemlabel,text)}}
+                                onChangeText={(text)=>{this.processCoupleInput(this.props.itemlabel,text)}}
                                 value={itemdefaultvalue}
                             />
                         </View>)
@@ -43,7 +56,7 @@ class DataInputItem extends Component {
                             <Picker
                                 selectedValue={itemdefaultvalue}
                                 style={{ height: 50, width: 100 }}
-                                onValueChange={(itemValue, itemIndex) => { this.props.changeCoupleInput(this.props.itemlabel, itemValue) }}>
+                                onValueChange={(itemValue, itemIndex) => { this.processCoupleInput(this.props.itemlabel, itemValue) }}>
                                 {
                                     Object.keys(pickeroptions).map((key) => {
                                         return (
@@ -69,6 +82,8 @@ function mapDispatchToProps( dispatch ) {
     return {
         changeCoupleInput: (itemlabel, datainput) => dispatch(changeCoupleInput(itemlabel,datainput)),
         testFunc: testVarInput => dispatch(testFunc(testVarInput)),
+        changeCurrentSlotSetting: currentnumber => dispatch(changeCurrentSlotSetting(currentnumber)),
+        
     }
     
 }

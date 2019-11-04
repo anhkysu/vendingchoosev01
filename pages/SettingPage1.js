@@ -8,42 +8,55 @@ import {
   Button,
 } from 'react-native';
 import DataInputItem from "../components/DataInputItem";
-import {connect} from "react-redux"
-
-const oneslotdata = [
-    {
-        itemlabel: "Slot Setting",
-        datainputtype: "TextInput",
-        options: {"nope":"nope"}
-    },
-    {
-        itemlabel: "Tên Nước",
-        datainputtype: "TextInput",
-        options: {"nope":"nope"}
-    },
-    {
-        itemlabel: "Giá Tiền",
-        datainputtype: "TextInput",
-        options: {"nope":"nope"}
-    },
-    {
-        itemlabel: "Số Lượng",
-        datainputtype: "TextInput",
-        options: {"nope":"nope"}
-    },
-];
+import {connect} from "react-redux";
+import { updateOneSlotData } from '../redux/actions'
 
 class SettingPage1 extends Component {
     constructor(props){
         super(props);
-        
         this.state = {
+            
             
         }
     }
 
-    render() {
-        
+    loadBeverageItem(slotsetting){
+        //console.log(this.props.currentslotsetting);
+        this.props.initialbeveragestate.map((item)=>{
+            if(item.slotsetting == slotsetting){
+                var newoneslotdata = [
+                    {
+                        itemlabel: "Slot Setting",
+                        datainputtype: "TextInput",
+                        options: {"nope":"nope"},
+                        datainput: item.slotsetting
+                    },
+                    {
+                        itemlabel: "Tên Nước",
+                        datainputtype: "TextInput",
+                        options: {"nope":"nope"},
+                        datainput: item.name
+                    },
+                    {
+                        itemlabel: "Giá Tiền",
+                        datainputtype: "TextInput",
+                        options: {"nope":"nope"},
+                        datainput: item.price
+                    },
+                    {
+                        itemlabel: "Số Lượng",
+                        datainputtype: "TextInput",
+                        options: {"nope":"nope"},
+                        datainput: item.validslots,
+                    },
+                ];
+
+                this.props.updateOneSlotData(newoneslotdata);
+            }
+        });
+    }
+
+    render() {    
         return (
             <View style={{ flex: 1 }}>
                 <View style={{ flex: 1, flexDirection: "row", backgroundColor: "whitesmoke" }}>
@@ -61,11 +74,10 @@ class SettingPage1 extends Component {
                         <View style={{ flex: 1, marginBottom: 10 }}>
                             <ScrollView style={{ flex: 1 }}>
                                 {
-                                    oneslotdata.map((datainput,index)=>{
+                                    this.props.oneslotdata.map((datainput,index)=>{
                                         return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options}/>)
                                     })
                                 }
-
                                 <View style={{ height: 150, width: 300, marginTop: 5, display: "flex" }}>
                                     <View style={{ height: 20, width: 300, display: "flex", flexDirection: "row", marginBottom: 5, marginLeft: "5%" }}>
                                         <Text>Chọn hình hiển thị</Text>
@@ -84,7 +96,7 @@ class SettingPage1 extends Component {
                             </ScrollView>
                         </View>
                         <View style={{ height: 40, width: "100%", display: "flex", flexDirection: "row", justifyContent: "flex-start", paddingVertical: 2 }}>
-                            <View style={{ paddingRight: 10 }}><Button title="Load" /></View>
+                            <View style={{ paddingRight: 10 }}><Button title="Load" onPress={()=>{this.loadBeverageItem(this.props.currentslotsetting)}}/></View>
                             <View style={{ paddingRight: 10 }}><Button title="Lưu thông tin" /></View>
                         </View>
                     </View>
@@ -97,7 +109,7 @@ class SettingPage1 extends Component {
                     </View>
                     <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
                         <View style={{ width: 150, height: "80%" }}>
-
+                                
                         </View>
                     </View>
                     <View style={{ width: 200, height: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
@@ -107,20 +119,21 @@ class SettingPage1 extends Component {
             </View>
         );
     }
-
-  
 };
 
 
 function mapStateToProps(state){
     return {
-        settingdatalist: state.settingdatalist
+        settingdatalist: state.settingdatalist,
+        currentslotsetting: state.currentslotsetting,
+        oneslotdata: state.oneslotdata,
+        initialbeveragestate: state.initialbeveragestate,
     }
 }
 
 function mapDispatchToProps(dispatch){
     return {
-        
+        updateOneSlotData: data => {dispatch(updateOneSlotData(data))}
     }
 }
 

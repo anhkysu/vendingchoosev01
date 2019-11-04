@@ -9,6 +9,16 @@ export const testFunc = testVar => ({
     testvar: testVar
 })
 
+export const updateOneSlotData = newoneslotdata => ({
+    type: 'UPDATE_ONE_SLOT_DATA',
+    newoneslotdata: newoneslotdata,
+})
+
+export const changeCurrentSlotSetting = currentnumber => ({
+    type: 'CHANGE_CURRENT_SLOT_SETTING',
+    currentslotsetting: currentnumber,
+})
+
 export const updateDataInput = (datatag, data) => ({
     type: 'UDPATE_DATA_INPUT',
     datatag: datatag,

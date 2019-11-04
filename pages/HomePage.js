@@ -70,20 +70,81 @@ var exampleData = [
     price: "10000",
     imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
   },
+  {
+    slotSetting: "9",
+    validSlots: "6",
+    name: "Bò Húc",
+    price: "10000",
+    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+  },
+  {
+    slotSetting: "10",
+    validSlots: "6",
+    name: "Trà Bí Đao Wonder",
+    price: "10000",
+    imageSource: "http://www.fujimart.vn/image/cache/catalog/%C4%90%E1%BB%93%20u%E1%BB%91ng/IMG_0624-502x502.png"
+  },
+  {
+    slotSetting: "11",
+    validSlots: "6",
+    name: "Bò Húc",
+    price: "10000",
+    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+  },
+  {
+    slotSetting: "12",
+    validSlots: "6",
+    name: "Bò Húc",
+    price: "10000",
+    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+  },
+  {
+    slotSetting: "13",
+    validSlots: "6",
+    name: "Bò Húc",
+    price: "10000",
+    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+  },
+  {
+    slotSetting: "14",
+    validSlots: "6",
+    name: "Bò Húc",
+    price: "10000",
+    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+  },
+  
+  
 ];
 
 class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      numberofslot: 60,
-      numberofcolumns: 4,
+      numberofslot: 16,
+      numberofcolumns: 3,
       minbeverageitemwidth: 50,
       minbeverageitemheight: 130,
       numberofpages: 1,
+      currentpagenumber: 1,
       numberofpages_fakearray: [{ id: "1" }],
       importantdata: []
     }
+  }
+
+  navigateBetweenPages(currentpagenumber, forwarddirection){
+      var nextpage = Number(currentpagenumber);
+      if( (forwarddirection && nextpage==this.state.numberofpages) || (!forwarddirection && nextpage==1) )
+      {
+         return;
+      }
+      if(forwarddirection && nextpage < this.state.numberofpages){
+        nextpage = nextpage + 1;
+      }
+      else if (!forwarddirection && nextpage > 0) {
+        nextpage = nextpage - 1;
+      }
+      this.processFullData(this.state.numberofcolumns, this.state.numberofslot, exampleData, nextpage);
+      this.setState({currentpagenumber: nextpage});
   }
 
   findMaxNumberOfCol() {
@@ -119,20 +180,24 @@ class HomePage extends Component {
   createFakeArray(numberofpages) {
     var myArray1 = [];
     setTimeout(() => {
-      for (var i = 1; i <= this.state.numberofpages; i++) {
+      for (var i = 1; i <= numberofpages; i++) {
         myArray1.push({ id: `${i}` });
       };
-      this.setState({ numberofpages_fakearray: myArray1 });
+      this.setState({numberofpages_fakearray: myArray1 });
     }, 1);
   }
 
   processFullData(noofcol, noofslot, data, pagenumber) {
     var noofpages = this.findLayoutArrangementInfo(noofcol, noofslot);
     var noofrow = Math.ceil(noofslot / (noofpages * noofcol));
-    console.log(noofrow);
+    //console.log(`number of pages: ${noofpages}`);
+    //console.log(`number of row: ${noofrow}`);
+    //console.log(`number of col: ${noofcol}`);
+    //console.log(`number of slot: ${noofslot}`);
+    //console.log(`fake_array: ${this.state.numberofpages_fakearray.length}`);
     var count = 1;
     if (pagenumber > 1) {
-      count = count + noofrow * noofcol;
+      count = count + noofrow * noofcol * (pagenumber - 1);
     }
     var processedData = [];
 
@@ -142,21 +207,34 @@ class HomePage extends Component {
         rowdata: [],
       });
       for (var c = 1; c <= noofcol; c++) {
-        processedData[i - 1].rowdata.push(data[count - 1]);
+        if(count>data.length){
+          processedData[i - 1].rowdata.push(
+            {
+              slotSetting: count,
+              validSlots: "6",
+              name: "Not found",
+              price: "10000",
+              imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+            }
+          );
+        }
+        else {
+          processedData[i - 1].rowdata.push(data[count - 1]);
+        }
         count = count + 1;
-        if (count > data.length) { break; }
       }
       if (i == noofrow) {
-        console.log(processedData);
-        this.setState({ importantdata: processedData });
+        //console.log(processedData);
+        this.setState({importantdata: processedData});
       }
-      if (count > data.length) { break; }
+      //if (count > data.length) {break;}
     }
   }
 
   componentDidMount() {
-    this.processFullData(2, 8, exampleData, 1);
-    console.log(this.props.settingdatalist);
+    this.setState({numberofslot: this.props.settingdatalist[0].datainput});
+    this.setState({numberofcolumns: this.props.settingdatalist[1].datainput});
+    this.processFullData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, exampleData, 1);
   }
 
   render() {
@@ -202,7 +280,7 @@ class HomePage extends Component {
           <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
             <View style={{ height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row" }}>
               <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,false)}}>
                   <Icon
                     size={40}
                     name="ios-arrow-back"
@@ -215,7 +293,7 @@ class HomePage extends Component {
                 {
                   this.state.numberofpages_fakearray.map((pageArray) => {
                     return (
-                      <TouchableOpacity key={pageArray.id} onPress={(index) => { this.processFullData(2, 8, exampleData, pageArray.id) }}>
+                      <TouchableOpacity key={pageArray.id} onPress={(index) => { console.log(`page number ${pageArray.id}`);this.processFullData(this.state.numberofcolumns, this.state.numberofslot, exampleData, pageArray.id); this.setState({currentpagenumber: pageArray.id})}}>
                         <PageButtonItem pagenumber={pageArray.id} />
                       </TouchableOpacity>
                     )
@@ -224,7 +302,7 @@ class HomePage extends Component {
               </View>
 
               <View style={{ width: 45, height: "100%", alignItems: "center", justifyContent: "center" }}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,true)}}>
                   <Icon
                     size={40}
                     name="ios-arrow-forward"
