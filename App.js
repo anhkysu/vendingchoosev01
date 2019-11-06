@@ -6,6 +6,7 @@ import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
+import ProcessTransaction from "./pages/ProcessTransaction";
 import SettingPage1 from "./pages/SettingPage1";
 import SettingPage2 from "./pages/SettingPage2";
 import settingpage1reducer from "./redux/reducers/SettingPage1Reducer"
@@ -39,13 +40,21 @@ const StackNavigator = createStackNavigator({
   initialRouteName: "LoginPage"
 });
 
-const SwitchNavigator = createSwitchNavigator({
+const StackNavigatorPublic = createStackNavigator({
   Home: {
     screen: HomePage,
     navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "WELCOME TO ICOCO"
+      header: null,
     }),
+  },
+  Transaction: {
+    screen: ProcessTransaction,
+  },
+})
+
+const SwitchNavigator = createSwitchNavigator({
+  Public: {
+    screen: StackNavigatorPublic,
   },
   SettingFlow: {
     screen: StackNavigator,

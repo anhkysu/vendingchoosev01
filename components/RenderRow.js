@@ -3,9 +3,16 @@ import { View } from 'react-native';
 import BeverageItem from './BeverageItem';
 
 
+
+
 export default class RenderRow extends Component {
     constructor(props) {
         super(props);
+         
+    }
+
+    myMethod(tes){
+        console.log(tes);
     }
 
     render() {
@@ -16,12 +23,13 @@ export default class RenderRow extends Component {
                     DATA.map((dataItem) => {
                         return (
                             <BeverageItem
-                                key={dataItem.slotSetting}
-                                slotSetting={dataItem.slotSetting}
-                                validSlots={dataItem.validSlots}
+                                myMethod1={(data)=> {this.props.myMethod(data)}}
+                                key={dataItem.slotsetting}
+                                slotSetting={dataItem.slotsetting}
+                                validSlots={dataItem.validslots}
                                 name={dataItem.name}
                                 price={dataItem.price}
-                                imageSource={dataItem.imageSource}
+                                imageSource={dataItem.imagesource}
                             />
                         )
                     })

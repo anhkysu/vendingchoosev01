@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, Picker, TextInput } from 'react-native';
 import { connect } from 'react-redux';
-import { testFunc, changeCoupleInput, changeCurrentSlotSetting, updateOneSlotData } from '../redux/actions'
+import { testFunc, changeCoupleInput, changeCurrentSlotSetting, changeSlotData } from '../redux/actions'
 
 const testpickeroptions = {
     "Love": "1",
@@ -18,9 +18,10 @@ class DataInputItem extends Component {
     processCoupleInput(label, text){
         console.log(label);
         if(label == "Slot Setting"){
-            
             this.props.changeCurrentSlotSetting(text);
-            
+        }
+        else if(label == "Tên Nước" || label == "Giá Tiền" || label == "Số Lượng"){
+            this.props.changeSlotData(label, text);
         }
         else {
             this.props.changeCoupleInput(label, text);
@@ -83,9 +84,8 @@ function mapDispatchToProps( dispatch ) {
         changeCoupleInput: (itemlabel, datainput) => dispatch(changeCoupleInput(itemlabel,datainput)),
         testFunc: testVarInput => dispatch(testFunc(testVarInput)),
         changeCurrentSlotSetting: currentnumber => dispatch(changeCurrentSlotSetting(currentnumber)),
-        
+        changeSlotData: (itemlabel, datainput) => dispatch(changeSlotData(itemlabel,datainput)),
     }
-    
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DataInputItem);

@@ -13,108 +13,6 @@ import myBeverageDataInput1 from "../data/beverageDataInput1";
 import PageButtonItem from "../components/PageButtonItem";
 import {connect} from 'react-redux';
 
-var exampleData = [
-  {
-    slotSetting: "1",
-    validSlots: "2",
-    name: "Coca Cola",
-    price: "10000",
-    imageSource: "https://truwena.co.za/wp-content/uploads/2019/01/coca-cola-can.png"
-  },
-  {
-    slotSetting: "2",
-    validSlots: "5",
-    name: "Trà Xanh Không Độ",
-    price: "10000",
-    imageSource: "https://sieuthitt.com/images/stories/virtuemart/product/Tr___xanh_kh__ng_543a3bd0566d0.png"
-  },
-  {
-    slotSetting: "3",
-    validSlots: "6",
-    name: "Trà Bí Đao Wonder",
-    price: "10000",
-    imageSource: "http://www.fujimart.vn/image/cache/catalog/%C4%90%E1%BB%93%20u%E1%BB%91ng/IMG_0624-502x502.png"
-  },
-  {
-    slotSetting: "4",
-    validSlots: "6",
-    name: "Bò Húc",
-    price: "10000",
-    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-  },
-  {
-    slotSetting: "5",
-    validSlots: "6",
-    name: "Trà Bí Đao Wonder",
-    price: "10000",
-    imageSource: "http://www.fujimart.vn/image/cache/catalog/%C4%90%E1%BB%93%20u%E1%BB%91ng/IMG_0624-502x502.png"
-  },
-  {
-    slotSetting: "6",
-    validSlots: "6",
-    name: "Bò Húc",
-    price: "10000",
-    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-  },
-  {
-    slotSetting: "7",
-    validSlots: "6",
-    name: "Bò Húc",
-    price: "10000",
-    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-  },
-  {
-    slotSetting: "8",
-    validSlots: "6",
-    name: "Bò Húc",
-    price: "10000",
-    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-  },
-  {
-    slotSetting: "9",
-    validSlots: "6",
-    name: "Bò Húc",
-    price: "10000",
-    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-  },
-  {
-    slotSetting: "10",
-    validSlots: "6",
-    name: "Trà Bí Đao Wonder",
-    price: "10000",
-    imageSource: "http://www.fujimart.vn/image/cache/catalog/%C4%90%E1%BB%93%20u%E1%BB%91ng/IMG_0624-502x502.png"
-  },
-  {
-    slotSetting: "11",
-    validSlots: "6",
-    name: "Bò Húc",
-    price: "10000",
-    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-  },
-  {
-    slotSetting: "12",
-    validSlots: "6",
-    name: "Bò Húc",
-    price: "10000",
-    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-  },
-  {
-    slotSetting: "13",
-    validSlots: "6",
-    name: "Bò Húc",
-    price: "10000",
-    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-  },
-  {
-    slotSetting: "14",
-    validSlots: "6",
-    name: "Bò Húc",
-    price: "10000",
-    imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
-  },
-  
-  
-];
 
 class HomePage extends Component {
   constructor(props) {
@@ -128,7 +26,8 @@ class HomePage extends Component {
       currentpagenumber: 1,
       numberofpages_fakearray: [{ id: "1" }],
       importantdata: []
-    }
+    };
+    //this.parentFunction = this.parentFunction.bind(this);
   }
 
   navigateBetweenPages(currentpagenumber, forwarddirection){
@@ -143,7 +42,7 @@ class HomePage extends Component {
       else if (!forwarddirection && nextpage > 0) {
         nextpage = nextpage - 1;
       }
-      this.processFullData(this.state.numberofcolumns, this.state.numberofslot, exampleData, nextpage);
+      this.processFullData(this.state.numberofcolumns, this.state.numberofslot, this.props.initialbeveragestate, nextpage);
       this.setState({currentpagenumber: nextpage});
   }
 
@@ -210,11 +109,11 @@ class HomePage extends Component {
         if(count>data.length){
           processedData[i - 1].rowdata.push(
             {
-              slotSetting: count,
-              validSlots: "6",
+              slotsetting: count,
+              validslots: "6",
               name: "Not found",
               price: "10000",
-              imageSource: "https://i.ibb.co/svNhV97/bohuc.png"
+              imagesource: "https://i.ibb.co/svNhV97/bohuc.png"
             }
           );
         }
@@ -231,10 +130,14 @@ class HomePage extends Component {
     }
   }
 
+  onOneItemTouched(lala){
+    this.props.navigation.navigate('Transaction', {id:`${lala}`});
+  }
+
   componentDidMount() {
     this.setState({numberofslot: this.props.settingdatalist[0].datainput});
     this.setState({numberofcolumns: this.props.settingdatalist[1].datainput});
-    this.processFullData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, exampleData, 1);
+    this.processFullData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, 1);
   }
 
   render() {
@@ -250,6 +153,7 @@ class HomePage extends Component {
               this.state.importantdata.map((dataItem) => {
                 return (
                   <RenderRow
+                    myMethod={(data)=> {this.onOneItemTouched(data)}}
                     key={dataItem.rowid}
                     rowDataInput={dataItem.rowdata}
                   />
@@ -293,7 +197,7 @@ class HomePage extends Component {
                 {
                   this.state.numberofpages_fakearray.map((pageArray) => {
                     return (
-                      <TouchableOpacity key={pageArray.id} onPress={(index) => { console.log(`page number ${pageArray.id}`);this.processFullData(this.state.numberofcolumns, this.state.numberofslot, exampleData, pageArray.id); this.setState({currentpagenumber: pageArray.id})}}>
+                      <TouchableOpacity key={pageArray.id} onPress={(index) => { console.log(`page number ${pageArray.id}`);this.processFullData(this.state.numberofcolumns, this.state.numberofslot, this.props.initialbeveragestate, pageArray.id); this.setState({currentpagenumber: pageArray.id})}}>
                         <PageButtonItem pagenumber={pageArray.id} />
                       </TouchableOpacity>
                     )
@@ -325,7 +229,8 @@ class HomePage extends Component {
 
 function mapStateToProps(state){
   return {
-    settingdatalist: state.settingdatalist
+    settingdatalist: state.settingdatalist,
+    initialbeveragestate: state.initialbeveragestate,
   }
 }
 

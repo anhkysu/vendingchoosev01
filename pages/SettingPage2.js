@@ -60,17 +60,17 @@ class SettingPage2 extends Component {
           </View>
           <ScrollView>
             {
-              data.map((datanum) => { return (<RenderRow key={datanum.id} idNumber={datanum.id} name={this.props.noofcol} number="12" price="10000" />) })
+              this.props.initialbeveragestate.map((dataitem) => { return (<RenderRow key={dataitem.slotsetting} idNumber={dataitem.slotsetting} name={dataitem.name} number={dataitem.validslots} price={dataitem.price} />)})
             }
           </ScrollView>
         </View>
 
         <View style={{ height: 50, width: "100%", alignItems: "center", justifyContent: "center", flexDirection: "row" }}>
           <View style={{ width: 200, height: "100%", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
-            <Button title="Quay lại Home" />
+            <Button title="Quay lại Home" onPress={()=>{this.props.navigation.navigate("Home")}}/>
           </View>
           <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
-            <Button title="Quay về Settings" />
+            
           </View>
           <View style={{ width: 200, height: "100%", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
             <Button title="Lưu thay đổi" onPress={()=>{console.log(this.props.settingdatalist)}}/>
@@ -82,10 +82,11 @@ class SettingPage2 extends Component {
 
 };
 
-function mapStateToProps(state ) {
+function mapStateToProps(state) {
 	return {
     settingdatalist: state.settingdatalist,
     noofcol: state.noofcol,
+    initialbeveragestate: state.initialbeveragestate,
 	}
 }
 const mapDispatchToProps = dispatch => ({

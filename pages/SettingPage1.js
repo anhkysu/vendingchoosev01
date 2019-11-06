@@ -4,19 +4,32 @@ import {
   ScrollView,
   View,
   Text,
-  TextInput,
+  Image,
   Button,
+  Alert
 } from 'react-native';
 import DataInputItem from "../components/DataInputItem";
 import {connect} from "react-redux";
-import { updateOneSlotData } from '../redux/actions'
+import { updateOneSlotData, saveBeverageInfoChanges } from '../redux/actions'
+import ImagePicker from 'react-native-image-picker'; 
+
+const options = {
+    title: 'Select Avatar',
+    customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
+    storageOptions: {
+      skipBackup: true,
+      path: 'images',
+    },
+    allowsEditing: false,
+  };
+  
 
 class SettingPage1 extends Component {
     constructor(props){
         super(props);
         this.state = {
-            
-            
+            avatarSource: "content://media/external/images/media/47",
+            isNew: true,
         }
     }
 
@@ -50,10 +63,38 @@ class SettingPage1 extends Component {
                         datainput: item.validslots,
                     },
                 ];
-
+                this.setState({avatarSource: item.imagesource});
                 this.props.updateOneSlotData(newoneslotdata);
             }
         });
+    }
+
+    saveBeverageItemData(slotsetting, name, price, validslots, imagesource ){
+        this.props.saveBeverageInfoChanges(slotsetting, name, price, validslots, imagesource);
+        Alert.alert("Notification", "New changes was saved succesfully")
+    }
+
+    handleImagePicker(){
+        ImagePicker.showImagePicker(options, (response) => {
+            console.log('Response oriURL = ', response.uri);
+          
+            if (response.didCancel) {
+              console.log('User cancelled image picker');
+            } else if (response.error) {
+              console.log('ImagePicker Error: ', response.error);
+            } else if (response.customButton) {
+              console.log('User tapped custom button: ', response.customButton);
+            } else {
+              const source = response.uri ;
+              //const data = {path: "file:///storage/emulated/0/Pictures/RCTCameraModule/IMG_20160706_185559.jpg"}
+              // You can also display the image using data:
+              //const source = { uri: 'data:image/png;base64,' + response.data };
+          
+              this.setState({
+                avatarSource: source,
+              });
+            }
+          });
     }
 
     render() {    
@@ -85,11 +126,16 @@ class SettingPage1 extends Component {
                                     <View style={{ flex: 1, backgroundColor: "whitesmoke", display: "flex", flexDirection: "row" , marginLeft: "5%"}}>
                                         <View style={{ flex: 1, paddingVertical: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>
                                             <View style={{ width: 100, height: 100, backgroundColor: 'white'}}>
-
+                                                <Image
+                                                    style={{ height: "100%", width: "auto", backgroundColor: "transparent" }}
+                                                    source={{uri: this.state.avatarSource}}
+                                                    resizeMode="contain"
+                                                    overlayColor = "blue"
+                                                />
                                             </View>
                                         </View>
                                         <View style={{ width: 60, height: "100%", alignItems: "flex-end", justifyContent: "flex-end", paddingBottom: 5, paddingRight: 5 }}>
-                                            <Button title="Chọn" />
+                                            <Button title="Chọn" onPress={()=>{this.handleImagePicker()}}/>
                                         </View>
                                     </View>
                                 </View>
@@ -97,7 +143,16 @@ class SettingPage1 extends Component {
                         </View>
                         <View style={{ height: 40, width: "100%", display: "flex", flexDirection: "row", justifyContent: "flex-start", paddingVertical: 2 }}>
                             <View style={{ paddingRight: 10 }}><Button title="Load" onPress={()=>{this.loadBeverageItem(this.props.currentslotsetting)}}/></View>
-                            <View style={{ paddingRight: 10 }}><Button title="Lưu thông tin" /></View>
+                            <View style={{ paddingRight: 10 }}>
+                                <Button title="Lưu thông tin" 
+                                        onPress={()=>{this.saveBeverageItemData(this.props.oneslotdata[0].datainput,
+                                                                                this.props.oneslotdata[1].datainput,
+                                                                                this.props.oneslotdata[2].datainput,
+                                                                                this.props.oneslotdata[3].datainput,
+                                                                                this.state.avatarSource)
+                                                }}
+                                />
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -119,6 +174,13 @@ class SettingPage1 extends Component {
             </View>
         );
     }
+
+    componentDidMount(){
+        if(this.state.isNew){
+            this.loadBeverageItem("1");
+            this.setState({isNew: false});
+        }
+    }
 };
 
 
@@ -133,7 +195,8 @@ function mapStateToProps(state){
 
 function mapDispatchToProps(dispatch){
     return {
-        updateOneSlotData: data => {dispatch(updateOneSlotData(data))}
+        updateOneSlotData: data => {dispatch(updateOneSlotData(data))},
+        saveBeverageInfoChanges: (slotsetting, name, price, validslots, imagesource) => {dispatch(saveBeverageInfoChanges(slotsetting, name, price, validslots, imagesource))},
     }
 }
 

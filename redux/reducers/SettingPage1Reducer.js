@@ -31,6 +31,30 @@ const settingpage1reducer = (state = initialState, action) => {
                 )
             }
 
+        case 'SAVE_BEVERAGE_INFO_CHANGES':
+            return {
+                ...state,
+                initialbeveragestate: state.initialbeveragestate.map((item)=>
+                    (item.slotsetting == action.slotsetting ? 
+                        {
+                            ...item,
+                            validslots: action.validslots,
+                            name: action.name,
+                            price: action.price,
+                            imagesource: action.imagesource
+                        } 
+                        : item)
+                )
+            }
+
+        case 'CHANGE_SLOT_DATA':
+            return {
+                ...state,
+                oneslotdata: state.oneslotdata.map((item) =>
+                    (item.itemlabel == action.itemlabel ? { ...item, datainput: action.datainput } : item)
+                )
+            }
+
         case 'ADD_NEW_BEVERAGE_ITEM':
             return {
                 ...state,
