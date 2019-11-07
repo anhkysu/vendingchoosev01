@@ -18,7 +18,7 @@ var initialState = {
             itemlabel: "Time Chuyển Trang",
             datainputtype: "TextInput",
             options: {"nope":"nope"},
-            datainput: "100",
+            datainput: "10000",
         },
         {
             itemlabel: "COM",

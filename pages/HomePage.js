@@ -5,129 +5,215 @@ import {
   TouchableOpacity,
   Button,
   Dimensions,
-  Alert
+  Alert,
+  DeviceEventEmitter
 } from 'react-native';
 import Icon from "react-native-vector-icons/Ionicons";
+import { RNSerialport, definitions, actions } from 'react-native-serialport';
 import RenderRow from "../components/RenderRow";
-import myBeverageDataInput1 from "../data/beverageDataInput1";
 import PageButtonItem from "../components/PageButtonItem";
 import {connect} from 'react-redux';
-
+import { findMaxNumberOfColumn, findMaxNumberOfRow, createFakeArray, findNextPage, processFullData } from './layoututils';
+import Modal from 'react-native-modal';
 
 class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isVisible: false,
       numberofslot: 16,
       numberofcolumns: 3,
-      minbeverageitemwidth: 50,
+      minbeverageitemwidth: 150,
       minbeverageitemheight: 130,
       numberofpages: 1,
       currentpagenumber: 1,
       numberofpages_fakearray: [{ id: "1" }],
-      importantdata: []
+      importantdata: [],
+      cashavailable: 20000,
+      servisStarted: false,
+      connected: false,
+      usbAttached: false,
+      output: "",
+      outputArray: [],
+      baudRate: "9600",
+      interface: "-1",
+      sendText: "HELLO",
+      returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING
     };
-    //this.parentFunction = this.parentFunction.bind(this);
+    this.startUsbListener = this.startUsbListener.bind(this);
+    this.stopUsbListener = this.stopUsbListener.bind(this);
+    this.slidinginterval = setInterval(()=>{this.onSlidingIntervalTick()},5000);
+    this.startUsbListener = this.startUsbListener.bind(this);
+    this.stopUsbListener = this.stopUsbListener.bind(this);
   }
 
-  navigateBetweenPages(currentpagenumber, forwarddirection){
-      var nextpage = Number(currentpagenumber);
-      if( (forwarddirection && nextpage==this.state.numberofpages) || (!forwarddirection && nextpage==1) )
-      {
-         return;
-      }
-      if(forwarddirection && nextpage < this.state.numberofpages){
-        nextpage = nextpage + 1;
-      }
-      else if (!forwarddirection && nextpage > 0) {
-        nextpage = nextpage - 1;
-      }
-      this.processFullData(this.state.numberofcolumns, this.state.numberofslot, this.props.initialbeveragestate, nextpage);
-      this.setState({currentpagenumber: nextpage});
+  startUsbListener() {
+    DeviceEventEmitter.addListener(
+      actions.ON_SERVICE_STARTED,
+      this.onServiceStarted,
+      this
+    );
+    
+    DeviceEventEmitter.addListener(
+      actions.ON_SERVICE_STOPPED,
+      this.onServiceStopped,
+      this
+    );
+
+    DeviceEventEmitter.addListener(
+      actions.ON_DEVICE_ATTACHED,
+      this.onDeviceAttached,
+      this
+    );
+
+    DeviceEventEmitter.addListener(
+      actions.ON_DEVICE_DETACHED,
+      this.onDeviceDetached,
+      this
+    );
+
+    DeviceEventEmitter.addListener(actions.ON_ERROR, this.onError, this);
+    DeviceEventEmitter.addListener(
+      actions.ON_CONNECTED,
+      this.onConnected,
+      this
+    );
+
+    DeviceEventEmitter.addListener(
+      actions.ON_DISCONNECTED,
+      this.onDisconnected,
+      this
+    );
+
+    DeviceEventEmitter.addListener(actions.ON_READ_DATA, this.onReadData, this);
+    RNSerialport.setReturnedDataType(this.state.returnedDataType);
+    RNSerialport.setDataBit(definitions.DATA_BITS.DATA_BITS_8);
+    RNSerialport.setStopBit(definitions.STOP_BITS.STOP_BITS_1);
+    RNSerialport.setAutoConnectBaudRate(9600);
+    RNSerialport.setInterface(parseInt(this.state.interface, 10));
+    RNSerialport.setAutoConnect(true);
+    RNSerialport.startUsbService();
+  };
+
+  stopUsbListener = async () => {
+    DeviceEventEmitter.removeAllListeners();
+    const isOpen = await RNSerialport.isOpen();
+    if (isOpen) {
+      Alert.alert("isOpen", isOpen);
+      RNSerialport.disconnect();
+    }
+    RNSerialport.stopUsbService();
+  };
+
+  onServiceStarted(response) {
+    this.setState({ servisStarted: true });
+    if (response.deviceAttached) {
+      this.onDeviceAttached();
+    }
+  }
+  onServiceStopped() {
+    this.setState({ servisStarted: false });
+  }
+  onDeviceAttached() {
+    this.setState({ usbAttached: true });
+  }
+  onDeviceDetached() {
+    this.setState({ usbAttached: false });
+  }
+  onConnected() {
+    this.setState({ connected: true });
   }
 
-  findMaxNumberOfCol() {
-    const minbeverageitemwidth = 150 + 10;
-    var screenwidth = Dimensions.get('window').width;
-    var availablewidthforrow = screenwidth - 40;
-    var maxnumberofcol = Math.floor(availablewidthforrow / minbeverageitemwidth);
-    return maxnumberofcol;
+  onDisconnected() {
+    this.setState({ connected: false });
   }
 
-  findMaxNumberOfRow() {
-    const mincolheight = 130 + 10;
-    var screenheight = Dimensions.get('window').height;
-    var availableheight = screenheight - 20;
-    var maxnumberofrow = Math.floor(availableheight / mincolheight);
-    return maxnumberofrow;
+  onError(error) {
+    console.error(error);
   }
 
-  findLayoutArrangementInfo(noofcol, noofslot) {
-    const maxnumberofcol = this.findMaxNumberOfCol();
-    const maxnumberofrow = this.findMaxNumberOfRow();
-    if (noofcol > maxnumberofcol) {
-      Alert.alert("Error", `Due to screen width constraint, the maximum number of column is ${maxnumberofcol}`);
+  onReadData(data) {
+    if (
+      this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.INTARRAY
+    ) {
+      const payload = RNSerialport.intArrayToUtf16(data.payload);
+      this.setState({ output: this.state.output + payload });
+    } else if (
+      this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.HEXSTRING
+    ) {
+      const payload = RNSerialport.hexToUtf16(data.payload);
+      this.setState({ output: this.state.output + payload });
+    }
+  }
+
+  sendSerialData(string){
+    RNSerialport.writeString(string);
+  }
+
+  navigateBetweenPages(currentpagenumber, forwarddirection, numberofpages){
+    var nextpage = findNextPage(currentpagenumber, forwarddirection, numberofpages);
+    this.loadBeveragePage(nextpage);
+  }
+
+  loadBeveragePage(pagenumber){
+    if(pagenumber > this.state.numberofpages) {
+      Alert.alert("Warning, Page Number exceeds limit");
       return;
     }
+    else {
+      this.renderBeverageData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, pagenumber);
+      this.setState({currentpagenumber: pagenumber});
+    }
+  }
+
+  initializeLayout(noofcol, noofslot) {
+    const maxnumberofcol = findMaxNumberOfColumn(Dimensions.get('window').width ,150);
+    const maxnumberofrow = findMaxNumberOfRow(Dimensions.get('window').height,  130);
+    if (noofcol > maxnumberofcol) {
+      noofcol = maxnumberofcol;
+    }
     var noofpages = Math.ceil(noofslot / (maxnumberofrow * noofcol));
-
-    this.setState({ numberofpages: noofpages });
-    setTimeout(() => { this.createFakeArray(this.state.numberofpages) }, 1);
-    return noofpages;
+    this.setState({numberofpages: noofpages});
+    setTimeout(() => { 
+      var fakearray = createFakeArray(this.state.numberofpages); 
+      this.setState({numberofpages_fakearray: fakearray});
+    },1);
+    return noofpages
   }
 
-  createFakeArray(numberofpages) {
-    var myArray1 = [];
-    setTimeout(() => {
-      for (var i = 1; i <= numberofpages; i++) {
-        myArray1.push({ id: `${i}` });
-      };
-      this.setState({numberofpages_fakearray: myArray1 });
-    }, 1);
+  renderBeverageData(noofcol, noofslot, data, pagenumber){
+    var numberofpages = this.initializeLayout(noofcol, noofslot);
+    var processedData = processFullData(noofcol, noofslot, data, pagenumber, numberofpages);
+    console.log(processedData);
+    this.setState({importantdata: processedData});
   }
 
-  processFullData(noofcol, noofslot, data, pagenumber) {
-    var noofpages = this.findLayoutArrangementInfo(noofcol, noofslot);
-    var noofrow = Math.ceil(noofslot / (noofpages * noofcol));
-    //console.log(`number of pages: ${noofpages}`);
-    //console.log(`number of row: ${noofrow}`);
-    //console.log(`number of col: ${noofcol}`);
-    //console.log(`number of slot: ${noofslot}`);
-    //console.log(`fake_array: ${this.state.numberofpages_fakearray.length}`);
-    var count = 1;
-    if (pagenumber > 1) {
-      count = count + noofrow * noofcol * (pagenumber - 1);
+  autoSwitchToOtherPages(numberofpages, currentpagenumber){
+    if(currentpagenumber == numberofpages)
+    {
+      this.loadBeveragePage(1);
     }
-    var processedData = [];
+    else {
+      this.navigateBetweenPages(currentpagenumber, true, numberofpages);
+    }
+  }
 
-    for (var i = 1; i <= noofrow; i++) {
-      processedData.push({
-        rowid: `${i}`,
-        rowdata: [],
-      });
-      for (var c = 1; c <= noofcol; c++) {
-        if(count>data.length){
-          processedData[i - 1].rowdata.push(
-            {
-              slotsetting: count,
-              validslots: "6",
-              name: "Not found",
-              price: "10000",
-              imagesource: "https://i.ibb.co/svNhV97/bohuc.png"
-            }
-          );
-        }
-        else {
-          processedData[i - 1].rowdata.push(data[count - 1]);
-        }
-        count = count + 1;
-      }
-      if (i == noofrow) {
-        //console.log(processedData);
-        this.setState({importantdata: processedData});
-      }
-      //if (count > data.length) {break;}
+  onSlidingIntervalTick() {
+    this.autoSwitchToOtherPages(
+      this.state.numberofpages,
+      this.state.currentpagenumber,
+    );
+  }
+
+  processSlidingInterval(intervalnumber){
+    var intervalnumberyeah = intervalnumber;
+    if (intervalnumberyeah < 10000) {
+      intervalnumberyeah = 10000;
     }
+    clearInterval(this.slidinginterval);
+    this.slidinginterval = setInterval(() => {
+      this.onSlidingIntervalTick();
+    }, intervalnumberyeah);
   }
 
   onOneItemTouched(lala){
@@ -135,16 +221,32 @@ class HomePage extends Component {
   }
 
   componentDidMount() {
-    this.setState({numberofslot: this.props.settingdatalist[0].datainput});
-    this.setState({numberofcolumns: this.props.settingdatalist[1].datainput});
-    this.processFullData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, 1);
+    this.renderBeverageData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, 1, this.state.numberofpages);
+    this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
+  }
+
+  componentWillUnmount(){
+    clearInterval(this.slidinginterval);
   }
 
   render() {
     return (
       <View style={{ display: "flex", flex: 1 }}>
-        <View style={{ height: 40, alignItems: "flex-start", justifyContent: "center", paddingLeft: 20 }}>
-          <Text style={{ fontWeight: "bold", fontSize: 19, color: "#3e81f4" }}>WELCOME TO ICOCO</Text>
+        <Modal transparent={true} isVisible={this.state.isVisible}>
+          <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+            <Text style={{color:'white'}}>I am the modal cotent!</Text>
+            <Button title="Yeu dc k" onPress={()=>{this.onOneItemTouched(1)}}/>
+          </View>
+        </Modal>
+        <View style={{ height: 40, alignItems: "center", justifyContent: "flex-start", paddingLeft: 20, flexDirection: "row" }}>
+            <View>
+                <Text style={{ fontWeight: "bold", fontSize: 19, color: "#3e81f4" }}>WELCOME TO ICOCO!</Text>
+            </View>
+            <View style={{flex: 1, display: "flex", alignItems: "flex-end", paddingRight: 30}}>
+                <Text style={{ fontWeight: "bold", fontSize: 19, color: "green" }}>
+                  ĐÃ NẠP: {this.state.cashavailable} VNĐ
+                </Text>
+            </View>
         </View>
 
         <View style={{ display: "flex", flex: 1, padding: 5 }}>
@@ -165,7 +267,7 @@ class HomePage extends Component {
         </View>
         <View style={{ height: 50, width: "100%", backgroundColor: "lightblue", alignItems: "center", justifyContent: "center", display: "flex", flexDirection: "row" }}>
           <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
-            <TouchableOpacity style={{ marginRight: 15 }} onPress={() => { }}>
+            <TouchableOpacity style={{ marginRight: 15 }} onPress={() => {this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
               <Icon
                 size={40}
                 name="md-help-circle"
@@ -184,7 +286,7 @@ class HomePage extends Component {
           <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
             <View style={{ height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row" }}>
               <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,false)}}>
+                <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,false, this.state.numberofpages);this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
                   <Icon
                     size={40}
                     name="ios-arrow-back"
@@ -197,7 +299,7 @@ class HomePage extends Component {
                 {
                   this.state.numberofpages_fakearray.map((pageArray) => {
                     return (
-                      <TouchableOpacity key={pageArray.id} onPress={(index) => { console.log(`page number ${pageArray.id}`);this.processFullData(this.state.numberofcolumns, this.state.numberofslot, this.props.initialbeveragestate, pageArray.id); this.setState({currentpagenumber: pageArray.id})}}>
+                      <TouchableOpacity key={pageArray.id} onPress={(index) => { this.renderBeverageData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, pageArray.id, this.state.numberofpages); this.setState({currentpagenumber: pageArray.id});this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
                         <PageButtonItem pagenumber={pageArray.id} />
                       </TouchableOpacity>
                     )
@@ -206,7 +308,7 @@ class HomePage extends Component {
               </View>
 
               <View style={{ width: 45, height: "100%", alignItems: "center", justifyContent: "center" }}>
-                <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,true)}}>
+                <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,true, this.state.numberofpages);this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
                   <Icon
                     size={40}
                     name="ios-arrow-forward"
@@ -218,13 +320,12 @@ class HomePage extends Component {
           </View>
 
           <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
-            <Button title="Hủy Giao Dịch" />
+            <Button title="Hủy Giao Dịch" onPress={()=>{console.log(findMaxNumberOfColumn(Dimensions.get('window').width,150))}}/>
           </View>
         </View>
       </View>
     );
   }
-
 };
 
 function mapStateToProps(state){
