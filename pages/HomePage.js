@@ -12,8 +12,9 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { RNSerialport, definitions, actions } from 'react-native-serialport';
 import RenderRow from "../components/RenderRow";
 import PageButtonItem from "../components/PageButtonItem";
+import PaymentMethodPicker from "../components/PaymentMethodPicker";
 import {connect} from 'react-redux';
-import { findMaxNumberOfColumn, findMaxNumberOfRow, createFakeArray, findNextPage, processFullData } from './layoututils';
+import {findMaxNumberOfColumn, findMaxNumberOfRow, createFakeArray, findNextPage, processFullData, isNotZero} from './layoututils';
 import Modal from 'react-native-modal';
 
 class HomePage extends Component {
@@ -29,7 +30,8 @@ class HomePage extends Component {
       currentpagenumber: 1,
       numberofpages_fakearray: [{ id: "1" }],
       importantdata: [],
-      cashavailable: 20000,
+      cashavailable: 10000,
+      pickedItemId: "Bò húc",
       servisStarted: false,
       connected: false,
       usbAttached: false,
@@ -42,9 +44,43 @@ class HomePage extends Component {
     };
     this.startUsbListener = this.startUsbListener.bind(this);
     this.stopUsbListener = this.stopUsbListener.bind(this);
-    this.slidinginterval = setInterval(()=>{this.onSlidingIntervalTick()},5000);
+    this.slidinginterval = setInterval(()=>{this.onSlidingIntervalTick()}, 5000);
     this.startUsbListener = this.startUsbListener.bind(this);
     this.stopUsbListener = this.stopUsbListener.bind(this);
+  }
+
+  processCashReceivedFromVendingMachine(amountofmoney) {
+    this.setState({cashavailable: this.state.cashavailable + amountofmoney});} 
+
+  onCancelTransaction(availablecash) {
+    if (availablecash <= 0) return;
+
+    if (availablecash >= 10000) {
+      this.requestFirmware('Withdraw', 10000);
+      Alert.alert(
+        "Hủy Thành Công",
+        "Mời Bạn Nhận Tiền Thừa" );
+      this.setState({cashavailable: 0});
+    }
+
+    else {
+      Alert.alert(
+        "Chú ý", 
+        "Rất tiếc! Không thối được tiền có mệnh giá dưới 10000. Bạn muốn hủy số tiền hay nạp thêm tiền?",
+        [
+          {
+            text: 'Nạp thêm',
+            onPress: () => console.log('Nạp thêm'),
+          },
+          {text: 'Hủy', onPress: () => this.setState({cashavailable: 0})},
+        ],
+        {cancelable: false},
+      )
+    }
+  }
+
+  requestFirmware(action, params) {
+    console.log(action + params);
   }
 
   startUsbListener() {
@@ -53,7 +89,7 @@ class HomePage extends Component {
       this.onServiceStarted,
       this
     );
-    
+
     DeviceEventEmitter.addListener(
       actions.ON_SERVICE_STOPPED,
       this.onServiceStopped,
@@ -111,15 +147,19 @@ class HomePage extends Component {
       this.onDeviceAttached();
     }
   }
+
   onServiceStopped() {
     this.setState({ servisStarted: false });
   }
+
   onDeviceAttached() {
     this.setState({ usbAttached: true });
   }
+
   onDeviceDetached() {
     this.setState({ usbAttached: false });
   }
+
   onConnected() {
     this.setState({ connected: true });
   }
@@ -216,8 +256,21 @@ class HomePage extends Component {
     }, intervalnumberyeah);
   }
 
+  processTransaction(transactionApproved, isCash){
+    if(transactionApproved){
+      if(isCash) {this.props.navigation.navigate('CashTransaction', {id:`${this.state.pickedItemId}`});}
+      else {this.props.navigation.navigate('MomoTransaction', {id:`${this.state.pickedItemId}`});}
+    }
+    else {
+      this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
+    }
+    this.setState({isVisible: false});
+  }
+
   onOneItemTouched(lala){
-    this.props.navigation.navigate('Transaction', {id:`${lala}`});
+    this.setState({isVisible: true});
+    this.setState({pickedItemId: lala});
+    clearInterval(this.slidinginterval);
   }
 
   componentDidMount() {
@@ -233,9 +286,8 @@ class HomePage extends Component {
     return (
       <View style={{ display: "flex", flex: 1 }}>
         <Modal transparent={true} isVisible={this.state.isVisible}>
-          <View style={{ flex: 1, backgroundColor: 'transparent' }}>
-            <Text style={{color:'white'}}>I am the modal cotent!</Text>
-            <Button title="Yeu dc k" onPress={()=>{this.onOneItemTouched(1)}}/>
+          <View style={{display: "flex", flex: 1, alignItems: "center", justifyContent: "center"}}>
+            <PaymentMethodPicker onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}} />
           </View>
         </Modal>
         <View style={{ height: 40, alignItems: "center", justifyContent: "flex-start", paddingLeft: 20, flexDirection: "row" }}>
@@ -320,7 +372,7 @@ class HomePage extends Component {
           </View>
 
           <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
-            <Button title="Hủy Giao Dịch" onPress={()=>{console.log(findMaxNumberOfColumn(Dimensions.get('window').width,150))}}/>
+              {isNotZero(this.state.cashavailable) && (<Button title="Hủy Giao Dịch" onPress={()=>{this.onCancelTransaction(this.state.cashavailable)}}/>)}
           </View>
         </View>
       </View>

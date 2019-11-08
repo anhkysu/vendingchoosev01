@@ -73,3 +73,14 @@ export const processFullData = function (noofcol, noofslot, data, pagenumber, no
         }
     }
 }
+
+export const isNotZero = function(number){
+    if(number!=0) 
+    {
+        return true;
+    }
+
+    else {
+        return false;
+    }
+}

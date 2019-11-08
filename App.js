@@ -6,7 +6,8 @@ import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
-import ProcessTransaction from "./pages/ProcessTransaction";
+import ProcessCashTransaction from "./pages/ProcessCashTransaction";
+import ProcessMomoTransaction from "./pages/ProcessMomoTransaction";
 import SettingPage1 from "./pages/SettingPage1";
 import SettingPage2 from "./pages/SettingPage2";
 import settingpage1reducer from "./redux/reducers/SettingPage1Reducer"
@@ -47,8 +48,11 @@ const StackNavigatorPublic = createStackNavigator({
       header: null,
     }),
   },
-  Transaction: {
-    screen: ProcessTransaction,
+  CashTransaction: {
+    screen: ProcessCashTransaction,
+  },
+  MomoTransaction: {
+    screen: ProcessMomoTransaction,
   },
 })
 
