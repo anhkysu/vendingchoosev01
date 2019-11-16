@@ -34,13 +34,17 @@ class ProcessCashTransaction extends Component {
         this.itemprice = this.props.navigation.state.params.itemprice;
         this.itemid = this.props.navigation.state.params.itemid;
         this.cashavailable = this.props.navigation.state.params.cashavailable;
-
         this.processCashChange(this.cashavailable, this.itemprice);
     }
 
     getBeverageItemFromVendingMachine(slotsetting){
         var getstring = JSON.stringify({"label":"buy","type":"cash","itemid":slotsetting});
         this.sendSerialData(getstring);
+    }
+
+    goBackHome(data){
+        this.props.navigation.goBack();
+        this.props.navigation.state.params.onReturnHome(data);
     }
 
     checkRemainderFromVendingMachine(){
@@ -230,7 +234,7 @@ class ProcessCashTransaction extends Component {
                     </View>
 
                     <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
-                        <Button title="Hủy Giao Dịch" />
+                        <Button title="Hủy Giao Dịch" onPress={()=>{this.goBackHome('SUCCESS')}}/>
                     </View>
                 </View>
             </View>

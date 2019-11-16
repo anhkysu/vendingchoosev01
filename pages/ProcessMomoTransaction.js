@@ -44,6 +44,11 @@ class ProcessMomoTransaction extends Component {
         this.sendSerialData(getstring);
     }
 
+    goBackHome(data){
+        this.props.navigation.goBack();
+        this.props.navigation.state.params.onReturnHome(data);
+    }
+
 
 
     startUsbListener() {

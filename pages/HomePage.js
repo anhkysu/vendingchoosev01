@@ -47,8 +47,16 @@ class HomePage extends Component {
     this.slidinginterval = setInterval(()=>{this.onSlidingIntervalTick()}, 5000);
   }
 
-  processCashReceivedFromVendingMachine(amountofmoney) {
-    this.setState({cashavailable: this.state.cashavailable + amountofmoney});} 
+  onCashInputFromVM(amountOfCash) {
+    var feedbackString = "";
+    if(typeof amountOfCash == Number){
+      feedbackString = JSON.stringify({topic:"cashinput", type:"response", content: {status: "ok"}})
+    }
+    else {
+      feedbackString = JSON.stringify({topic:"cashinput", type:"response", content: {status: "error", error: "Firmware send wrong data format of cash input"}});
+    }
+    this.sendSerialData(feedbackString);
+}
 
   withdrawCashFromVendingMachine(amountofmoney){
     var cashstring = JSON.stringify({label:"withdraw", value: amountofmoney});
@@ -191,26 +199,36 @@ class HomePage extends Component {
       this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.HEXSTRING
     ) {
       const payload = RNSerialport.hexToUtf16(data.payload);
-      var receivedobject = JSON.parse(payload);
-
-      if(receivedobject.label == "cashinput"){
-        var cashreceived = receivedobject.value;
-        if(cashreceived == undefined) {
-          this.respondStatusToFirmware(false);
-          return;
-        }
-        this.processCashReceivedFromVendingMachine(cashreceived);
-        this.respondStatusToFirmware(true);
+      var inputObject = JSON.parse(payload);
+      var topic = inputObject.topic || 'none';
+      var type = inputObject.type || 'none';
+      var content = inputObject.content || 'none';
+      if(topic == 'none' || content == 'none'){
+        console.log("Firmware requests unrecognized!");
       }
-
-      else if(receivedobject.fwstatus != ""){
-        if(receivedobject.fwstatus == "ok") {}
-        else if(receivedobject.fwstatus == "error") {}
-      }
-
       else {
-        Alert.alert("Chú ý", "Firmware gửi tín hiệu lạ quá, không phân tích được!");
+        switch(topic){
+          case 'cashinput':
+            if(type != 'request') {
+              console.log('Firmware should send a request with type of request');
+              return;
+            }
+            else{
+              this.onCashInputFromVM(content.value);
+            }
+            break;
+            
+          case '':
+            break;
+
+          default: 
+            break;
+        }
       }
+     
+    
+
+      
     }
   }
 
@@ -284,10 +302,24 @@ class HomePage extends Component {
     }, intervalnumberyeah);
   }
 
+  
+  onReturnHome(data){
+    switch(data){
+      case 'SUCCESS':
+        Alert.alert("Thanh Cong");
+        break;
+      case 'FAILED':
+        Alert.alert("That Bai");
+        break;
+      default:
+        break;
+    }
+  }
+
   processTransaction(transactionApproved, isCash, cashavailable){
     if(transactionApproved){
-      if(isCash) {this.props.navigation.navigate('CashTransaction', {itemid:`${this.state.pickedItem.slotSetting}`,itemname:`${this.state.pickedItem.name}`, itemprice:`${this.state.pickedItem.price}`, cashavailable:`${cashavailable}`});}
-      else {this.props.navigation.navigate('MomoTransaction',  {itemid:`${this.state.pickedItem.slotSetting}`, itemname:`${this.state.pickedItem.name}`,itemprice:`${this.state.pickedItem.price}`});}
+      if(isCash) {this.props.navigation.navigate('CashTransaction', {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`,itemname:`${this.state.pickedItem.name}`, itemprice:`${this.state.pickedItem.price}`, cashavailable:`${cashavailable}`});}
+      else {this.props.navigation.navigate('MomoTransaction',  {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`, itemname:`${this.state.pickedItem.name}`,itemprice:`${this.state.pickedItem.price}`});}
     }
     else {
       this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
