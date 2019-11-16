@@ -30,8 +30,8 @@ class HomePage extends Component {
       currentpagenumber: 1,
       numberofpages_fakearray: [{ id: "1" }],
       importantdata: [],
-      cashavailable: 10000,
-      pickedItemId: "Bò húc",
+      cashavailable: 15000,
+      pickedItem: {},
       servisStarted: false,
       connected: false,
       usbAttached: false,
@@ -45,18 +45,27 @@ class HomePage extends Component {
     this.startUsbListener = this.startUsbListener.bind(this);
     this.stopUsbListener = this.stopUsbListener.bind(this);
     this.slidinginterval = setInterval(()=>{this.onSlidingIntervalTick()}, 5000);
-    this.startUsbListener = this.startUsbListener.bind(this);
-    this.stopUsbListener = this.stopUsbListener.bind(this);
   }
 
   processCashReceivedFromVendingMachine(amountofmoney) {
     this.setState({cashavailable: this.state.cashavailable + amountofmoney});} 
 
+  withdrawCashFromVendingMachine(amountofmoney){
+    var cashstring = JSON.stringify({label:"withdraw", value: amountofmoney});
+    this.sendSerialData(cashstring);
+  }
+
+  respondStatusToFirmware(isOk){
+    var responsestring = ( isOk ? JSON.stringify({appstatus:"ok"}) : JSON.stringify({appstatus:"error"}));
+    this.sendSerialData(responsestring);
+  }
+
   onCancelTransaction(availablecash) {
     if (availablecash <= 0) return;
 
     if (availablecash >= 10000) {
-      this.requestFirmware('Withdraw', 10000);
+      var withdrawcash = Math.floor(availablecash/10000);
+      this.requestFirmware('withdraw', withdrawcash);
       Alert.alert(
         "Hủy Thành Công",
         "Mời Bạn Nhận Tiền Thừa" );
@@ -70,12 +79,12 @@ class HomePage extends Component {
         [
           {
             text: 'Nạp thêm',
-            onPress: () => console.log('Nạp thêm'),
+            onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
           },
           {text: 'Hủy', onPress: () => this.setState({cashavailable: 0})},
         ],
         {cancelable: false},
-      )
+      );
     }
   }
 
@@ -172,17 +181,36 @@ class HomePage extends Component {
     console.error(error);
   }
 
-  onReadData(data) {
+  onReadData(data){
     if (
       this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.INTARRAY
     ) {
       const payload = RNSerialport.intArrayToUtf16(data.payload);
-      this.setState({ output: this.state.output + payload });
+      this.setState({ output: this.state.output + payload }); 
     } else if (
       this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.HEXSTRING
     ) {
       const payload = RNSerialport.hexToUtf16(data.payload);
-      this.setState({ output: this.state.output + payload });
+      var receivedobject = JSON.parse(payload);
+
+      if(receivedobject.label == "cashinput"){
+        var cashreceived = receivedobject.value;
+        if(cashreceived == undefined) {
+          this.respondStatusToFirmware(false);
+          return;
+        }
+        this.processCashReceivedFromVendingMachine(cashreceived);
+        this.respondStatusToFirmware(true);
+      }
+
+      else if(receivedobject.fwstatus != ""){
+        if(receivedobject.fwstatus == "ok") {}
+        else if(receivedobject.fwstatus == "error") {}
+      }
+
+      else {
+        Alert.alert("Chú ý", "Firmware gửi tín hiệu lạ quá, không phân tích được!");
+      }
     }
   }
 
@@ -256,10 +284,10 @@ class HomePage extends Component {
     }, intervalnumberyeah);
   }
 
-  processTransaction(transactionApproved, isCash){
+  processTransaction(transactionApproved, isCash, cashavailable){
     if(transactionApproved){
-      if(isCash) {this.props.navigation.navigate('CashTransaction', {id:`${this.state.pickedItemId}`});}
-      else {this.props.navigation.navigate('MomoTransaction', {id:`${this.state.pickedItemId}`});}
+      if(isCash) {this.props.navigation.navigate('CashTransaction', {itemid:`${this.state.pickedItem.slotSetting}`,itemname:`${this.state.pickedItem.name}`, itemprice:`${this.state.pickedItem.price}`, cashavailable:`${cashavailable}`});}
+      else {this.props.navigation.navigate('MomoTransaction',  {itemid:`${this.state.pickedItem.slotSetting}`, itemname:`${this.state.pickedItem.name}`,itemprice:`${this.state.pickedItem.price}`});}
     }
     else {
       this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
@@ -267,9 +295,20 @@ class HomePage extends Component {
     this.setState({isVisible: false});
   }
 
-  onOneItemTouched(lala){
-    this.setState({isVisible: true});
-    this.setState({pickedItemId: lala});
+  onOneItemTouched(itemInfoObject) {
+    this.setState({pickedItem: itemInfoObject});
+
+    if(this.state.cashavailable == 0){
+      this.setState({isVisible: true});
+    }
+
+    else if(this.state.cashavailable > 0 && this.state.cashavailable < itemInfoObject.price){
+      Alert.alert("Thông báo", `Ví của bạn đang có ${this.state.cashavailable} vnđ. Cần nạp thêm tiền để mua được 1 sản phẩm ${itemInfoObject.name}`);
+    }
+
+    else {
+      setTimeout(()=>{ this.processTransaction(true, true, this.state.cashavailable)}, 0);
+    }
     clearInterval(this.slidinginterval);
   }
 
