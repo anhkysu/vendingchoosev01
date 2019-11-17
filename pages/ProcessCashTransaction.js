@@ -6,16 +6,19 @@ import {
     Button,
     Image,
     Alert,
-    DeviceEventEmitter
+    DeviceEventEmitter,
+    ActivityIndicator,
 } from 'react-native';
 import { connect } from "react-redux";
 import Icon from "react-native-vector-icons/Ionicons";
 import { RNSerialport, definitions, actions } from 'react-native-serialport';
+import Modal from 'react-native-modal';
 
 class ProcessCashTransaction extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            isVisible: false,
             isCash: true,
             transactionstarted: true,
             servisStarted: false,
@@ -37,14 +40,39 @@ class ProcessCashTransaction extends Component {
         this.processCashChange(this.cashavailable, this.itemprice);
     }
 
-    getBeverageItemFromVendingMachine(slotsetting){
-        var getstring = JSON.stringify({"label":"buy","type":"cash","itemid":slotsetting});
-        this.sendSerialData(getstring);
+    getItemFromVMWithCash(slotsetting, itemname){
+        this.setState({isVisible: true});
+        var getString = JSON.stringify({topic:"buywithcash", type: "request", content: {slotsetting: slotsetting, name: itemname}});
+        if(this.state.connected){
+            this.sendSerialData(getString);
+            return;
+        }
+        setTimeout(()=>{
+            this.onGetItemResultFromVMWithCash(true, 'none', 'none', 'Timeout but no response');
+        },5000)
     }
+
+    onGetItemResultFromVMWithCash(isSuccess, slotsetting, itemname, errorIfExists){
+        this.setState({isVisible: false});
+        if(isSuccess){
+            Alert.alert("Thông báo", "Mời Quý Khách nhận nước. Chúc Quý Khách ngon miệng!");
+            this.goBackHome("SUCCESS");
+        }
+        else{
+            Alert.alert("Thông báo", "Máy gặp sự cố kỹ thuật. Mời Quý Khách thử lại lần nữa!");
+            this.showError(errorIfExists);
+            this.goBackHome("FAILED");
+        }
+        
+    }   
 
     goBackHome(data){
         this.props.navigation.goBack();
         this.props.navigation.state.params.onReturnHome(data);
+    }
+
+    showError(error){
+        console.log(error);
     }
 
     checkRemainderFromVendingMachine(){
@@ -161,19 +189,32 @@ class ProcessCashTransaction extends Component {
             this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.HEXSTRING
         ) {
             const payload = RNSerialport.hexToUtf16(data.payload);
-            var receivedobject = JSON.parse(payload);
-            if(receivedobject.fwstatus != "" && receivedobject.fwstatus != undefined){
-                if(receivedobject.fwstatus == "ok") {
-                    this.handleTransactionResult(true);
-                }
-                else if(receivedobject.fwstatus == "error") {
-                    this.handleTransactionResult(false);
-                }
-              }
-        
+            var inputObject = JSON.parse(payload);
+            var topic = inputObject.topic || 'none';
+            var type = inputObject.type || 'none';
+            var content = inputObject.content || 'none';
+            if (topic == 'none' || content == 'none') {
+                console.log("Firmware requests unrecognized!");
+            }
             else {
-                Alert.alert("Chú ý", "Firmware gửi tín hiệu lạ quá, không phân tích được!");
-              }
+                switch (topic) {
+                    case 'buywithcash':
+                        if (type != 'response') {
+                            this.showError('Firmware should send a request with type of response');
+                            return;
+                        }
+                        else {
+                            var isSuccess = (content.status == 'ok' ? true : false);
+                            var errorIfExists = content.error || 'none';
+                            this.onGetItemResultFromVMWithCash(isSuccess, content.slotsetting, content.name, errorIfExists);
+                        }
+                        break;
+
+
+                    default:
+                        break;
+                }
+            }
         }
     }
 
@@ -192,15 +233,15 @@ class ProcessCashTransaction extends Component {
     processCashChange(cashavailable, itemprice) {
         var cashChange = cashavailable % itemprice;
         if (cashChange == 0 || (cashChange % 10000) == 0) {
-            this.sendTransactionToFirmware();
+            this.getItemFromVMWithCash(thí.slotsetting, this.itemname);
         }
         else if ((cashChange % 10000) != 0) {
             Alert.alert(
                 "Chú Ý",
                 "Máy không thối được tiền lẻ có mệnh giá dưới 10000 vnđ. Bạn có muốn tiếp tục mua",
                 [
-                    { text: "Tiếp Tục", onPress: () => { this.getBeverageItemFromVendingMachine(this.itemid) } },
-                    { text: "Hủy Giao Dịch", onPress: () => { this.props.navigation.navigate('Home') } }
+                    { text: "Tiếp Tục", onPress: () => { this.getItemFromVMWithCash(this.slotsetting, this.itemname)}},
+                    { text: "Hủy Giao Dịch", onPress: () => { this.goBackHome("none") } }
                 ]
             )
         }
@@ -209,6 +250,11 @@ class ProcessCashTransaction extends Component {
     render() {
         return (
             <View style={{ display: "flex", flex: 1 }}>
+                <Modal transparent={true} isVisible={this.state.isVisible}>
+                    <View style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
+                        <ActivityIndicator size="large" />
+                    </View>
+                </Modal>
                 <View style={{ display: "flex", flex: 1, padding: 5, flexDirection: "row" }}>
 
                     <View style={{ displat: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
@@ -242,7 +288,7 @@ class ProcessCashTransaction extends Component {
     }
 
     componentDidMount() {
-
+        
     }
 
     componentWillUnmount(){

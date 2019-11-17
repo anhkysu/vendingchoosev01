@@ -12,11 +12,18 @@ import {
 import { connect } from "react-redux";
 import Icon from "react-native-vector-icons/Ionicons";
 import { RNSerialport, definitions, actions } from 'react-native-serialport';
+import Modal from 'react-native-modal';
+
+const mybase64 = "data:image/png;base64,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";
 
 class ProcessMomoTransaction extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            secondCount: 30,
+            qrCodeImage: "",
+            isVisible: false,
+            isProcessing: false,
             isCash: true,
             transactionstarted: true,
             readyForMomo: false,
@@ -37,11 +44,61 @@ class ProcessMomoTransaction extends Component {
         this.itemid = this.props.navigation.state.params.itemid;
         this.cashavailable = this.props.navigation.state.params.cashavailable;
         this.qrscanningtimeout;
+        this.countingInterval;
     }
 
-    getBeverageItemFromVendingMachine(slotsetting){
-        var getstring = JSON.stringify({"label":"buy","type":"momo","itemid":slotsetting});
-        this.sendSerialData(getstring);
+    getItemFromVMWithMomo(slotsetting, itemname){
+        this.setState({isVisible: true});
+        var getstring = JSON.stringify({topic:"buywithmomo", type:"request", content: {slotsetting: slotsetting, name: itemname}});
+        if(this.state.connected){
+            this.sendSerialData(getstring);;
+            return;
+        }
+        setTimeout(()=>{
+            this.onGetItemResultFromVMWithMomo(false, 'none', 'none', 'none', 'none');
+        },5000);
+
+        setTimeout(()=>{
+            this.onMomoSignalResult(true);
+        },15000);
+    }
+
+    onGetItemResultFromVMWithMomo(isSuccess, slotsetting, itemname, base64IfOk, errorIfExists){
+        this.setState({isVisible: false})
+        if(isSuccess){
+            this.setState({qrCodeImage: mybase64});
+            this.startQrScanningTimeout(40000);
+        }
+        else{
+            this.showError(errorIfExists);
+            Alert.alert(
+                "Thông báo",
+                "Máy gặp sự cố kỹ thuật. Mời Quý Khách thử lại lần nữa!",
+                [
+                    {text: "Đã hiểu", onPress: ()=>{this.goBackHome("FAILED")} }
+                ]
+            );
+            
+        }
+    }
+
+    onMomoSignalResult(isSuccess){
+        var feedbackString = JSON.stringify({topic: "momosignal", type: "response", content: {status: "ok"}});
+        clearInterval(this.countingInterval);
+        clearTimeout(this.qrscanningtimeout);
+
+        if(this.state.connected){
+            this.sendSerialData(feedbackString);
+        }
+        if(isSuccess){
+            Alert.alert("Thông báo", "Mời Quý Khách nhận nước. Chúc Quý Khách ngon miệng!");
+            this.goBackHome("SUCCESS");
+        }
+        else{
+            Alert.alert("Thông báo", "Máy gặp sự cố kỹ thuật. Tiền sẽ được trả về ví Momo của bạn trong vòng 24h!");
+            this.showError(errorIfExists);
+            this.goBackHome("FAILED");
+        }
     }
 
     goBackHome(data){
@@ -49,7 +106,9 @@ class ProcessMomoTransaction extends Component {
         this.props.navigation.state.params.onReturnHome(data);
     }
 
-
+    showError(error){
+        console.log(error);
+    }
 
     startUsbListener() {
         DeviceEventEmitter.addListener(
@@ -148,20 +207,44 @@ class ProcessMomoTransaction extends Component {
             this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.HEXSTRING
         ) {
             const payload = RNSerialport.hexToUtf16(data.payload);
-            var receivedobject = JSON.parse(payload);
-            if(receivedobject.fwstatus != "" && receivedobject.fwstatus != undefined){
-                if(receivedobject.fwstatus == "ok") {}
-                else if(receivedobject.fwstatus == "error") {}
-              }
-
-            else if(receivedobject.label == "momostatus"){
-                if(receivedobject.value == "success") {}
-                else if(receivedobject.value == "failed") {}
+            var inputObject = JSON.parse(payload);
+            var topic = inputObject.topic || 'none';
+            var type = inputObject.type || 'none';
+            var content = inputObject.content || 'none';
+            if (topic == 'none' || content == 'none') {
+                console.log("Firmware requests unrecognized!");
             }
-        
             else {
-                Alert.alert("Chú ý", "Firmware gửi tín hiệu lạ quá, không phân tích được!");
+                switch (topic) {
+                    case 'buywithmomo':
+                        if (type != 'response') {
+                            this.showError('Firmware should send a request with type of response');
+                            return;
+                        }
+                        else {
+                            var isSuccess = (content.status == 'ok' ? true : false);
+                            var errorIfExists = content.error || 'none';
+                            var base64IfOk = content.base64 || 'none';
+                            this.onGetItemResultFromVMWithMomo(isSuccess, content.slotsetting, content.name, base64IfOk, errorIfExists);
+                        }
+                        break;
+
+                    case 'momosignal':
+                            if (type != 'request') {
+                                this.showError('Firmware should send a request with type of request');
+                                return;
+                            }
+                            else {
+                                var isSuccess = content.issuccess;
+                                this.onMomoSignalResult(isSuccess);
+                            }
+                            break;
+
+                    default:
+                        break;
+                }
             }
+            
         }
     }
 
@@ -174,7 +257,7 @@ class ProcessMomoTransaction extends Component {
             "Xin Lỗi",
             "Không thể thực hiện thanh toán Momo lúc này!",
             [
-                {text: "OK", onPress: ()=>{this.props.navigation.navigate('Home')} }
+                {text: "OK", onPress: ()=>{this.goBackHome("FAILED")} }
             ]
         )
     }
@@ -191,22 +274,25 @@ class ProcessMomoTransaction extends Component {
 
     startQrScanningTimeout(millis){
         var waitin = millis;
-        if(waitin < 75000) waitin = 75000;
-        this.qrscanningtimeout = setTimeout(()=>{this.onCancelTransaction},waitin)
+        if(waitin < 75000) waitin = 25000;
+        this.countSeconds(waitin);
+        this.qrscanningtimeout = setTimeout(()=>{this.onCancelTransaction()},waitin)
     }
 
-    onFirmwareSuccess(){
-
+    countSeconds(millis){
+        this.setState({secondCount: millis/1000});
+        this.countingInterval = setInterval(()=>{
+            if(this.state.secondCount == 0){
+                clearInterval(this.countingInterval);
+                return;
+            }
+            this.setState({secondCount: this.state.secondCount - 1});
+        }, 1000);
     }
+
 
     onFirmwareFailed(){
-        Alert.alert(
-            "Xin Lỗi",
-            "Máy bán hàng bị lỗi. Tiền sẽ được trả về ví Momo của bạn trong vòng 24h",
-            [
-                {text: "Đã hiểu", onPress: ()=>{this.props.navigation.navigate('Home')} }
-            ]
-        )
+        
     }
 
     onFirmwareReceiveQrCode(data){
@@ -220,16 +306,24 @@ class ProcessMomoTransaction extends Component {
     render() {
         return (
             <View style={{ display: "flex", flex: 1 }}>
+                <Modal transparent={true} isVisible={this.state.isVisible}>
+                    <View style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
+                        <ActivityIndicator size="large" />
+                    </View>
+                </Modal>
                 <View style={{ display: "flex", flex: 1, padding: 5, flexDirection: "column" }}>
                     <View style={{ height:70 ,display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <Text style={{ fontSize: 20 }}>
                             Mời Quý Khách Chờ Quét QR Để Trả Tiền Cho 1 {this.itemname}
                         </Text>
+                        <Text>
+                            Giao dịch sẽ hết hạn trong {this.state.secondCount}
+                        </Text>
                     </View>
                     <View style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <View style={{width: 170, height: 170, backgroundColor: "whitesmoke", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 5}}>
                             {
-                                (this.state.readyForMomo ? <Image style={{width:150, height:150}} source={require("./testqr.png")}/> : <ActivityIndicator size="large"/>)
+                                (!this.state.isVisible ? <Image style={{width:150, height:150}} source={{uri: mybase64}}/> : null)
                             }
                         </View>
                     </View>
@@ -259,7 +353,7 @@ class ProcessMomoTransaction extends Component {
     }
 
     componentDidMount() {
-
+        this.getItemFromVMWithMomo(this.slotsetting, this.itemname);
     }
 
     componentWillUnmount(){

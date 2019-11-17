@@ -6,7 +6,8 @@ import {
   Button,
   Dimensions,
   Alert,
-  DeviceEventEmitter
+  DeviceEventEmitter,
+  ActivityIndicator
 } from 'react-native';
 import Icon from "react-native-vector-icons/Ionicons";
 import { RNSerialport, definitions, actions } from 'react-native-serialport';
@@ -16,11 +17,13 @@ import PaymentMethodPicker from "../components/PaymentMethodPicker";
 import {connect} from 'react-redux';
 import {findMaxNumberOfColumn, findMaxNumberOfRow, createFakeArray, findNextPage, processFullData, isNotZero} from './layoututils';
 import Modal from 'react-native-modal';
+import { RotationGestureHandler } from 'react-native-gesture-handler';
 
 class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isProcessing: false,
       isVisible: false,
       numberofslot: 16,
       numberofcolumns: 3,
@@ -50,7 +53,8 @@ class HomePage extends Component {
   onCashInputFromVM(amountOfCash) {
     var feedbackString = "";
     if(typeof amountOfCash == Number){
-      feedbackString = JSON.stringify({topic:"cashinput", type:"response", content: {status: "ok"}})
+      feedbackString = JSON.stringify({topic:"cashinput", type:"response", content: {status: "ok"}});
+      this.setState({cashavailable: this.state.cashavailable + amountOfCash});
     }
     else {
       feedbackString = JSON.stringify({topic:"cashinput", type:"response", content: {status: "error", error: "Firmware send wrong data format of cash input"}});
@@ -58,9 +62,53 @@ class HomePage extends Component {
     this.sendSerialData(feedbackString);
 }
 
-  withdrawCashFromVendingMachine(amountofmoney){
-    var cashstring = JSON.stringify({label:"withdraw", value: amountofmoney});
-    this.sendSerialData(cashstring);
+  withdrawCashFromVM(cashNumber) {
+    this.setState({ isProcessing: true, isVisible: true });
+    var requestString = JSON.stringify({ topic: "withdrawcash", type: "request", content: { value: cashNumber } });
+    if (this.state.connected) {
+      this.sendSerialData(requestString);
+      return
+    }
+    setTimeout(() => {
+      this.onWithdrawCashResult(true, "Timeout but no response");
+    }, 5000);
+  }
+
+  onWithdrawCashResult(isSuccess, errorIfExists){
+    this.setState({isVisible: false, isProcessing: false});
+    if(isSuccess){
+      this.setState({cashavailable: 0});
+    }
+    else {
+      this.showError(errorIfExists);
+    }
+  }
+
+  checkCashRemain(additionalNote){
+    this.setState({ isProcessing: true, isVisible: true});
+    var requestString = JSON.stringify({topic:"cashremain", type:"request", content: {note: additionalNote}});
+    if(this.state.connected){
+      this.sendSerialData(requestString);
+      return;
+    }
+    setTimeout(()=>{
+      this.onCheckCashRemainResult(false, 'none', 'Timeout but no response');
+    },5000);
+  }
+
+  onCheckCashRemainResult(isSuccess, value, error ){
+    this.setState({isVisible: false, isProcessing: false});
+    if(isSuccess){
+      if(typeof value == Number){
+        this.setState({cashavailable: value})
+      }
+      else {
+        this.showError("Wrong type of cash input");
+      }
+    }
+    else {
+      this.showError("Failed to check cash remained from vending machine!")
+    }
   }
 
   respondStatusToFirmware(isOk){
@@ -68,31 +116,45 @@ class HomePage extends Component {
     this.sendSerialData(responsestring);
   }
 
+  showError(error){
+    console.log(error);
+  }
+
   onCancelTransaction(availablecash) {
     if (availablecash <= 0) return;
 
-    if (availablecash >= 10000) {
-      var withdrawcash = Math.floor(availablecash/10000);
-      this.requestFirmware('withdraw', withdrawcash);
+    if(availablecash < 10000){
       Alert.alert(
-        "Hủy Thành Công",
-        "Mời Bạn Nhận Tiền Thừa" );
-      this.setState({cashavailable: 0});
-    }
-
-    else {
-      Alert.alert(
-        "Chú ý", 
-        "Rất tiếc! Không thối được tiền có mệnh giá dưới 10000. Bạn muốn hủy số tiền hay nạp thêm tiền?",
+        "Thông Báo",
+        "Máy không có khả năng thối tiền lẻ. Mời nạp thêm tiền hoặc hủy bỏ số tiền này!" ),
         [
           {
             text: 'Nạp thêm',
             onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
           },
           {text: 'Hủy', onPress: () => this.setState({cashavailable: 0})},
-        ],
-        {cancelable: false},
-      );
+        ]
+    }
+
+    else {
+      if((availablecash%10000) == 0){
+        this.withdrawCashFromVM(availablecash);
+      }
+
+      else {
+        Alert.alert(
+          "Thông Báo",
+          "Máy không thối được tiền lẻ có mệnh giá dưới 10000. Quý khách có muốn rút số tiền còn lại hay nạp thêm?",
+          [
+            {
+              text: 'Nạp thêm',
+              onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
+            },
+            {text: 'Tiếp tục rút', onPress: () => this.withdrawCashFromVM(availablecash - (availablecash%10000))},
+            {text: 'Hủy số tiền', onPress: () => this.setState({cashavailable: 0})},
+          ]
+        );
+      }
     }
   }
 
@@ -210,7 +272,7 @@ class HomePage extends Component {
         switch(topic){
           case 'cashinput':
             if(type != 'request') {
-              console.log('Firmware should send a request with type of request');
+              this.showError('Firmware should send a request with type of request');
               return;
             }
             else{
@@ -218,17 +280,34 @@ class HomePage extends Component {
             }
             break;
             
-          case '':
+          case 'withdrawcash':
+            if(type != 'response'){
+              this.showError("Firmware should respond with type of response");
+              return;
+            }
+            else{
+              var isSuccess = (content.status == 'ok' ? true : false);
+              var errorIfExists = content.error || 'none';
+              this.onWithdrawCashResult(isSuccess, errorIfExists)
+            }
             break;
+
+          case 'cashremain':
+            if(type != 'response'){
+              this.showError("Firmware should respond with type of response");
+              return;
+            }
+            else {
+              var isSuccess = (content.status == 'ok' ? true : false);
+              var errorIfExists = content.error || 'none';
+              var valueIfOk = content.value || 'none';
+              this.onCheckCashRemainResult(isSuccess, valueIfOk, errorIfExists);
+            }
 
           default: 
             break;
         }
-      }
-     
-    
-
-      
+      }      
     }
   }
 
@@ -358,7 +437,13 @@ class HomePage extends Component {
       <View style={{ display: "flex", flex: 1 }}>
         <Modal transparent={true} isVisible={this.state.isVisible}>
           <View style={{display: "flex", flex: 1, alignItems: "center", justifyContent: "center"}}>
-            <PaymentMethodPicker onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}} />
+            {
+              this.state.isProcessing 
+              ?
+              <ActivityIndicator size="large"/>
+              :
+              <PaymentMethodPicker onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}} />
+            }
           </View>
         </Modal>
         <View style={{ height: 40, alignItems: "center", justifyContent: "flex-start", paddingLeft: 20, flexDirection: "row" }}>
@@ -443,7 +528,7 @@ class HomePage extends Component {
           </View>
 
           <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
-              {isNotZero(this.state.cashavailable) && (<Button title="Hủy Giao Dịch" onPress={()=>{this.onCancelTransaction(this.state.cashavailable)}}/>)}
+              {isNotZero(this.state.cashavailable) && (<Button title="Hủy Giao Dịch" onPress={()=>{this.onCancelTransaction(this.state.availablecash)}}/>)}
           </View>
         </View>
       </View>
