@@ -17,7 +17,7 @@ import PaymentMethodPicker from "../components/PaymentMethodPicker";
 import {connect} from 'react-redux';
 import {findMaxNumberOfColumn, findMaxNumberOfRow, createFakeArray, findNextPage, processFullData, isNotZero} from './layoututils';
 import Modal from 'react-native-modal';
-import { RotationGestureHandler } from 'react-native-gesture-handler';
+import {processSerialDataToFirmware } from '../business/AppToFirmwareFunctions';
 
 class HomePage extends Component {
   constructor(props) {
@@ -432,6 +432,10 @@ class HomePage extends Component {
     clearInterval(this.slidinginterval);
   }
 
+  mySendingSerial(data) {
+    console.log(data);
+}
+
   render() {
     return (
       <View style={{ display: "flex", flex: 1 }}>
@@ -475,7 +479,7 @@ class HomePage extends Component {
         </View>
         <View style={{ height: 50, width: "100%", backgroundColor: "lightblue", alignItems: "center", justifyContent: "center", display: "flex", flexDirection: "row" }}>
           <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
-            <TouchableOpacity style={{ marginRight: 15 }} onPress={() => {this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
+            <TouchableOpacity style={{ marginRight: 15 }} onPress={() => {processSerialDataToFirmware("hii","test",{value: "kaka"}, this.mySendingSerial);}}>
               <Icon
                 size={40}
                 name="md-help-circle"
