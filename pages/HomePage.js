@@ -17,12 +17,14 @@ import PaymentMethodPicker from "../components/PaymentMethodPicker";
 import {connect} from 'react-redux';
 import {findMaxNumberOfColumn, findMaxNumberOfRow, createFakeArray, findNextPage, processFullData, isNotZero} from './layoututils';
 import Modal from 'react-native-modal';
-import {processSerialDataToFirmware } from '../business/AppToFirmwareFunctions';
-import {onReceivedUiRequirement } from '../business/FirmwareToAppFunctions';
+import {processSerialDataToFirmware,
+        sendSelectedSlot } from '../business/AppToFirmwareFunctions';
+import {onReceivedUiRequirement, onPaymentMethodDisplayRequirement } from '../business/FirmwareToAppFunctions';
 
 class HomePage extends Component {
   constructor(props) {
     super(props);
+    //#region - STATE
     this.state = {
       isProcessing: false,
       isVisible: false,
@@ -46,142 +48,81 @@ class HomePage extends Component {
       sendText: "HELLO",
       returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING
     };
+    //#endregion
     this.startUsbListener = this.startUsbListener.bind(this);
     this.stopUsbListener = this.stopUsbListener.bind(this);
-    this.slidinginterval = setInterval(()=>{this.onSlidingIntervalTick()}, 5000);
-  }
-  
-  showPickedProductUi(cashOrMomo){
-    this.props.navigation.navigate('CashTransaction', 
-    {onReturnHome: (data) => this.onReturnHome(data), 
-      itemid:`${this.state.pickedItem.slotSetting}`,
-      itemname:`${this.state.pickedItem.name}`, 
-      itemprice:`${this.state.pickedItem.price}`, 
-      cashavailable:`${cashavailable}`});
+    this.slidinginterval = setInterval(() => { this.onSlidingIntervalTick() }, 5000);
+    this.showUiPickedProduct = this.showUiPickedProduct.bind(this);
+    this.showUiPaymentMethod = this.showUiPaymentMethod.bind(this);
+    this.sendSerialData = this.sendSerialData.bind(this);
   }
 
-  subsequenceFunction(a,b){
-    console.log(a + "With" + b);
+  //#region - Testing Function
+  testFirmwareToAppFunction() {
+    this.onItemTouched({slotSetting:"kakak"});
+  }
+  //#endregion
+
+  //#region - Showing Specific Ui for different purposes
+  showLoadingUi(){
+    this.setState({isProcessing: true});
   }
 
-  testFirmwareToAppFunction(){
-    onReceivedUiRequirement(1, "CashTransaction", this.subsequenceFunction);
+  hideLoadingUi(){
+    this.setState({isProcessing: false});
   }
 
-
-
-  onCashInputFromVM(amountOfCash) {
-    var feedbackString = "";
-    if(typeof amountOfCash == Number){
-      feedbackString = JSON.stringify({topic:"cashinput", type:"response", content: {status: "ok"}});
-      this.setState({cashavailable: this.state.cashavailable + amountOfCash});
+  showUiPickedProduct(thisUiDescription, cashOrMomo){
+    console.log(thisUiDescription);
+    if(cashOrMomo == "CashTransaction"){
+      this.props.navigation.navigate('CashTransaction', 
+      {onReturnHome: (data) => this.onReturnHome(data), 
+        itemid:`${this.state.pickedItem.slotSetting}`,
+        itemname:`${this.state.pickedItem.name}`, 
+        itemprice:`${this.state.pickedItem.price}`, 
+        cashavailable:`${this.state.cashavailable}`});
     }
-    else {
-      feedbackString = JSON.stringify({topic:"cashinput", type:"response", content: {status: "error", error: "Firmware send wrong data format of cash input"}});
-    }
-    this.sendSerialData(feedbackString);
-}
-
-  withdrawCashFromVM(cashNumber) {
-    this.setState({ isProcessing: true, isVisible: true });
-    var requestString = JSON.stringify({ topic: "withdrawcash", type: "request", content: { value: cashNumber } });
-    if (this.state.connected) {
-      this.sendSerialData(requestString);
-      return
-    }
-    setTimeout(() => {
-      this.onWithdrawCashResult(true, "Timeout but no response");
-    }, 5000);
-  }
-
-  onWithdrawCashResult(isSuccess, errorIfExists){
-    this.setState({isVisible: false, isProcessing: false});
-    if(isSuccess){
-      this.setState({cashavailable: 0});
-    }
-    else {
-      this.showError(errorIfExists);
+    else if(cashOrMomo == "MomoTransaction"){
+      this.props.navigation.navigate('MomoTransaction',  
+      {onReturnHome: (data) => this.onReturnHome(data), 
+        itemid:`${this.state.pickedItem.slotSetting}`, 
+        itemname:`${this.state.pickedItem.name}`,
+        itemprice:`${this.state.pickedItem.price}`});
     }
   }
 
-  checkCashRemain(additionalNote){
-    this.setState({ isProcessing: true, isVisible: true});
-    var requestString = JSON.stringify({topic:"cashremain", type:"request", content: {note: additionalNote}});
-    if(this.state.connected){
-      this.sendSerialData(requestString);
-      return;
-    }
-    setTimeout(()=>{
-      this.onCheckCashRemainResult(false, 'none', 'Timeout but no response');
-    },5000);
+  showUiPleaseGetProduct(a,b){
+    Alert.alert("Thông báo", "Mời Quý Khách nhận sản phẩm ở bên dưới!");
   }
 
-  onCheckCashRemainResult(isSuccess, value, error ){
-    this.setState({isVisible: false, isProcessing: false});
-    if(isSuccess){
-      if(typeof value == Number){
-        this.setState({cashavailable: value})
-      }
-      else {
-        this.showError("Wrong type of cash input");
-      }
-    }
-    else {
-      this.showError("Failed to check cash remained from vending machine!")
-    }
+  showUiThankYou(a,b){
+    Alert.alert("Thông báo", "Xin cảm ơn quý khách!");
   }
 
-  respondStatusToFirmware(isOk){
-    var responsestring = ( isOk ? JSON.stringify({appstatus:"ok"}) : JSON.stringify({appstatus:"error"}));
-    this.sendSerialData(responsestring);
+  showUiPleaseGetCashRemain(a,b){
+    Alert.alert("Thông báo", "Xin mời Quý Khách nhận tiền thừa!");
   }
 
-  showError(error){
-    console.log(error);
+  showCannotGiveCashRemainUi(a,b){
+    Alert.alert("Thông báo", "Không thể thối tiền thừa cho Quý Khách!");
   }
 
-  onCancelTransaction(availablecash) {
-    if (availablecash <= 0) return;
-
-    if(availablecash < 10000){
-      Alert.alert(
-        "Thông Báo",
-        "Máy không có khả năng thối tiền lẻ. Mời nạp thêm tiền hoặc hủy bỏ số tiền này!" ),
-        [
-          {
-            text: 'Nạp thêm',
-            onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
-          },
-          {text: 'Hủy', onPress: () => this.setState({cashavailable: 0})},
-        ]
-    }
-
-    else {
-      if((availablecash%10000) == 0){
-        this.withdrawCashFromVM(availablecash);
-      }
-
-      else {
-        Alert.alert(
-          "Thông Báo",
-          "Máy không thối được tiền lẻ có mệnh giá dưới 10000. Quý khách có muốn rút số tiền còn lại hay nạp thêm?",
-          [
-            {
-              text: 'Nạp thêm',
-              onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
-            },
-            {text: 'Tiếp tục rút', onPress: () => this.withdrawCashFromVM(availablecash - (availablecash%10000))},
-            {text: 'Hủy số tiền', onPress: () => this.setState({cashavailable: 0})},
-          ]
-        );
-      }
-    }
+  showUiMomoTransactionStatus(a, isSuccessful){
+    var infoHere = "Giao dịch Momo" + (isSuccessful ? " thành công!" : " thất bại!");
+    Alert.alert("Thông báo", infoHere);
   }
 
-  requestFirmware(action, params) {
-    console.log(action + params);
+  showUiMomoLostConnection(a, b){
+    Alert.alert("Thông báo", "Mất mạng Internet. Không thể thực hiện giao dịch Momo lúc này!");
   }
 
+  showUiPaymentMethod(){
+    this.setState({isVisible: true});
+  }
+
+  //#endregion
+
+  //#region - Usb Serial Interface
   startUsbListener() {
     DeviceEventEmitter.addListener(
       actions.ON_SERVICE_STARTED,
@@ -332,9 +273,146 @@ class HomePage extends Component {
   }
 
   sendSerialData(string){
-    RNSerialport.writeString(string);
+    this.showLoadingUi();
+    if(this.state.connected){
+      RNSerialport.writeString(string);
+    }
+    else {
+      setTimeout(()=>{this.hideLoadingUi();},3000);
+    }
+  }
+  //#endregion
+
+  //#region - Categorized 
+  onItemTouched(itemInfoObject) {
+    sendSelectedSlot(itemInfoObject.slotSetting, this.sendSerialData);
   }
 
+  //#endregion 
+
+  //#region - Uncategorized Code
+  updateCashAvailable(inputCashOrRefreshCash, cashValue){
+    if(inputCashOrRefreshCash == "inputCash"){
+      this.setState({cashavailable: this.state.cashavailable + cashValue});
+    }
+    else if(inputCashOrRefreshCash == "refreshCash"){
+      this.setState({cashavailable: cashValue});
+    }
+  }
+
+  onCashInputFromVM(amountOfCash) {
+    var feedbackString = "";
+    if(typeof amountOfCash == Number){
+      feedbackString = JSON.stringify({topic:"cashinput", type:"response", content: {status: "ok"}});
+      this.setState({cashavailable: this.state.cashavailable + amountOfCash});
+    }
+    else {
+      feedbackString = JSON.stringify({topic:"cashinput", type:"response", content: {status: "error", error: "Firmware send wrong data format of cash input"}});
+    }
+    this.sendSerialData(feedbackString);
+}
+
+  withdrawCashFromVM(cashNumber) {
+    this.setState({ isProcessing: true, isVisible: true });
+    var requestString = JSON.stringify({ topic: "withdrawcash", type: "request", content: { value: cashNumber } });
+    if (this.state.connected) {
+      this.sendSerialData(requestString);
+      return
+    }
+    setTimeout(() => {
+      this.onWithdrawCashResult(true, "Timeout but no response");
+    }, 5000);
+  }
+
+  onWithdrawCashResult(isSuccess, errorIfExists){
+    this.setState({isVisible: false, isProcessing: false});
+    if(isSuccess){
+      this.setState({cashavailable: 0});
+    }
+    else {
+      this.showError(errorIfExists);
+    }
+  }
+
+  checkCashRemain(additionalNote){
+    this.setState({ isProcessing: true, isVisible: true});
+    var requestString = JSON.stringify({topic:"cashremain", type:"request", content: {note: additionalNote}});
+    if(this.state.connected){
+      this.sendSerialData(requestString);
+      return;
+    }
+    setTimeout(()=>{
+      this.onCheckCashRemainResult(false, 'none', 'Timeout but no response');
+    },5000);
+  }
+
+  onCheckCashRemainResult(isSuccess, value, error ){
+    this.setState({isVisible: false, isProcessing: false});
+    if(isSuccess){
+      if(typeof value == Number){
+        this.setState({cashavailable: value})
+      }
+      else {
+        this.showError("Wrong type of cash input");
+      }
+    }
+    else {
+      this.showError("Failed to check cash remained from vending machine!")
+    }
+  }
+
+  respondStatusToFirmware(isOk){
+    var responsestring = ( isOk ? JSON.stringify({appstatus:"ok"}) : JSON.stringify({appstatus:"error"}));
+    this.sendSerialData(responsestring);
+  }
+
+  showError(error){
+    console.log(error);
+  }
+
+  onCancelTransaction(availablecash) {
+    if (availablecash <= 0) return;
+
+    if(availablecash < 10000){
+      Alert.alert(
+        "Thông Báo",
+        "Máy không có khả năng thối tiền lẻ. Mời nạp thêm tiền hoặc hủy bỏ số tiền này!" ),
+        [
+          {
+            text: 'Nạp thêm',
+            onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
+          },
+          {text: 'Hủy', onPress: () => this.setState({cashavailable: 0})},
+        ]
+    }
+
+    else {
+      if((availablecash%10000) == 0){
+        this.withdrawCashFromVM(availablecash);
+      }
+
+      else {
+        Alert.alert(
+          "Thông Báo",
+          "Máy không thối được tiền lẻ có mệnh giá dưới 10000. Quý khách có muốn rút số tiền còn lại hay nạp thêm?",
+          [
+            {
+              text: 'Nạp thêm',
+              onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
+            },
+            {text: 'Tiếp tục rút', onPress: () => this.withdrawCashFromVM(availablecash - (availablecash%10000))},
+            {text: 'Hủy số tiền', onPress: () => this.setState({cashavailable: 0})},
+          ]
+        );
+      }
+    }
+  }
+
+  requestFirmware(action, params) {
+    console.log(action + params);
+  }
+
+  
   navigateBetweenPages(currentpagenumber, forwarddirection, numberofpages){
     var nextpage = findNextPage(currentpagenumber, forwarddirection, numberofpages);
     this.loadBeveragePage(nextpage);
@@ -443,6 +521,13 @@ class HomePage extends Component {
     clearInterval(this.slidinginterval);
   }
 
+  mySendingSerial(data) {
+    console.log(data);
+  }
+  //#endregion
+
+  //#region - Component
+
   componentDidMount() {
     this.renderBeverageData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, 1, this.state.numberofpages);
     this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
@@ -452,9 +537,9 @@ class HomePage extends Component {
     clearInterval(this.slidinginterval);
   }
 
-  mySendingSerial(data) {
-    console.log(data);
-}
+  //#endregion 
+
+  //#region - Main View
 
   render() {
     return (
@@ -468,6 +553,11 @@ class HomePage extends Component {
               :
               <PaymentMethodPicker onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}} />
             }
+          </View>
+        </Modal>
+        <Modal transparent={true} isVisible={this.state.isProcessing}>
+          <View style={{display: "flex", flex: 1, alignItems: "center", justifyContent: "center"}}>
+            <ActivityIndicator size="large"/> 
           </View>
         </Modal>
         <View style={{ height: 40, alignItems: "center", justifyContent: "flex-start", paddingLeft: 20, flexDirection: "row" }}>
@@ -562,7 +652,12 @@ class HomePage extends Component {
       </View>
     );
   }
+
+  //#endregion
+
 };
+
+
 
 function mapStateToProps(state){
   return {
