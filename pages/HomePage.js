@@ -18,6 +18,7 @@ import {connect} from 'react-redux';
 import {findMaxNumberOfColumn, findMaxNumberOfRow, createFakeArray, findNextPage, processFullData, isNotZero} from './layoututils';
 import Modal from 'react-native-modal';
 import {processSerialDataToFirmware } from '../business/AppToFirmwareFunctions';
+import {onReceivedUiRequirement } from '../business/FirmwareToAppFunctions';
 
 class HomePage extends Component {
   constructor(props) {
@@ -31,7 +32,7 @@ class HomePage extends Component {
       minbeverageitemheight: 130,
       numberofpages: 1,
       currentpagenumber: 1,
-      numberofpages_fakearray: [{ id: "1" }],
+      numberofpages_fakearray: [],
       importantdata: [],
       cashavailable: 15000,
       pickedItem: {},
@@ -49,6 +50,25 @@ class HomePage extends Component {
     this.stopUsbListener = this.stopUsbListener.bind(this);
     this.slidinginterval = setInterval(()=>{this.onSlidingIntervalTick()}, 5000);
   }
+  
+  showPickedProductUi(cashOrMomo){
+    this.props.navigation.navigate('CashTransaction', 
+    {onReturnHome: (data) => this.onReturnHome(data), 
+      itemid:`${this.state.pickedItem.slotSetting}`,
+      itemname:`${this.state.pickedItem.name}`, 
+      itemprice:`${this.state.pickedItem.price}`, 
+      cashavailable:`${cashavailable}`});
+  }
+
+  subsequenceFunction(a,b){
+    console.log(a + "With" + b);
+  }
+
+  testFirmwareToAppFunction(){
+    onReceivedUiRequirement(1, "CashTransaction", this.subsequenceFunction);
+  }
+
+
 
   onCashInputFromVM(amountOfCash) {
     var feedbackString = "";
@@ -497,6 +517,10 @@ class HomePage extends Component {
 
           <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
             <View style={{ height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row" }}>
+              <Button
+                title="   TEST   "
+                onPress= {()=>{this.testFirmwareToAppFunction();}}
+              />
               <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,false, this.state.numberofpages);this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
                   <Icon

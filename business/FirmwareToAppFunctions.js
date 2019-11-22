@@ -12,11 +12,10 @@ const ListOfUi = [
 "Màn hình hiển thị không thể thối tiền thừa (10-2)",
 ]
 
-
-export const onReceivedUiRequirement = function (uiId, subsequenceFunction) {
-    if(typeof uiId != Number) return;
+export const onReceivedUiRequirement = function (uiId, additionalParams,subsequenceFunction) {
+    if(typeof uiId != 'number') return;
     var uiDescription = ListOfUi[uiId] || "none";
-    subsequenceFunction(uiDescription);
+    subsequenceFunction(uiDescription, additionalParams);
 }
 
 export const onPaymentMethodDisplayRequirement = function (showPaymentMethodFunction){
@@ -30,3 +29,8 @@ export const onUpdateCashAvailable = function (cashReceived, subsequenceFunction
 export const onGivingBackChangeDisabilityDisplayRequirement = function (showGivingBackChangeDisabilityDisplayFunction){
     showGivingBackChangeDisabilityDisplayFunction();
 }   
+
+export const onReceivedQrCode = function (base64String, showQrCodeFunction) {
+    showQrCodeFunction(base64String);
+}
+
