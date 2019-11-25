@@ -18,8 +18,12 @@ import {connect} from 'react-redux';
 import {findMaxNumberOfColumn, findMaxNumberOfRow, createFakeArray, findNextPage, processFullData, isNotZero} from './layoututils';
 import Modal from 'react-native-modal';
 import {processSerialDataToFirmware,
-        sendSelectedSlot } from '../business/AppToFirmwareFunctions';
-import {onReceivedUiRequirement, onPaymentMethodDisplayRequirement } from '../business/FirmwareToAppFunctions';
+        sendSelectedSlot,
+        sendContinueOrCancelTransaction } from '../business/AppToFirmwareFunctions';
+import {onReceivedUiRequirement, 
+        onPaymentMethodDisplayRequirement, 
+        onUpdateCashAvailable, 
+        onGivingBackInputDisabilityDisplayRequirement} from '../business/FirmwareToAppFunctions';
 
 class HomePage extends Component {
   constructor(props) {
@@ -55,15 +59,40 @@ class HomePage extends Component {
     this.showUiPickedProduct = this.showUiPickedProduct.bind(this);
     this.showUiPaymentMethod = this.showUiPaymentMethod.bind(this);
     this.sendSerialData = this.sendSerialData.bind(this);
+    this.updateCashAvailable = this.updateCashAvailable.bind(this);
+    this.pickUi = this.pickUi.bind(this);
   }
-
-  //#region - Testing Function
-  testFirmwareToAppFunction() {
-    this.onItemTouched({slotSetting:"kakak"});
-  }
-  //#endregion
 
   //#region - Showing Specific Ui for different purposes
+  pickUi(uiId, uiDescription, params){
+    switch (uiId) {
+      case 0:
+        this.showUiPickedProduct(uiDescription, params);
+        break;
+      case 1:
+        this.showUiThankYou(uiDescription, params);
+        break;
+      case 4:
+        this.showUiMomoTransactionStatus(1, false);
+        break;
+      case 5:
+        this.showUiMomoTransactionStatus(1, true);
+        break;
+      case 6:
+        this.showUiMomoLostConnection(uiDescription, params);
+        break;
+      case 7:
+        this.showUiPleaseGetCashRemain(uiDescription, params);
+        break;
+      case 8:
+        break;
+      case 9:
+        this.showUiCannotGiveCashRemain(uiDescription, params);
+        break;
+
+    }
+  }
+
   showLoadingUi(){
     this.setState({isProcessing: true});
   }
@@ -103,7 +132,7 @@ class HomePage extends Component {
     Alert.alert("Thông báo", "Xin mời Quý Khách nhận tiền thừa!");
   }
 
-  showCannotGiveCashRemainUi(a,b){
+  showUiCannotGiveCashRemain(a,b){
     Alert.alert("Thông báo", "Không thể thối tiền thừa cho Quý Khách!");
   }
 
@@ -118,6 +147,10 @@ class HomePage extends Component {
 
   showUiPaymentMethod(){
     this.setState({isVisible: true});
+  }
+
+  showGivingBackInputDisabilityDisplay(){
+    Alert.alert("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào!")
   }
 
   //#endregion
@@ -283,14 +316,17 @@ class HomePage extends Component {
   }
   //#endregion
 
+  //#region - Testing Function
+  testFunction() {
+    onReceivedUiRequirement(6, "asd", this.pickUi)
+  }
+  //#endregion
+
   //#region - Categorized 
   onItemTouched(itemInfoObject) {
     sendSelectedSlot(itemInfoObject.slotSetting, this.sendSerialData);
   }
 
-  //#endregion 
-
-  //#region - Uncategorized Code
   updateCashAvailable(inputCashOrRefreshCash, cashValue){
     if(inputCashOrRefreshCash == "inputCash"){
       this.setState({cashavailable: this.state.cashavailable + cashValue});
@@ -299,6 +335,48 @@ class HomePage extends Component {
       this.setState({cashavailable: cashValue});
     }
   }
+
+  onCancelTransaction(availablecash) {
+    if (availablecash <= 0) return;
+
+    if(availablecash < 10000){
+      Alert.alert(
+        "Thông Báo",
+        "Máy không có khả năng thối tiền lẻ. Mời nạp thêm tiền hoặc hủy bỏ số tiền này!" ),
+        [
+          {
+            text: 'Nạp thêm',
+            onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
+          },
+          {text: 'Hủy', onPress: () => this.setState({cashavailable: 0})},
+        ]
+    }
+
+    else {
+      if((availablecash%10000) == 0){
+        this.withdrawCashFromVM(availablecash);
+      }
+
+      else {
+        Alert.alert(
+          "Thông Báo",
+          "Máy không thối được tiền lẻ có mệnh giá dưới 10000. Quý khách có muốn rút số tiền còn lại hay nạp thêm?",
+          [
+            {
+              text: 'Nạp thêm',
+              onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
+            },
+            {text: 'Tiếp tục rút', onPress: () => this.withdrawCashFromVM(availablecash - (availablecash%10000))},
+            {text: 'Hủy số tiền', onPress: () => this.setState({cashavailable: 0})},
+          ]
+        );
+      }
+    }
+  }
+
+  //#endregion 
+
+  //#region - Uncategorized Code
 
   onCashInputFromVM(amountOfCash) {
     var feedbackString = "";
@@ -368,44 +446,6 @@ class HomePage extends Component {
 
   showError(error){
     console.log(error);
-  }
-
-  onCancelTransaction(availablecash) {
-    if (availablecash <= 0) return;
-
-    if(availablecash < 10000){
-      Alert.alert(
-        "Thông Báo",
-        "Máy không có khả năng thối tiền lẻ. Mời nạp thêm tiền hoặc hủy bỏ số tiền này!" ),
-        [
-          {
-            text: 'Nạp thêm',
-            onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
-          },
-          {text: 'Hủy', onPress: () => this.setState({cashavailable: 0})},
-        ]
-    }
-
-    else {
-      if((availablecash%10000) == 0){
-        this.withdrawCashFromVM(availablecash);
-      }
-
-      else {
-        Alert.alert(
-          "Thông Báo",
-          "Máy không thối được tiền lẻ có mệnh giá dưới 10000. Quý khách có muốn rút số tiền còn lại hay nạp thêm?",
-          [
-            {
-              text: 'Nạp thêm',
-              onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
-            },
-            {text: 'Tiếp tục rút', onPress: () => this.withdrawCashFromVM(availablecash - (availablecash%10000))},
-            {text: 'Hủy số tiền', onPress: () => this.setState({cashavailable: 0})},
-          ]
-        );
-      }
-    }
   }
 
   requestFirmware(action, params) {
@@ -609,7 +649,7 @@ class HomePage extends Component {
             <View style={{ height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row" }}>
               <Button
                 title="   TEST   "
-                onPress= {()=>{this.testFirmwareToAppFunction();}}
+                onPress= {()=>{this.testFunction();}}
               />
               <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,false, this.state.numberofpages);this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>

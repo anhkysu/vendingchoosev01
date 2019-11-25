@@ -9,6 +9,15 @@ export const sendSelectedSlot = function(slotId, sendSerialDataToFwFunction){
     sendSerialDataToFwFunction(selectedSlotString);
 }
 
+export const sendContinueOrCancelTransaction = function(ContinueOrCancel, sendSerialDataToFwFunction){
+    if(typeof ContinueOrCancel != 'number'){
+        console.log("Error, ContinueOrCancel must be a number");
+    }
+    var content = {value: ContinueOrCancel};
+    var continueOrCancelString = processSerialDataToFirmware("purchase", "event", content);
+    sendSerialDataToFwFunction(continueOrCancelString);
+}
+
 export const sendPaymentMethod = function (methodString, sendSerialDataToFwFunction){
     var content = {};
     switch(methodString){

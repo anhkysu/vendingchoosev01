@@ -228,4 +228,28 @@ Value: chuỗi dữ liệu hình qr code định dạng base64
 }
 ```
 Thông tin cài đặt tham khảo file setting đính kèm(sẽ thêm sau)
+
 ## Thông tin tiếp tục/hủy giao dịch
++ ### Android gửi xuống firmware tiếp tục hay hủy giao dịch (20)
+>Android request
+```json
+{
+  "topic":"purchase",
+  "type":"event",
+  "content":{"value":int}
+}
+```
+Value: 
++ 0: Hủy giao dịch
++ 1: Tiếp tục giao dịch
++ 2: ..
+>Firmware reponds
+```json
+{
+  "topic":"purchase",
+  "type":"response",
+  "content":{"status":"ok"}
+}
+```
+
+---

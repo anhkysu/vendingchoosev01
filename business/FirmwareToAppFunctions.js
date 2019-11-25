@@ -18,18 +18,18 @@ const ListOfUi = [
 export const onReceivedUiRequirement = function (uiId, additionalParams,subsequenceFunction) {
     if(typeof uiId != 'number') return;
     var uiDescription = ListOfUi[uiId] || "none";
-    subsequenceFunction(uiDescription, additionalParams);
+    subsequenceFunction(uiId, uiDescription, additionalParams);
 }
 
 export const onPaymentMethodDisplayRequirement = function (showPaymentMethodFunction){
     showPaymentMethodFunction();
 }
 
-export const onUpdateCashAvailable = function (cashReceived, subsequenceFunction){
-    subsequenceFunction(cashReceived);
+export const onUpdateCashAvailable = function (type,cashReceived,subsequenceFunction){
+    subsequenceFunction(type,cashReceived);
 }
 
-export const onGivingBackInputDisabilityDisplayRequirement = function (showGivingBackChangeDisabilityDisplayFunction){
+export const onGivingBackInputDisabilityDisplayRequirement = function (showGivingBackInputDisabilityDisplayFunction){
     showGivingBackInputDisabilityDisplayFunction();
 }   
 
