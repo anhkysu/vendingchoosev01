@@ -1,3 +1,4 @@
+//#region Import
 import React, { Component } from 'react';
 import {
   View,
@@ -19,11 +20,16 @@ import {findMaxNumberOfColumn, findMaxNumberOfRow, createFakeArray, findNextPage
 import Modal from 'react-native-modal';
 import {processSerialDataToFirmware,
         sendSelectedSlot,
-        sendContinueOrCancelTransaction } from '../business/AppToFirmwareFunctions';
+        sendContinueOrCancelTransaction,
+        sendUserFeedbackAboutDisabilityOfGivingBackCashChange,
+        sendPaymentMethod,
+        } from '../business/AppToFirmwareFunctions';
 import {onReceivedUiRequirement, 
         onPaymentMethodDisplayRequirement, 
         onUpdateCashAvailable, 
-        onGivingBackInputDisabilityDisplayRequirement} from '../business/FirmwareToAppFunctions';
+        onGivingBackInputDisabilityDisplayRequirement,
+        onReceivedQrCode} from '../business/FirmwareToAppFunctions';
+//#endregion
 
 class HomePage extends Component {
   constructor(props) {
@@ -60,7 +66,9 @@ class HomePage extends Component {
     this.showUiPaymentMethod = this.showUiPaymentMethod.bind(this);
     this.sendSerialData = this.sendSerialData.bind(this);
     this.updateCashAvailable = this.updateCashAvailable.bind(this);
-    this.pickUi = this.pickUi.bind(this);
+    this.showUiGivingBackInputDisability = this.showUiGivingBackInputDisability.bind(this);
+    this.feedbackAboutDisabledGivingBackCash = this.feedbackAboutDisabledGivingBackCash.bind(this);
+        this.pickUi = this.pickUi.bind(this);
   }
 
   //#region - Showing Specific Ui for different purposes
@@ -70,26 +78,34 @@ class HomePage extends Component {
         this.showUiPickedProduct(uiDescription, params);
         break;
       case 1:
+        this.showUiPleaseGetProduct(uiDescription, params);
+        break;
+      case 2:
         this.showUiThankYou(uiDescription, params);
         break;
-      case 4:
+      case 5:
         this.showUiMomoTransactionStatus(1, false);
         break;
-      case 5:
+      case 6:
         this.showUiMomoTransactionStatus(1, true);
         break;
-      case 6:
+      case 7:
         this.showUiMomoLostConnection(uiDescription, params);
         break;
-      case 7:
+      case 8:
         this.showUiPleaseGetCashRemain(uiDescription, params);
         break;
-      case 8:
-        break;
       case 9:
+        break;
+      case 10:
         this.showUiCannotGiveCashRemain(uiDescription, params);
         break;
-
+      case 11:
+        this.showUiMoreThan50000(uiDescription, params);
+        break;
+      case 12:
+        this.showUiNotEnoughToGiveBack(uiDescription, params);
+        break;
     }
   }
 
@@ -133,7 +149,14 @@ class HomePage extends Component {
   }
 
   showUiCannotGiveCashRemain(a,b){
-    Alert.alert("Thông báo", "Không thể thối tiền thừa cho Quý Khách!");
+    Alert.alert(
+    "Thông báo", 
+    "Không thể thối tiền thừa cho Quý Khách!",
+    [
+      {text:"Không cần thối tiền lẻ", onPress: ()=>{this.feedbackAboutDisabledGivingBackCash(true)}},
+      {text:"Nạp thêm", onPress: ()=>{this.showUiContinueOrCancel()}}
+    ]
+    );
   }
 
   showUiMomoTransactionStatus(a, isSuccessful){
@@ -149,8 +172,34 @@ class HomePage extends Component {
     this.setState({isVisible: true});
   }
 
-  showGivingBackInputDisabilityDisplay(){
-    Alert.alert("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào!")
+  showUiGivingBackInputDisability(){
+    Alert.alert("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào. Quý khách có muốn mua mà không cần thối tiền lẻ",
+    [
+      {text: "Không cần thối", onPress: () => {this.feedbackAboutDisabledGivingBackCash(true)}},
+      {text: "Rút tiền", onPress: () => {this.feedbackAboutDisabledGivingBackCash(false)}}
+    ]
+    ,
+    { cancelable: false }
+    )
+  }
+
+  showUiMoreThan50000(a,b){
+    Alert.alert("Thông báo", "Tổng tiền lớn hơn 50000 vnđ rồi!");
+  }
+
+  showUiNotEnoughToGiveBack(a,b){
+    Alert.alert("Thông báo", "Không đủ tiền thối rồi");
+  }
+
+  showUiContinueOrCancel(){
+    Alert.alert("Thông báo", "Có muốn tiếp tục không",
+    [
+      {text: "Tiếp tục", onPress: () => {sendContinueOrCancelTransaction(0, this.sendSerialData)}},
+      {text: "Hủy", onPress: () => {sendContinueOrCancelTransaction(1, this.sendSerialData)}}
+    ]
+    ,
+    { cancelable: false }
+    )
   }
 
   //#endregion
@@ -318,7 +367,8 @@ class HomePage extends Component {
 
   //#region - Testing Function
   testFunction() {
-    onReceivedUiRequirement(6, "asd", this.pickUi)
+    this.showUiPickedProduct("asd","MomoTransaction")
+    //onReceivedUiRequirement(7, "none", this.pickUi)
   }
   //#endregion
 
@@ -336,41 +386,28 @@ class HomePage extends Component {
     }
   }
 
-  onCancelTransaction(availablecash) {
-    if (availablecash <= 0) return;
+  onCancelTransaction() {
+    sendContinueOrCancelTransaction(0, this.sendSerialData);
+  }
 
-    if(availablecash < 10000){
-      Alert.alert(
-        "Thông Báo",
-        "Máy không có khả năng thối tiền lẻ. Mời nạp thêm tiền hoặc hủy bỏ số tiền này!" ),
-        [
-          {
-            text: 'Nạp thêm',
-            onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
-          },
-          {text: 'Hủy', onPress: () => this.setState({cashavailable: 0})},
-        ]
-    }
+  feedbackAboutDisabledGivingBackCash(userAccept){
+    sendUserFeedbackAboutDisabilityOfGivingBackCashChange(userAccept, this.sendSerialData);
+  }
 
-    else {
-      if((availablecash%10000) == 0){
-        this.withdrawCashFromVM(availablecash);
-      }
-
-      else {
-        Alert.alert(
-          "Thông Báo",
-          "Máy không thối được tiền lẻ có mệnh giá dưới 10000. Quý khách có muốn rút số tiền còn lại hay nạp thêm?",
-          [
-            {
-              text: 'Nạp thêm',
-              onPress: () => Alert.alert("Hướng dẫn", "Bỏ tiền có mệnh giá lớn hơn 10000 vnđ vào khe bên phải!"),
-            },
-            {text: 'Tiếp tục rút', onPress: () => this.withdrawCashFromVM(availablecash - (availablecash%10000))},
-            {text: 'Hủy số tiền', onPress: () => this.setState({cashavailable: 0})},
-          ]
-        );
-      }
+    
+  onReturnHome(data){
+    switch (data) {
+      case 'SUCCESS':
+        Alert.alert("Thanh Cong");
+        break;
+      case 'MOMO FAILED':
+        this.showUiMomoTransactionStatus("", false);
+        break;
+      case 'MOMO TIMEOUT':
+        this.showUiMomoTransactionStatus("", false);
+        break;
+      default:
+        break;
     }
   }
 
@@ -519,19 +556,7 @@ class HomePage extends Component {
     }, intervalnumberyeah);
   }
 
-  
-  onReturnHome(data){
-    switch(data){
-      case 'SUCCESS':
-        Alert.alert("Thanh Cong");
-        break;
-      case 'FAILED':
-        Alert.alert("That Bai");
-        break;
-      default:
-        break;
-    }
-  }
+
 
   processTransaction(transactionApproved, isCash, cashavailable){
     if(transactionApproved){
@@ -686,7 +711,7 @@ class HomePage extends Component {
           </View>
 
           <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
-              {isNotZero(this.state.cashavailable) && (<Button title="Hủy Giao Dịch" onPress={()=>{this.onCancelTransaction(this.state.availablecash)}}/>)}
+              {isNotZero(this.state.cashavailable) && (<Button title="Hủy Giao Dịch" onPress={()=>{this.onCancelTransaction()}}/>)}
           </View>
         </View>
       </View>

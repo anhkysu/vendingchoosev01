@@ -1,3 +1,4 @@
+//#region IMPORt 
 import React, { Component } from 'react';
 import {
     View,
@@ -13,6 +14,12 @@ import { connect } from "react-redux";
 import Icon from "react-native-vector-icons/Ionicons";
 import { RNSerialport, definitions, actions } from 'react-native-serialport';
 import Modal from 'react-native-modal';
+import {
+    sendUserFeedbackAboutDisabilityOfGivingBackCashChange,
+    } from '../business/AppToFirmwareFunctions';
+import { onReceivedUiRequirement,
+         onGivingBackInputDisabilityDisplayRequirement } from '../business/FirmwareToAppFunctions';
+//#endregion
 
 class ProcessCashTransaction extends Component {
     constructor(props) {
@@ -37,9 +44,65 @@ class ProcessCashTransaction extends Component {
         this.itemprice = this.props.navigation.state.params.itemprice;
         this.itemid = this.props.navigation.state.params.itemid;
         this.cashavailable = this.props.navigation.state.params.cashavailable;
-        this.processCashChange(this.cashavailable, this.itemprice);
+        this.sendSerialData = this.sendSerialData.bind(this);
+        this.showUiGivingBackInputDisability = this.showUiGivingBackInputDisability.bind(this);
+        this.pickUi = this.pickUi.bind(this);
+        //this.processCashChange(this.cashavailable, this.itemprice);
+    }
+    
+    //#region - Testing Purposes
+    testFunction(){
+        onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability)
+    }
+    //#endregion
+
+    //#region - Showing Specific Ui for different purposes
+    pickUi(uiId, uiDescription, params){
+        switch (uiId) {
+            case 11:
+                this.showUiMoreThan50000(uiDescription, params);
+                break;
+            case 12:
+                this.showUiNotEnoughToGiveBack(uiDescription, params);
+                break;
+        }
     }
 
+    showLoadingUi() {
+        this.setState({ isVisible: true });
+    }
+
+    hideLoadingUi() {
+        this.setState({ isVisible: false });
+    }
+    showUiMoreThan50000(a, b) {
+        Alert.alert("Thông báo", "Tổng tiền lớn hơn 50000 vnđ rồi!");
+    }
+
+    showUiNotEnoughToGiveBack(a, b) {
+        Alert.alert("Thông báo", "Không đủ tiền thối rồi");
+    }
+
+    showUiGivingBackInputDisability() {
+        Alert.alert("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào. Quý khách có muốn mua mà không cần thối tiền lẻ",
+            [
+                { text: "Không cần thối", onPress: () => { this.feedbackAboutDisabledGivingBackCash(true) } },
+                { text: "Rút tiền", onPress: () => { this.feedbackAboutDisabledGivingBackCash(false) } }
+            ]
+            ,
+            { cancelable: false }
+        )
+    }
+
+    //#endregion
+
+    //#region - Categorized Code
+    feedbackAboutDisabledGivingBackCash(userAccept) {
+        sendUserFeedbackAboutDisabilityOfGivingBackCashChange(userAccept, this.sendSerialData);
+    }
+    //#endregion
+
+    //#region - Uncategorized Code
     getItemFromVMWithCash(slotsetting, itemname){
         this.setState({isVisible: true});
         var getString = JSON.stringify({topic:"buywithcash", type: "request", content: {slotsetting: slotsetting, name: itemname}});
@@ -90,6 +153,25 @@ class ProcessCashTransaction extends Component {
         this.props.navigation.navigate('Home');
     }
 
+    processCashChange(cashavailable, itemprice) {
+        var cashChange = cashavailable % itemprice;
+        if (cashChange == 0 || (cashChange % 10000) == 0) {
+            this.getItemFromVMWithCash(thí.slotsetting, this.itemname);
+        }
+        else if ((cashChange % 10000) != 0) {
+            Alert.alert(
+                "Chú Ý",
+                "Máy không thối được tiền lẻ có mệnh giá dưới 10000 vnđ. Bạn có muốn tiếp tục mua",
+                [
+                    { text: "Tiếp Tục", onPress: () => { this.getItemFromVMWithCash(this.slotsetting, this.itemname)}},
+                    { text: "Hủy Giao Dịch", onPress: () => { this.goBackHome("none") } }
+                ]
+            )
+        }
+    }
+    //#endregion
+
+    //#region - Usb Serial Interface
     startUsbListener() {
         DeviceEventEmitter.addListener(
             actions.ON_SERVICE_STARTED,
@@ -219,34 +301,17 @@ class ProcessCashTransaction extends Component {
     }
 
     sendSerialData(string) {
-        RNSerialport.writeString(string);
-    }
-
-    onFirmwareAccept() {
-
-    }
-
-    sendTransactionToFirmware() {
-        console.log("sent transaction to firmware");
-    }
-
-    processCashChange(cashavailable, itemprice) {
-        var cashChange = cashavailable % itemprice;
-        if (cashChange == 0 || (cashChange % 10000) == 0) {
-            this.getItemFromVMWithCash(thí.slotsetting, this.itemname);
+        this.showLoadingUi();
+        if (this.state.connected) {
+            RNSerialport.writeString(string);
         }
-        else if ((cashChange % 10000) != 0) {
-            Alert.alert(
-                "Chú Ý",
-                "Máy không thối được tiền lẻ có mệnh giá dưới 10000 vnđ. Bạn có muốn tiếp tục mua",
-                [
-                    { text: "Tiếp Tục", onPress: () => { this.getItemFromVMWithCash(this.slotsetting, this.itemname)}},
-                    { text: "Hủy Giao Dịch", onPress: () => { this.goBackHome("none") } }
-                ]
-            )
+        else {
+            setTimeout(() => { this.hideLoadingUi(); }, 3000);
         }
     }
-
+    //#endregion
+    
+    //#region - Main View
     render() {
         return (
             <View style={{ display: "flex", flex: 1 }}>
@@ -280,12 +345,15 @@ class ProcessCashTransaction extends Component {
                     </View>
 
                     <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
+                        <Button title="Test" onPress={()=>{this.testFunction()}}/>
                         <Button title="Hủy Giao Dịch" onPress={()=>{this.goBackHome('SUCCESS')}}/>
                     </View>
                 </View>
             </View>
         );
     }
+
+    //#endregion
 
     componentDidMount() {
         

@@ -13,6 +13,11 @@ const ListOfUi = [
 "Màn hình mời nhận tiền thối (10) ok",
 "Màn hình chính chọn sản phẩm (10 - 1) ok",
 "Màn hình hiển thị không thể thối tiền thừa (10-2) ok",
+
+"Màn hình hiển thị tiền đưa vào lớn hơn 50k (14-2)",
+"Màn hình hiển thị không đủ tiền thối (14-1)",
+
+
 ]
 
 export const onReceivedUiRequirement = function (uiId, additionalParams,subsequenceFunction) {
@@ -37,3 +42,10 @@ export const onReceivedQrCode = function (base64String, showQrCodeFunction) {
     showQrCodeFunction(base64String);
 }
 
+export const onMomoTransactionResult = function (isSuccessful, subsequenceFunction){
+    subsequenceFunction(isSuccessful);
+}
+
+export const onMomoTransactionTimeout = function (subsequenceFunction){
+    subsequenceFunction();
+}
