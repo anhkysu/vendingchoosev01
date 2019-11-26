@@ -329,7 +329,7 @@ class ProcessCashTransaction extends Component {
                     </View>
                 </View>
 
-                <View style={{ height: 50, width: "100%", backgroundColor: "lightblue", alignItems: "center", justifyContent: "center", display: "flex", flexDirection: "row" }}>
+                <View style={{ height: Number(this.props.settingdatalist[7].datainput), width: "100%", backgroundColor: "lightblue", alignItems: "center", justifyContent: "center", display: "flex", flexDirection: "row" }}>
                     <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
                         <TouchableOpacity style={{ marginRight: 15 }} onPress={() => { }}>
                             <Icon

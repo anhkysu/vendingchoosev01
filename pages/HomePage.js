@@ -507,8 +507,11 @@ class HomePage extends Component {
   }
 
   initializeLayout(noofcol, noofslot) {
-    const maxnumberofcol = findMaxNumberOfColumn(Dimensions.get('window').width ,150);
-    const maxnumberofrow = findMaxNumberOfRow(Dimensions.get('window').height,  130);
+    const maxnumberofcol = findMaxNumberOfColumn(Dimensions.get('window').width, Number(this.props.settingdatalist[3].datainput));
+    const maxnumberofrow = findMaxNumberOfRow(Dimensions.get('window').height 
+                                              - Number(this.props.settingdatalist[6].datainput) 
+                                              - Number(this.props.settingdatalist[7].datainput)
+                                            ,  Number(this.props.settingdatalist[4].datainput));
     if (noofcol > maxnumberofcol) {
       noofcol = maxnumberofcol;
     }
@@ -555,8 +558,6 @@ class HomePage extends Component {
       this.onSlidingIntervalTick();
     }, intervalnumberyeah);
   }
-
-
 
   processTransaction(transactionApproved, isCash, cashavailable){
     if(transactionApproved){
@@ -625,12 +626,12 @@ class HomePage extends Component {
             <ActivityIndicator size="large"/> 
           </View>
         </Modal>
-        <View style={{ height: 40, alignItems: "center", justifyContent: "flex-start", paddingLeft: 20, flexDirection: "row" }}>
+        <View style={{ height: Number(this.props.settingdatalist[6].datainput), alignItems: "center", justifyContent: "flex-start", paddingLeft: 20, flexDirection: "row" }}>
             <View>
-                <Text style={{ fontWeight: "bold", fontSize: 19, color: "#3e81f4" }}>WELCOME TO ICOCO!</Text>
+                <Text style={{ fontWeight: "bold", fontSize: Number(this.props.settingdatalist[8].datainput), color: "#3e81f4" }}>WELCOME TO ICOCO!</Text>
             </View>
             <View style={{flex: 1, display: "flex", alignItems: "flex-end", paddingRight: 30}}>
-                <Text style={{ fontWeight: "bold", fontSize: 19, color: "green" }}>
+                <Text style={{ fontWeight: "bold", fontSize: Number(this.props.settingdatalist[8].datainput), color: "green" }}>
                   ĐÃ NẠP: {this.state.cashavailable} VNĐ
                 </Text>
             </View>
@@ -645,6 +646,9 @@ class HomePage extends Component {
                     myMethod={(data)=> {this.onOneItemTouched(data)}}
                     key={dataItem.rowid}
                     rowDataInput={dataItem.rowdata}
+                    height={Number(this.props.settingdatalist[4].datainput)}
+                    width={Number(this.props.settingdatalist[3].datainput)}
+                    itemFontSize={Number(this.props.settingdatalist[5].datainput)}
                   />
                 )
               })
@@ -652,18 +656,18 @@ class HomePage extends Component {
           </View>
 
         </View>
-        <View style={{ height: 50, width: "100%", backgroundColor: "lightblue", alignItems: "center", justifyContent: "center", display: "flex", flexDirection: "row" }}>
-          <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
+        <View style={{ height: Number(this.props.settingdatalist[7].datainput), width: "100%", backgroundColor: "lightblue", alignItems: "center", justifyContent: "center", display: "flex", flexDirection: "row" }}>
+          <View style={{ minWidth: 150, height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
             <TouchableOpacity style={{ marginRight: 15 }} onPress={() => {processSerialDataToFirmware("hii","test",{value: "kaka"}, this.mySendingSerial);}}>
               <Icon
-                size={40}
+                size={2.5* Number(this.props.settingdatalist[9].datainput)}
                 name="md-help-circle"
                 color="#3e81f4"
               />
             </TouchableOpacity>
             <TouchableOpacity style={{ marginRight: 15 }} onPress={() => { this.props.navigation.navigate('LoginPage') }}>
               <Icon
-                size={40}
+                size={2.5* Number(this.props.settingdatalist[9].datainput)}
                 name="md-settings"
                 color="#3e81f4"
               />
@@ -679,7 +683,7 @@ class HomePage extends Component {
               <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,false, this.state.numberofpages);this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
                   <Icon
-                    size={40}
+                    size={2.5* Number(this.props.settingdatalist[9].datainput)}
                     name="ios-arrow-back"
                     color="#3e81f4"
                   />
@@ -691,7 +695,7 @@ class HomePage extends Component {
                   this.state.numberofpages_fakearray.map((pageArray) => {
                     return (
                       <TouchableOpacity key={pageArray.id} onPress={(index) => { this.renderBeverageData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, pageArray.id, this.state.numberofpages); this.setState({currentpagenumber: pageArray.id});this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
-                        <PageButtonItem pagenumber={pageArray.id} />
+                        <PageButtonItem pagenumber={pageArray.id} pageNumberFontSize={Number(this.props.settingdatalist[9].datainput)+2}/>
                       </TouchableOpacity>
                     )
                   })
@@ -701,7 +705,7 @@ class HomePage extends Component {
               <View style={{ width: 45, height: "100%", alignItems: "center", justifyContent: "center" }}>
                 <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,true, this.state.numberofpages);this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
                   <Icon
-                    size={40}
+                    size={2.5* Number(this.props.settingdatalist[9].datainput)}
                     name="ios-arrow-forward"
                     color="#3e81f4"
                   />
@@ -710,8 +714,8 @@ class HomePage extends Component {
             </View>
           </View>
 
-          <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
-              {isNotZero(this.state.cashavailable) && (<Button title="Hủy Giao Dịch" onPress={()=>{this.onCancelTransaction()}}/>)}
+          <View style={{ minWidth: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
+              {isNotZero(this.state.cashavailable) && (<TouchableOpacity style={{backgroundColor:"dodgerblue", borderRadius: 5, padding:7, paddingVertical:10,justifyContent:"center"}} onPress={()=>{this.onCancelTransaction()}}><Text style={{fontSize: Number(this.props.settingdatalist[9].datainput),color:"white"}}>HỦY GIAO DỊCH</Text></TouchableOpacity>)}
           </View>
         </View>
       </View>
@@ -721,8 +725,6 @@ class HomePage extends Component {
   //#endregion
 
 };
-
-
 
 function mapStateToProps(state){
   return {

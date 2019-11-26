@@ -101,7 +101,7 @@ class SettingPage1 extends Component {
         return (
             <View style={{ flex: 1 }}>
                 <View style={{ flex: 1, flexDirection: "row", backgroundColor: "whitesmoke" }}>
-                    <View style={{ flex: 2, paddingVertical: 7, overflow: "hidden" }}>
+                    <View style={{ flex: 1, paddingVertical: 7, overflow: "hidden" }}>
                         <ScrollView setScrollbarFadingEnabled={false}>
                             {
                                 this.props.settingdatalist.map((datainput,index)=>{
@@ -111,7 +111,7 @@ class SettingPage1 extends Component {
                         </ScrollView>
                     </View>
 
-                    <View style={{ flex: 2, backgroundColor: "#d0e0fb", margin: 10, borderWidth: 1, borderColor: "#3e81f4", borderRadius: 5, display: "flex", padding: 10 }}>
+                    <View style={{ flex: 1, backgroundColor: "#d0e0fb", margin: 10, borderWidth: 1, borderColor: "#3e81f4", borderRadius: 5, display: "flex", padding: 10 }}>
                         <View style={{ flex: 1, marginBottom: 10 }}>
                             <ScrollView style={{ flex: 1 }}>
                                 {
@@ -119,13 +119,13 @@ class SettingPage1 extends Component {
                                         return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options}/>)
                                     })
                                 }
-                                <View style={{ height: 150, width: 300, marginTop: 5, display: "flex" }}>
-                                    <View style={{ height: 20, width: 300, display: "flex", flexDirection: "row", marginBottom: 5, marginLeft: "5%" }}>
-                                        <Text>Chọn hình hiển thị</Text>
+                                <View style={{ height: 300, width: "100%", marginTop: 5, display: "flex" }}>
+                                    <View style={{ height: 40, width: 300, display: "flex", flexDirection: "row", marginBottom: 5, marginLeft:15}}>
+                                        <Text style={{fontSize: 17}}>Chọn hình hiển thị</Text>
                                     </View>
                                     <View style={{ flex: 1, backgroundColor: "whitesmoke", display: "flex", flexDirection: "row" , marginLeft: "5%"}}>
                                         <View style={{ flex: 1, paddingVertical: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                            <View style={{ width: 100, height: 100, backgroundColor: 'white'}}>
+                                            <View style={{ width: 200, height: 200, backgroundColor: 'white'}}>
                                                 <Image
                                                     style={{ height: "100%", width: "auto", backgroundColor: "transparent" }}
                                                     source={{uri: this.state.avatarSource}}
@@ -134,7 +134,7 @@ class SettingPage1 extends Component {
                                                 />
                                             </View>
                                         </View>
-                                        <View style={{ width: 60, height: "100%", alignItems: "flex-end", justifyContent: "flex-end", paddingBottom: 5, paddingRight: 5 }}>
+                                        <View style={{ width: 70, height: "100%", alignItems: "flex-end", justifyContent: "flex-end", paddingBottom: 5, paddingRight: 5 }}>
                                             <Button title="Chọn" onPress={()=>{this.handleImagePicker()}}/>
                                         </View>
                                     </View>

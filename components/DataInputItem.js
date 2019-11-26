@@ -38,16 +38,16 @@ class DataInputItem extends Component {
             pickeroptions = testpickeroptions;
         }
         return (
-            <View style={{ height: 40, width: "90%", maxWidth: 300, marginLeft: "auto", marginRight: "auto", display: "flex", flexDirection: "row", marginVertical: 3 }}>
-                <View style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", overflow: "hidden" }}>
-                    <Text numberOfLines={1}>{itemlabel}</Text>
+            <View style={{ height: 50, width: "100%", marginLeft: "auto", marginRight: "auto", display: "flex", flexDirection: "row", marginVertical: 3, paddingLeft: 15 }}>
+                <View style={{ width: 180, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", overflow: "hidden" }}>
+                    <Text style={{fontSize: 17}}>{itemlabel}</Text>
                 </View>
                 {
                     datainputtype == 'TextInput'
                         ?
                         (<View style={{ flex: 1 }}>
                             <TextInput 
-                                style={{ height: 40, borderRadius: 3, borderWidth: 0.5, borderColor: "gray", backgroundColor: "white", textAlign: "center", fontSize: 16 }} 
+                                style={{ height: 50, borderRadius: 3, borderWidth: 0.5, borderColor: "gray", backgroundColor: "white", textAlign: "center", fontSize: 17 }} 
                                 onChangeText={(text)=>{this.processCoupleInput(this.props.itemlabel,text)}}
                                 value={itemdefaultvalue}
                             />
@@ -56,7 +56,8 @@ class DataInputItem extends Component {
                         (<View style={{ flex: 1, display: "flex", alignItems: "flex-end", justifyContent: "center", backgroundColor: "white", borderColor: "gray", borderRadius: 3 }}>
                             <Picker
                                 selectedValue={itemdefaultvalue}
-                                style={{ height: 50, width: 100 }}
+                                itemTextStyle={{fontSize: 20}}
+                                style={{ height: 50, width: "95%" }}
                                 onValueChange={(itemValue, itemIndex) => { this.processCoupleInput(this.props.itemlabel, itemValue) }}>
                                 {
                                     Object.keys(pickeroptions).map((key) => {

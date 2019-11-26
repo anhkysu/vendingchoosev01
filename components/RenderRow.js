@@ -18,7 +18,7 @@ export default class RenderRow extends Component {
     render() {
         const DATA = this.props.rowDataInput;
         return (
-            <View style={{ height: 130, width: "100%", display: "flex", flexDirection: "row", marginBottom: 10, justifyContent: "center" }}>
+            <View style={{ height: this.props.height, width: "100%", display: "flex", flexDirection: "row", marginBottom: 10, justifyContent: "center" }}>
                 {
                     DATA.map((dataItem) => {
                         return (
@@ -30,6 +30,9 @@ export default class RenderRow extends Component {
                                 name={dataItem.name}
                                 price={dataItem.price}
                                 imageSource={dataItem.imagesource}
+                                itemWidth={this.props.width}
+                                itemHeight={this.props.height}
+                                itemFontSize={this.props.itemFontSize}
                             />
                         )
                     })
