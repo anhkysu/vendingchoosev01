@@ -17,7 +17,8 @@ const ListOfUi = [
 "Màn hình hiển thị tiền đưa vào lớn hơn 50k (14-2)",
 "Màn hình hiển thị không đủ tiền thối (14-1)",
 
-
+"Màn hình hiển thị slot hết hàng",
+"Màn hình hiển thị slot lỗi"
 ]
 
 export const onReceivedUiRequirement = function (uiId, additionalParams,subsequenceFunction) {
@@ -48,4 +49,17 @@ export const onMomoTransactionResult = function (isSuccessful, subsequenceFuncti
 
 export const onMomoTransactionTimeout = function (subsequenceFunction){
     subsequenceFunction();
+}
+
+export const onSlotStatus = function( slotStatus){
+    switch(slotStatus){
+        case 0:
+            return 14;
+            
+        case 1:
+            return 13;
+            
+        default:
+            break;
+    }
 }

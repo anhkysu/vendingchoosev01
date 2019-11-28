@@ -335,30 +335,21 @@ class ProcessMomoTransaction extends Component {
             }
             else {
                 switch (topic) {
-                    case 'buywithmomo':
-                        if (type != 'response') {
-                            this.showError('Firmware should send a request with type of response');
+                    case 'interface':
+                        if (type != 'request') {
+                            this.showError('Firmware should send a request with type of request');
                             return;
                         }
                         else {
-                            var isSuccess = (content.status == 'ok' ? true : false);
-                            var errorIfExists = content.error || 'none';
-                            var base64IfOk = content.base64 || 'none';
-                            this.onGetItemResultFromVMWithMomo(isSuccess, content.slotsetting, content.name, base64IfOk, errorIfExists);
+                            onReceivedUiRequirement(content.value, 'none', this.pickUi);
                         }
                         break;
-
-                    case 'momosignal':
-                            if (type != 'request') {
-                                this.showError('Firmware should send a request with type of request');
-                                return;
-                            }
-                            else {
-                                var isSuccess = content.issuccess;
-                                this.onMomoSignalResult(isSuccess);
-                            }
+                        
+                    case 'momoMethod':
+                        if (type == 'update') {
+                            onReceivedQrCode(content.value, this.showQr)
                             break;
-
+                        }
                     default:
                         break;
                 }

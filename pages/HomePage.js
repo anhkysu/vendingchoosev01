@@ -28,7 +28,8 @@ import {onReceivedUiRequirement,
         onPaymentMethodDisplayRequirement, 
         onUpdateCashAvailable, 
         onGivingBackInputDisabilityDisplayRequirement,
-        onReceivedQrCode} from '../business/FirmwareToAppFunctions';
+        onReceivedQrCode,
+        onSlotStatus} from '../business/FirmwareToAppFunctions';
 //#endregion
 
 class HomePage extends Component {
@@ -313,40 +314,45 @@ class HomePage extends Component {
       }
       else {
         switch(topic){
-          case 'cashinput':
+          case 'interface':
             if(type != 'request') {
               this.showError('Firmware should send a request with type of request');
               return;
             }
-            else{
-              this.onCashInputFromVM(content.value);
+            else {
+              onReceivedUiRequirement(content.value, 'none', this.pickUi);
             }
             break;
             
-          case 'withdrawcash':
-            if(type != 'response'){
-              this.showError("Firmware should respond with type of response");
-              return;
-            }
-            else{
-              var isSuccess = (content.status == 'ok' ? true : false);
-              var errorIfExists = content.error || 'none';
-              this.onWithdrawCashResult(isSuccess, errorIfExists)
-            }
-            break;
-
-          case 'cashremain':
-            if(type != 'response'){
-              this.showError("Firmware should respond with type of response");
+          case 'paymentMethod':
+            if(type != 'request'){
+              this.showError("Firmware should respond with type of request");
               return;
             }
             else {
-              var isSuccess = (content.status == 'ok' ? true : false);
-              var errorIfExists = content.error || 'none';
-              var valueIfOk = content.value || 'none';
-              this.onCheckCashRemainResult(isSuccess, valueIfOk, errorIfExists);
+              onPaymentMethodDisplayRequirement(this.showUiPaymentMethod);
             }
+            break;
 
+          case 'cashMethod':
+            if (type == 'updateMoney') {
+              onUpdateCashAvailable("refreshCash", content.value, this.updateCashAvailable);
+            }
+            else if (type == 'warning') {
+              onReceivedUiRequirement(11, "", this.pickUi);
+            }
+            else if (type == 'request') {
+              onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);
+            }
+            break;
+
+          case 'slots':
+            if(type == "response"){
+              var displayUiId = onSlotStatus(content.value);
+              onReceivedUiRequirement(displayUiId,'none',this.pickUi);
+            }
+            break;
+          
           default: 
             break;
         }
@@ -393,7 +399,6 @@ class HomePage extends Component {
   feedbackAboutDisabledGivingBackCash(userAccept){
     sendUserFeedbackAboutDisabilityOfGivingBackCashChange(userAccept, this.sendSerialData);
   }
-
     
   onReturnHome(data){
     switch (data) {
@@ -409,6 +414,23 @@ class HomePage extends Component {
       default:
         break;
     }
+  }
+  
+  processTransaction(transactionApproved, isCash, cashavailable){
+    if(transactionApproved){
+      if(isCash) {
+        this.props.navigation.navigate('CashTransaction', {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`,itemname:`${this.state.pickedItem.name}`, itemprice:`${this.state.pickedItem.price}`, cashavailable:`${cashavailable}`});
+        sendPaymentMethod("cash", this.sendSerialData);
+      }
+      else {
+        this.props.navigation.navigate('MomoTransaction',  {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`, itemname:`${this.state.pickedItem.name}`,itemprice:`${this.state.pickedItem.price}`});
+        sendPaymentMethod("momo", this.sendSerialData);
+      }
+    }
+    else {
+      this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
+    }
+    this.setState({isVisible: false});
   }
 
   //#endregion 
@@ -559,16 +581,6 @@ class HomePage extends Component {
     }, intervalnumberyeah);
   }
 
-  processTransaction(transactionApproved, isCash, cashavailable){
-    if(transactionApproved){
-      if(isCash) {this.props.navigation.navigate('CashTransaction', {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`,itemname:`${this.state.pickedItem.name}`, itemprice:`${this.state.pickedItem.price}`, cashavailable:`${cashavailable}`});}
-      else {this.props.navigation.navigate('MomoTransaction',  {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`, itemname:`${this.state.pickedItem.name}`,itemprice:`${this.state.pickedItem.price}`});}
-    }
-    else {
-      this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
-    }
-    this.setState({isVisible: false});
-  }
 
   onOneItemTouched(itemInfoObject) {
     this.setState({pickedItem: itemInfoObject});
@@ -617,7 +629,7 @@ class HomePage extends Component {
               ?
               <ActivityIndicator size="large"/>
               :
-              <PaymentMethodPicker onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}} />
+              <PaymentMethodPicker onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}}/>
             }
           </View>
         </Modal>

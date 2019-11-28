@@ -280,19 +280,15 @@ class ProcessCashTransaction extends Component {
             }
             else {
                 switch (topic) {
-                    case 'buywithcash':
-                        if (type != 'response') {
-                            this.showError('Firmware should send a request with type of response');
+                    case 'interface':
+                        if (type != 'request') {
+                            this.showError('Firmware should send a request with type of request');
                             return;
                         }
                         else {
-                            var isSuccess = (content.status == 'ok' ? true : false);
-                            var errorIfExists = content.error || 'none';
-                            this.onGetItemResultFromVMWithCash(isSuccess, content.slotsetting, content.name, errorIfExists);
+                            onReceivedUiRequirement(content.value, 'none', this.pickUi);
                         }
                         break;
-
-
                     default:
                         break;
                 }
