@@ -281,7 +281,6 @@ class ProcessMomoTransaction extends Component {
         DeviceEventEmitter.removeAllListeners();
         const isOpen = await RNSerialport.isOpen();
         if (isOpen) {
-            Alert.alert("isOpen", isOpen);
             RNSerialport.disconnect();
         }
         RNSerialport.stopUsbService();
@@ -318,6 +317,15 @@ class ProcessMomoTransaction extends Component {
         console.error(error);
     }
 
+    isJson(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
+
     onReadData(data) {
         if (this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.INTARRAY) {
             const payload = RNSerialport.intArrayToUtf16(data.payload);
@@ -326,6 +334,7 @@ class ProcessMomoTransaction extends Component {
             this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.HEXSTRING
         ) {
             const payload = RNSerialport.hexToUtf16(data.payload);
+            if(!this.isJson(payload)) return;
             var inputObject = JSON.parse(payload);
             var topic = inputObject.topic || 'none';
             var type = inputObject.type || 'none';
@@ -424,13 +433,14 @@ class ProcessMomoTransaction extends Component {
     //#endregion
 
     componentDidMount() {
+        this.startUsbListener();
         //this.getItemFromVMWithMomo(this.slotsetting, this.itemname);
     }
 
-    componentWillUnmount(){
-        
+    componentWillUnmount() {
+        this.stopUsbListener();
     }
-    
+
 };
 
 

@@ -16,6 +16,7 @@ import { RNSerialport, definitions, actions } from 'react-native-serialport';
 import Modal from 'react-native-modal';
 import {
     sendUserFeedbackAboutDisabilityOfGivingBackCashChange,
+    sendContinueOrCancelTransaction
     } from '../business/AppToFirmwareFunctions';
 import { onReceivedUiRequirement,
          onGivingBackInputDisabilityDisplayRequirement } from '../business/FirmwareToAppFunctions';
@@ -58,7 +59,18 @@ class ProcessCashTransaction extends Component {
 
     //#region - Showing Specific Ui for different purposes
     pickUi(uiId, uiDescription, params){
+        this.hideLoadingUi();
         switch (uiId) {
+            case 1:
+                this.showUiPleaseGetProduct(uiDescription, params);
+                this.goBackHome('none');
+                break;
+            case 9:
+                this.goBackHome('none');
+                break;
+            case 10:
+                this.showUiCannotGiveCashRemain(uiDescription, params);
+                break;
             case 11:
                 this.showUiMoreThan50000(uiDescription, params);
                 break;
@@ -92,6 +104,32 @@ class ProcessCashTransaction extends Component {
             ,
             { cancelable: false }
         )
+    }
+
+    showUiContinueOrCancel() {
+        Alert.alert("Thông báo", "Có muốn tiếp tục không",
+            [
+                { text: "Tiếp tục", onPress: () => { sendContinueOrCancelTransaction(0, this.sendSerialData) } },
+                { text: "Hủy", onPress: () => { sendContinueOrCancelTransaction(1, this.sendSerialData) } }
+            ]
+            ,
+            { cancelable: false }
+        )
+    }
+
+    showUiCannotGiveCashRemain(a,b){
+        Alert.alert(
+        "Thông báo", 
+        "Không thể thối tiền thừa cho Quý Khách!",
+        [
+          {text:"Không cần thối tiền lẻ", onPress: ()=>{this.feedbackAboutDisabledGivingBackCash(true)}},
+          {text:"Nạp thêm", onPress: ()=>{this.showUiContinueOrCancel()}}
+        ]
+        );
+    }
+
+    showUiPleaseGetProduct(a,b){
+        Alert.alert("Thông báo", "Mời Quý Khách nhận sản phẩm ở bên dưới!");
     }
 
     //#endregion
@@ -224,7 +262,6 @@ class ProcessCashTransaction extends Component {
         DeviceEventEmitter.removeAllListeners();
         const isOpen = await RNSerialport.isOpen();
         if (isOpen) {
-            Alert.alert("isOpen", isOpen);
             RNSerialport.disconnect();
         }
         RNSerialport.stopUsbService();
@@ -261,6 +298,15 @@ class ProcessCashTransaction extends Component {
         console.error(error);
     }
 
+    isJson(str) {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return false;
+        }
+        return true;
+    }
+
     onReadData(data) {
         if (
             this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.INTARRAY
@@ -271,6 +317,7 @@ class ProcessCashTransaction extends Component {
             this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.HEXSTRING
         ) {
             const payload = RNSerialport.hexToUtf16(data.payload);
+            if(!this.isJson(payload)) return;
             var inputObject = JSON.parse(payload);
             var topic = inputObject.topic || 'none';
             var type = inputObject.type || 'none';
@@ -287,6 +334,11 @@ class ProcessCashTransaction extends Component {
                         }
                         else {
                             onReceivedUiRequirement(content.value, 'none', this.pickUi);
+                        }
+                        break;
+                    case 'cashMethod':
+                        if (type == 'request') {
+                            onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);
                         }
                         break;
                     default:
@@ -352,11 +404,17 @@ class ProcessCashTransaction extends Component {
     //#endregion
 
     componentDidMount() {
-        
+        this.showLoadingUi();
+        setTimeout(()=>{
+            this.startUsbListener();
+            this.hideLoadingUi();
+            this.showUiContinueOrCancel();
+        },3000);
+
     }
 
-    componentWillUnmount(){
-        
+    componentWillUnmount() {
+        this.stopUsbListener();
     }
 };
 

@@ -74,6 +74,7 @@ class HomePage extends Component {
 
   //#region - Showing Specific Ui for different purposes
   pickUi(uiId, uiDescription, params){
+    this.hideLoadingUi();
     switch (uiId) {
       case 0:
         this.showUiPickedProduct(uiDescription, params);
@@ -106,6 +107,12 @@ class HomePage extends Component {
         break;
       case 12:
         this.showUiNotEnoughToGiveBack(uiDescription, params);
+        break;
+      case 13:
+        this.showUiSlotError(uiDescription, params);
+        break;
+      case 14:
+        this.showUiSlotOver(uiDescription, params);
         break;
     }
   }
@@ -203,6 +210,13 @@ class HomePage extends Component {
     )
   }
 
+  showUiSlotError(a,b){
+    Alert.alert("Thông báo", "Slot lỗi rồi");
+  }
+
+  showUiSlotOver(a,b){
+    Alert.alert("Thông báo", "Slot đã hết hàng");
+  }
   //#endregion
 
   //#region - Usb Serial Interface
@@ -258,7 +272,6 @@ class HomePage extends Component {
     DeviceEventEmitter.removeAllListeners();
     const isOpen = await RNSerialport.isOpen();
     if (isOpen) {
-      Alert.alert("isOpen", isOpen);
       RNSerialport.disconnect();
     }
     RNSerialport.stopUsbService();
@@ -295,6 +308,15 @@ class HomePage extends Component {
     console.error(error);
   }
 
+  isJson(str) {
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
   onReadData(data){
     if (
       this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.INTARRAY
@@ -305,6 +327,7 @@ class HomePage extends Component {
       this.state.returnedDataType === definitions.RETURNED_DATA_TYPES.HEXSTRING
     ) {
       const payload = RNSerialport.hexToUtf16(data.payload);
+      if(!this.isJson(payload)) return;
       var inputObject = JSON.parse(payload);
       var topic = inputObject.topic || 'none';
       var type = inputObject.type || 'none';
@@ -330,6 +353,7 @@ class HomePage extends Component {
               return;
             }
             else {
+              this.hideLoadingUi();
               onPaymentMethodDisplayRequirement(this.showUiPaymentMethod);
             }
             break;
@@ -373,13 +397,17 @@ class HomePage extends Component {
 
   //#region - Testing Function
   testFunction() {
-    this.showUiPickedProduct("asd","MomoTransaction")
+    //this.showUiPickedProduct("asd","CashTransaction")
     //onReceivedUiRequirement(7, "none", this.pickUi)
+    //this.onReadData({"topic":"paymentMethod","type":"request","content":null});
+    var trueorfalse = JSON.stringify({"topic":"cashMethod","type":"request","content":{"result":"ok"}});
+    var parseResult = JSON.parse(trueorfalse);
+    Alert.alert(`${JSON.stringify(parseResult)}`);
   }
   //#endregion
 
   //#region - Categorized 
-  onItemTouched(itemInfoObject) {
+  onOneItemTouched(itemInfoObject) {
     sendSelectedSlot(itemInfoObject.slotSetting, this.sendSerialData);
   }
 
@@ -401,30 +429,39 @@ class HomePage extends Component {
   }
     
   onReturnHome(data){
-    switch (data) {
-      case 'SUCCESS':
-        Alert.alert("Thanh Cong");
-        break;
-      case 'MOMO FAILED':
-        this.showUiMomoTransactionStatus("", false);
-        break;
-      case 'MOMO TIMEOUT':
-        this.showUiMomoTransactionStatus("", false);
-        break;
-      default:
-        break;
-    }
+    this.showLoadingUi();
+    setTimeout(() => {
+      this.startUsbListener();
+      this.hideLoadingUi();
+      switch (data) {
+        case 'SUCCESS':
+          Alert.alert("Thanh Cong");
+          break;
+        case 'MOMO FAILED':
+          this.showUiMomoTransactionStatus("", false);
+          break;
+        case 'MOMO TIMEOUT':
+          this.showUiMomoTransactionStatus("", false);
+          break;
+        default:
+          break;
+      }
+    }, 3000);
   }
   
   processTransaction(transactionApproved, isCash, cashavailable){
     if(transactionApproved){
       if(isCash) {
-        this.props.navigation.navigate('CashTransaction', {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`,itemname:`${this.state.pickedItem.name}`, itemprice:`${this.state.pickedItem.price}`, cashavailable:`${cashavailable}`});
         sendPaymentMethod("cash", this.sendSerialData);
+        this.stopUsbListener();
+        this.hideLoadingUi();
+        this.props.navigation.navigate('CashTransaction', {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`,itemname:`${this.state.pickedItem.name}`, itemprice:`${this.state.pickedItem.price}`, cashavailable:`${cashavailable}`});
       }
       else {
-        this.props.navigation.navigate('MomoTransaction',  {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`, itemname:`${this.state.pickedItem.name}`,itemprice:`${this.state.pickedItem.price}`});
         sendPaymentMethod("momo", this.sendSerialData);
+        this.stopUsbListener();
+        this.hideLoadingUi();
+        this.props.navigation.navigate('MomoTransaction',  {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`, itemname:`${this.state.pickedItem.name}`,itemprice:`${this.state.pickedItem.price}`});
       }
     }
     else {
@@ -582,7 +619,7 @@ class HomePage extends Component {
   }
 
 
-  onOneItemTouched(itemInfoObject) {
+  onOneItemTouchedOld(itemInfoObject) {
     this.setState({pickedItem: itemInfoObject});
 
     if(this.state.cashavailable == 0){
@@ -607,12 +644,14 @@ class HomePage extends Component {
   //#region - Component
 
   componentDidMount() {
+    this.startUsbListener();
     this.renderBeverageData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, 1, this.state.numberofpages);
     this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
   }
 
   componentWillUnmount(){
     clearInterval(this.slidinginterval);
+    this.stopUsbListener();
   }
 
   //#endregion 

@@ -62,7 +62,7 @@ Value:
 {
   "topic":"paymentMethod",
   "type":"request",
-  "content": null
+  "content": "ok"
 }
 ```
 >Android reponds
