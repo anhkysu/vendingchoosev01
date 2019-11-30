@@ -133,7 +133,7 @@ Trong đó giá trị value như sau:
 {
   "topic":"cashMethod",
   "type":"response",
-  "content":{"status":"ok"}
+  "content": "ok"
 }
 ```
 + ### Firmware truyền xuống android hiển thị giao diện thông báo không thể thối tiền vừa đưa vào để người dùng chọn (15)
@@ -142,7 +142,7 @@ Trong đó giá trị value như sau:
 {
   "topic":"cashMethod",
   "type":"request",
-  "content":{"value":null}
+  "content":{"status":"ok"}
 }
 ```
 >Android reponds
@@ -179,7 +179,7 @@ Value: 0: Không chấp nhận, 1: Chấp nhận
 {
   "topic":"momoMethod",
   "type":"update",
-  "content":{"value":int}
+  "content":{"base64":int}
 }
 ```
 Value: chuỗi dữ liệu hình qr code định dạng base64

@@ -1,0 +1,1 @@
+{"topic":"momoMethod","type":"update","content":{"base64":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUoAAAFKCAIAAAD0S4FSAAAABmJLR0QA/wD/AP+gvaeTAAAGlklEQVR4nO3dS27jSBBAwNx3HsvgR2+mm/ycfcdNEd7Xonps/+P5+9o5VC/TmHLHl78vLu+/V2sQmCC"}}

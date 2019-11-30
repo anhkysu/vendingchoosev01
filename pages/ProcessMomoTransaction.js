@@ -65,13 +65,30 @@ class ProcessMomoTransaction extends Component {
     //#region - Showing Specific Ui for different purposes
 
     pickUi(uiId, uiDescription, params){
-        switch(uiId){
-          case 2:
-            this.showUiPleaseWaitForQr(uiDescription, params);
-            break;
-          case 3:
-            this.showUiPleaseScanQr(uiDescription, params);
-            break;
+        this.hideLoadingUi();
+        switch (uiId) {
+            case 1:
+                this.showUiPleaseGetProduct(uiDescription, params);
+                this.goBackHome('none');
+                break;
+            case 2:
+                this.showUiPleaseWaitForQr(uiDescription, params);
+                break;
+            case 3:
+                this.showUiPleaseScanQr(uiDescription, params);
+                break;
+            case 5:
+                this.showUiMomoTransactionStatus(1, false);
+                break;
+            case 6:
+                this.showUiMomoTransactionStatus(1, true);
+                break;
+            case 7:
+                this.showUiMomoLostConnection(uiDescription, params);
+                break;
+            case 9:
+                this.goBackHome('none');
+                break;
         }
     }
 
@@ -94,12 +111,29 @@ class ProcessMomoTransaction extends Component {
     showUiPleaseScanQr(a,b){
         Alert.alert("Thông báo", "Xin mời Quý Khách quét QR")
     }
+
+    showUiMomoTransactionStatus(a, isSuccessful) {
+        clearInterval(this.countingInterval);
+        clearTimeout(this.qrscanningtimeout);
+        var infoHere = "Giao dịch Momo" + (isSuccessful ? " thành công!" : " thất bại!");
+        Alert.alert("Thông báo", infoHere,
+        [{text:"ok", onPress: ()=>{this.showLoadingUi();}}]
+        );
+    }
+
+    showUiMomoLostConnection(a, b) {
+        Alert.alert("Thông báo", "Mất mạng Internet. Không thể thực hiện giao dịch Momo lúc này!");
+    }
+
+    showUiPleaseGetProduct(a,b){
+        Alert.alert("Thông báo", "Mời Quý Khách nhận sản phẩm ở bên dưới!");
+    }
     //#endregion
 
     //#region - Categorized Code
     processMomoTransactionResult(isSuccessful){
         if(!isSuccessful){
-            this.goBackHome("MOMO FAILED");
+            this.goBackHome("NONE");
         }
     }
 
@@ -187,9 +221,10 @@ class ProcessMomoTransaction extends Component {
     onCancelTransaction(){
         Alert.alert(
             "Thông báo", 
-            "Đã quá thời gian giao dịch Momo",
+            "Đã quá thời gian giao dịch Momo"
+            ,
             [
-                {text: "OK", onPress: ()=>{this.onUnableToProcessTransaction()} }
+                {text: "OK", onPress: ()=>{this.showLoadingUi()} }
             ]  
         )
     }
@@ -356,9 +391,12 @@ class ProcessMomoTransaction extends Component {
                         
                     case 'momoMethod':
                         if (type == 'update') {
-                            onReceivedQrCode(content.value, this.showQr)
+                            onReceivedQrCode(content.base64, this.showQr);
+                            this.hideLoadingUi();
+                            this.startQrScanningTimeout(30000);
                             break;
                         }
+
                     default:
                         break;
                 }
@@ -433,8 +471,10 @@ class ProcessMomoTransaction extends Component {
     //#endregion
 
     componentDidMount() {
-        this.startUsbListener();
-        //this.getItemFromVMWithMomo(this.slotsetting, this.itemname);
+        this.showLoadingUi();
+        setTimeout(()=>{
+            this.startUsbListener();
+        },3000);
     }
 
     componentWillUnmount() {

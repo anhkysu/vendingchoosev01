@@ -412,12 +412,14 @@ class HomePage extends Component {
   }
 
   updateCashAvailable(inputCashOrRefreshCash, cashValue){
+    this.showLoadingUi();
     if(inputCashOrRefreshCash == "inputCash"){
       this.setState({cashavailable: this.state.cashavailable + cashValue});
     }
     else if(inputCashOrRefreshCash == "refreshCash"){
       this.setState({cashavailable: cashValue});
     }
+    this.hideLoadingUi();
   }
 
   onCancelTransaction() {

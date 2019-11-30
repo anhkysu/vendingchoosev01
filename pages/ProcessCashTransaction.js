@@ -410,7 +410,6 @@ class ProcessCashTransaction extends Component {
             this.hideLoadingUi();
             this.showUiContinueOrCancel();
         },3000);
-
     }
 
     componentWillUnmount() {
