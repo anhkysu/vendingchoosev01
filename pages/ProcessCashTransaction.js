@@ -20,6 +20,7 @@ import {
     } from '../business/AppToFirmwareFunctions';
 import { onReceivedUiRequirement,
          onGivingBackInputDisabilityDisplayRequirement } from '../business/FirmwareToAppFunctions';
+import Notification from './Notifications';
 //#endregion
 
 class ProcessCashTransaction extends Component {
@@ -27,6 +28,7 @@ class ProcessCashTransaction extends Component {
         super(props);
         this.state = {
             isVisible: false,
+            isNotif: false,
             isCash: true,
             transactionstarted: true,
             servisStarted: false,
@@ -53,7 +55,7 @@ class ProcessCashTransaction extends Component {
     
     //#region - Testing Purposes
     testFunction(){
-        onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability)
+        this.goBackHome("none");
     }
     //#endregion
 
@@ -63,7 +65,7 @@ class ProcessCashTransaction extends Component {
         switch (uiId) {
             case 1:
                 this.showUiPleaseGetProduct(uiDescription, params);
-                this.goBackHome('none');
+                setTimeout(()=>{this.goBackHome('none')},4000);
                 break;
             case 9:
                 this.goBackHome('none');
@@ -77,7 +79,24 @@ class ProcessCashTransaction extends Component {
             case 12:
                 this.showUiNotEnoughToGiveBack(uiDescription, params);
                 break;
+            default: 
+                break;
         }
+    }
+
+    showUiNotification(title, description){
+        this.setState(
+          {
+           notifTitle: title,
+           notifDescription: description,
+           isVisible: true,
+           isNotif: true,
+          }
+        );
+    }
+
+    hideUiNotification(){
+        this.setState({ isVisible: false });
     }
 
     showLoadingUi() {
@@ -88,11 +107,11 @@ class ProcessCashTransaction extends Component {
         this.setState({ isVisible: false });
     }
     showUiMoreThan50000(a, b) {
-        Alert.alert("Thông báo", "Tổng tiền lớn hơn 50000 vnđ rồi!");
+        this.showUiNotification("Thông báo", "Tổng tiền lớn hơn 50000 vnđ rồi!");
     }
 
     showUiNotEnoughToGiveBack(a, b) {
-        Alert.alert("Thông báo", "Không đủ tiền thối rồi");
+        this.showUiNotification("Thông báo", "Không đủ tiền thối rồi");
     }
 
     showUiGivingBackInputDisability() {
@@ -129,7 +148,7 @@ class ProcessCashTransaction extends Component {
     }
 
     showUiPleaseGetProduct(a,b){
-        Alert.alert("Thông báo", "Mời Quý Khách nhận sản phẩm ở bên dưới!");
+        this.showUiNotification("Thông báo", "Mời Quý Khách nhận sản phẩm ở bên dưới!");
     }
 
     //#endregion
@@ -365,7 +384,12 @@ class ProcessCashTransaction extends Component {
             <View style={{ display: "flex", flex: 1 }}>
                 <Modal transparent={true} isVisible={this.state.isVisible}>
                     <View style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
-                        <ActivityIndicator size="large" />
+                        {this.state.isNotif
+                            ?
+                            (<Notification title={this.state.notifTitle} description={this.state.notifDescription} />)
+                            :
+                            (<ActivityIndicator size="large" />)
+                        }
                     </View>
                 </Modal>
                 <View style={{ display: "flex", flex: 1, padding: 5, flexDirection: "row" }}>
@@ -394,7 +418,6 @@ class ProcessCashTransaction extends Component {
 
                     <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
                         <Button title="Test" onPress={()=>{this.testFunction()}}/>
-                        <Button title="Hủy Giao Dịch" onPress={()=>{this.goBackHome('SUCCESS')}}/>
                     </View>
                 </View>
             </View>
@@ -404,12 +427,14 @@ class ProcessCashTransaction extends Component {
     //#endregion
 
     componentDidMount() {
+        
         this.showLoadingUi();
         setTimeout(()=>{
             this.startUsbListener();
             this.hideLoadingUi();
             this.showUiContinueOrCancel();
         },3000);
+        
     }
 
     componentWillUnmount() {

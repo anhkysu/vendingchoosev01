@@ -30,6 +30,7 @@ import {onReceivedUiRequirement,
         onGivingBackInputDisabilityDisplayRequirement,
         onReceivedQrCode,
         onSlotStatus} from '../business/FirmwareToAppFunctions';
+import Notification from './Notifications';
 //#endregion
 
 class HomePage extends Component {
@@ -39,6 +40,9 @@ class HomePage extends Component {
     this.state = {
       isProcessing: false,
       isVisible: false,
+      isNotif: true,
+      notifTitle: "Thông báo",
+      notifDescription: "None",
       numberofslot: 16,
       numberofcolumns: 3,
       minbeverageitemwidth: 150,
@@ -117,12 +121,28 @@ class HomePage extends Component {
     }
   }
 
+  showUiNotification(title, description){
+    this.setState(
+      {
+       notifTitle: title,
+       notifDescription: description,
+       isVisible: true,
+       isProcessing: true, 
+       isNotif: true,
+      }
+    );
+  }
+
+  hideUiNotification(){
+    this.setState({isVisible: false,});
+  }
+
   showLoadingUi(){
-    this.setState({isProcessing: true});
+    this.setState({isVisible: true,isProcessing: true, isNotif: false});
   }
 
   hideLoadingUi(){
-    this.setState({isProcessing: false});
+    this.setState({isVisible: false  });
   }
 
   showUiPickedProduct(thisUiDescription, cashOrMomo){
@@ -145,15 +165,15 @@ class HomePage extends Component {
   }
 
   showUiPleaseGetProduct(a,b){
-    Alert.alert("Thông báo", "Mời Quý Khách nhận sản phẩm ở bên dưới!");
+    this.showUiNotification("Thông báo", "Mời Quý Khách nhận sản phẩm ở bên dưới!");
   }
 
   showUiThankYou(a,b){
-    Alert.alert("Thông báo", "Xin cảm ơn quý khách!");
+    this.showUiNotification("Thông báo", "Xin cảm ơn quý khách!");
   }
 
   showUiPleaseGetCashRemain(a,b){
-    Alert.alert("Thông báo", "Xin mời Quý Khách nhận tiền thừa!");
+    this.showUiNotification("Thông báo", "Xin mời Quý Khách nhận tiền thừa!");
   }
 
   showUiCannotGiveCashRemain(a,b){
@@ -169,15 +189,15 @@ class HomePage extends Component {
 
   showUiMomoTransactionStatus(a, isSuccessful){
     var infoHere = "Giao dịch Momo" + (isSuccessful ? " thành công!" : " thất bại!");
-    Alert.alert("Thông báo", infoHere);
+    this.showUiNotification("Thông báo", infoHere);
   }
 
   showUiMomoLostConnection(a, b){
-    Alert.alert("Thông báo", "Mất mạng Internet. Không thể thực hiện giao dịch Momo lúc này!");
+    this.showUiNotification("Thông báo", "Mất mạng Internet. Không thể thực hiện giao dịch Momo lúc này!");
   }
 
   showUiPaymentMethod(){
-    this.setState({isVisible: true});
+    this.setState({isVisible: true, isProcessing: false, isNotif: false});
   }
 
   showUiGivingBackInputDisability(){
@@ -192,11 +212,11 @@ class HomePage extends Component {
   }
 
   showUiMoreThan50000(a,b){
-    Alert.alert("Thông báo", "Tổng tiền lớn hơn 50000 vnđ rồi!");
+    this.showUiNotification("Thông báo", "Tổng tiền lớn hơn 50000 vnđ rồi!");
   }
 
   showUiNotEnoughToGiveBack(a,b){
-    Alert.alert("Thông báo", "Không đủ tiền thối rồi");
+    this.showUiNotification("Thông báo", "Không đủ tiền thối rồi");
   }
 
   showUiContinueOrCancel(){
@@ -211,11 +231,11 @@ class HomePage extends Component {
   }
 
   showUiSlotError(a,b){
-    Alert.alert("Thông báo", "Slot lỗi rồi");
+    this.showUiNotification("Thông báo", "Slot lỗi rồi");
   }
 
   showUiSlotOver(a,b){
-    Alert.alert("Thông báo", "Slot đã hết hàng");
+    this.showUiNotification("Thông báo", "Slot đã hết hàng");
   }
   //#endregion
 
@@ -400,9 +420,8 @@ class HomePage extends Component {
     //this.showUiPickedProduct("asd","CashTransaction")
     //onReceivedUiRequirement(7, "none", this.pickUi)
     //this.onReadData({"topic":"paymentMethod","type":"request","content":null});
-    var trueorfalse = JSON.stringify({"topic":"cashMethod","type":"request","content":{"result":"ok"}});
-    var parseResult = JSON.parse(trueorfalse);
-    Alert.alert(`${JSON.stringify(parseResult)}`);
+    this.processTransaction(true, true,10000);
+   
   }
   //#endregion
 
@@ -668,17 +687,18 @@ class HomePage extends Component {
             {
               this.state.isProcessing 
               ?
-              <ActivityIndicator size="large"/>
+              (this.state.isNotif 
+                ? 
+                (<Notification title={this.state.notifTitle} description={this.state.notifDescription}/>)
+                : 
+                (<ActivityIndicator size="large"/>)
+              )
               :
               <PaymentMethodPicker onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}}/>
             }
           </View>
         </Modal>
-        <Modal transparent={true} isVisible={this.state.isProcessing}>
-          <View style={{display: "flex", flex: 1, alignItems: "center", justifyContent: "center"}}>
-            <ActivityIndicator size="large"/> 
-          </View>
-        </Modal>
+        
         <View style={{ height: Number(this.props.settingdatalist[6].datainput), alignItems: "center", justifyContent: "flex-start", paddingLeft: 20, flexDirection: "row" }}>
             <View>
                 <Text style={{ fontWeight: "bold", fontSize: Number(this.props.settingdatalist[8].datainput), color: "#3e81f4" }}>WELCOME TO ICOCO!</Text>

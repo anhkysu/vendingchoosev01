@@ -19,6 +19,7 @@ import {onReceivedQrCode,
         onReceivedUiRequirement,
         onMomoTransactionResult,
         onMomoTransactionTimeout} from '../business/FirmwareToAppFunctions';
+import Notification from './Notifications';
 
 class ProcessMomoTransaction extends Component {
     constructor(props) {
@@ -27,7 +28,7 @@ class ProcessMomoTransaction extends Component {
             secondCount: 30,
             base64QrImage: "data:image/png;base64",
             isVisible: false,
-            isProcessing: false,
+            isNotif: false,
             isCash: true,
             transactionstarted: true,
             readyForMomo: false,
@@ -57,7 +58,7 @@ class ProcessMomoTransaction extends Component {
    
     //#region - Testing Purposes
     testFunction(){
-        onMomoTransactionTimeout(this.processMomoTransactionTimeout)
+        this.showUiPleaseWaitForQr();
     }
 
     //#endregion
@@ -69,7 +70,7 @@ class ProcessMomoTransaction extends Component {
         switch (uiId) {
             case 1:
                 this.showUiPleaseGetProduct(uiDescription, params);
-                this.goBackHome('none');
+                setTimeout(()=>{this.goBackHome('none')},4000);
                 break;
             case 2:
                 this.showUiPleaseWaitForQr(uiDescription, params);
@@ -79,6 +80,7 @@ class ProcessMomoTransaction extends Component {
                 break;
             case 5:
                 this.showUiMomoTransactionStatus(1, false);
+                setTimeout(()=>{this.goBackHome('none')},4000);
                 break;
             case 6:
                 this.showUiMomoTransactionStatus(1, true);
@@ -93,11 +95,27 @@ class ProcessMomoTransaction extends Component {
     }
 
     showLoadingUi() {
-        this.setState({ isVisible: true });
+        this.setState({ isVisible: true, isNotif: false });
     }
 
     hideLoadingUi() {
-        this.setState({ isVisible: false });
+        this.setState({ isVisible: false, isNotif: false });
+    }
+
+    showUiNotification(title, description){
+        this.setState(
+          {
+           notifTitle: title,
+           notifDescription: description,
+           isVisible: true,
+           isNotif: true,
+          }
+        );
+        
+    }
+
+    hideUiNotification(){
+        this.setState({isVisible: false});
     }
         
     showQr(base64String){
@@ -105,28 +123,26 @@ class ProcessMomoTransaction extends Component {
     }
 
     showUiPleaseWaitForQr(a,b){ 
-        Alert.alert("Thông báo", "Xin chờ một tí để hiện QR");
+        this.showUiNotification("Thông báo", "Xin chờ một tí để hiện QR");
     }
 
     showUiPleaseScanQr(a,b){
-        Alert.alert("Thông báo", "Xin mời Quý Khách quét QR")
+        this.showUiNotification("Thông báo", "Xin mời Quý Khách quét QR")
     }
 
     showUiMomoTransactionStatus(a, isSuccessful) {
         clearInterval(this.countingInterval);
         clearTimeout(this.qrscanningtimeout);
         var infoHere = "Giao dịch Momo" + (isSuccessful ? " thành công!" : " thất bại!");
-        Alert.alert("Thông báo", infoHere,
-        [{text:"ok", onPress: ()=>{this.showLoadingUi();}}]
-        );
+        this.showUiNotification("Thông báo", infoHere);
     }
 
     showUiMomoLostConnection(a, b) {
-        Alert.alert("Thông báo", "Mất mạng Internet. Không thể thực hiện giao dịch Momo lúc này!");
+        this.showUiNotification("Thông báo", "Mất mạng Internet. Không thể thực hiện giao dịch Momo lúc này!");
     }
 
     showUiPleaseGetProduct(a,b){
-        Alert.alert("Thông báo", "Mời Quý Khách nhận sản phẩm ở bên dưới!");
+        this.showUiNotification("Thông báo", "Mời Quý Khách nhận sản phẩm ở bên dưới!");
     }
     //#endregion
 
@@ -423,7 +439,12 @@ class ProcessMomoTransaction extends Component {
             <View style={{ display: "flex", flex: 1 }}>
                 <Modal transparent={true} isVisible={this.state.isVisible}>
                     <View style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
-                        <ActivityIndicator size="large" />
+                        {this.state.isNotif
+                            ?
+                            (<Notification title={this.state.notifTitle} description={this.state.notifDescription} />)
+                            :
+                            (<ActivityIndicator size="large" />)
+                        }
                     </View>
                 </Modal>
                 <View style={{ display: "flex", flex: 1, padding: 5, flexDirection: "column" }}>
@@ -461,7 +482,6 @@ class ProcessMomoTransaction extends Component {
 
                     <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
                         <Button title="Test" onPress={()=>{this.testFunction()}}/>
-                        <Button title="Hủy Giao Dịch" onPress={()=>{}}/>
                     </View>
                 </View>
             </View>
@@ -471,10 +491,13 @@ class ProcessMomoTransaction extends Component {
     //#endregion
 
     componentDidMount() {
+        
         this.showLoadingUi();
         setTimeout(()=>{
             this.startUsbListener();
         },3000);
+
+        
     }
 
     componentWillUnmount() {
