@@ -63,6 +63,24 @@ var initialState = {
       datainput: "13",
     },
     {
+      itemlabel: "Notif Panel Width",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "500",
+    },
+    {
+      itemlabel: "Notif Panel Height",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "200",
+    },
+    {
+      itemlabel: "Notif Panel Font Size",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "18",
+    },
+    {
       itemlabel: "COM",
       datainputtype: "Picker",
       options: { "COM1": "COM1", "COM2": "COM2" },

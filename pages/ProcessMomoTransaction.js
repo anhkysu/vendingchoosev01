@@ -29,6 +29,7 @@ class ProcessMomoTransaction extends Component {
             base64QrImage: "data:image/png;base64",
             isVisible: false,
             isNotif: false,
+            notifButton: [],
             isCash: true,
             transactionstarted: true,
             readyForMomo: false,
@@ -58,7 +59,7 @@ class ProcessMomoTransaction extends Component {
    
     //#region - Testing Purposes
     testFunction(){
-        this.showUiPleaseWaitForQr();
+        
     }
 
     //#endregion
@@ -102,11 +103,15 @@ class ProcessMomoTransaction extends Component {
         this.setState({ isVisible: false, isNotif: false });
     }
 
-    showUiNotification(title, description){
+    showUiNotification(title, description, buttonOptions){
+        if(buttonOptions == null) {
+            buttonOptions = [];
+        }
         this.setState(
           {
            notifTitle: title,
            notifDescription: description,
+           notifButton: buttonOptions,
            isVisible: true,
            isNotif: true,
           }
@@ -441,7 +446,7 @@ class ProcessMomoTransaction extends Component {
                     <View style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
                         {this.state.isNotif
                             ?
-                            (<Notification title={this.state.notifTitle} description={this.state.notifDescription} />)
+                            (<Notification  buttonArray={this.state.notifButton} title={this.state.notifTitle} description={this.state.notifDescription}  panelWidth={Number(this.props.settingdatalist[10].datainput)} panelHeight={Number(this.props.settingdatalist[11].datainput)} notifFontSize={Number(this.props.settingdatalist[12].datainput)}  />)
                             :
                             (<ActivityIndicator size="large" />)
                         }
@@ -496,7 +501,7 @@ class ProcessMomoTransaction extends Component {
         setTimeout(()=>{
             this.startUsbListener();
         },3000);
-
+        
         
     }
 

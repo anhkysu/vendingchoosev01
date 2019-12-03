@@ -43,6 +43,7 @@ class HomePage extends Component {
       isNotif: true,
       notifTitle: "Thông báo",
       notifDescription: "None",
+      notifButton: [],
       numberofslot: 16,
       numberofcolumns: 3,
       minbeverageitemwidth: 150,
@@ -121,11 +122,15 @@ class HomePage extends Component {
     }
   }
 
-  showUiNotification(title, description){
+  showUiNotification(title, description, buttonOptions){
+    if(buttonOptions == null) {
+      buttonOptions = [];
+    }
     this.setState(
       {
        notifTitle: title,
        notifDescription: description,
+       notifButton: buttonOptions,
        isVisible: true,
        isProcessing: true, 
        isNotif: true,
@@ -134,7 +139,7 @@ class HomePage extends Component {
   }
 
   hideUiNotification(){
-    this.setState({isVisible: false,});
+    this.setState({isVisible: false, notifButton:[]});
   }
 
   showLoadingUi(){
@@ -142,7 +147,7 @@ class HomePage extends Component {
   }
 
   hideLoadingUi(){
-    this.setState({isVisible: false  });
+    this.setState({isVisible: false, notifButton:[]});
   }
 
   showUiPickedProduct(thisUiDescription, cashOrMomo){
@@ -177,7 +182,7 @@ class HomePage extends Component {
   }
 
   showUiCannotGiveCashRemain(a,b){
-    Alert.alert(
+    this.showUiNotification(
     "Thông báo", 
     "Không thể thối tiền thừa cho Quý Khách!",
     [
@@ -201,7 +206,7 @@ class HomePage extends Component {
   }
 
   showUiGivingBackInputDisability(){
-    Alert.alert("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào. Quý khách có muốn mua mà không cần thối tiền lẻ",
+    this.showUiNotification("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào. Quý khách có muốn mua mà không cần thối tiền lẻ",
     [
       {text: "Không cần thối", onPress: () => {this.feedbackAboutDisabledGivingBackCash(true)}},
       {text: "Rút tiền", onPress: () => {this.feedbackAboutDisabledGivingBackCash(false)}}
@@ -220,7 +225,7 @@ class HomePage extends Component {
   }
 
   showUiContinueOrCancel(){
-    Alert.alert("Thông báo", "Có muốn tiếp tục không",
+    this.showUiNotification("Thông báo", "Có muốn tiếp tục không",
     [
       {text: "Tiếp tục", onPress: () => {sendContinueOrCancelTransaction(0, this.sendSerialData)}},
       {text: "Hủy", onPress: () => {sendContinueOrCancelTransaction(1, this.sendSerialData)}}
@@ -420,8 +425,8 @@ class HomePage extends Component {
     //this.showUiPickedProduct("asd","CashTransaction")
     //onReceivedUiRequirement(7, "none", this.pickUi)
     //this.onReadData({"topic":"paymentMethod","type":"request","content":null});
-    this.processTransaction(true, true,10000);
-   
+    //this.processTransaction(true,true,10000);
+    this.showUiPaymentMethod();
   }
   //#endregion
 
@@ -689,12 +694,12 @@ class HomePage extends Component {
               ?
               (this.state.isNotif 
                 ? 
-                (<Notification title={this.state.notifTitle} description={this.state.notifDescription}/>)
+                (<Notification buttonArray={this.state.notifButton} title={this.state.notifTitle} description={this.state.notifDescription}  panelWidth={Number(this.props.settingdatalist[10].datainput)} panelHeight={Number(this.props.settingdatalist[11].datainput)} notifFontSize={Number(this.props.settingdatalist[12].datainput)} />)
                 : 
                 (<ActivityIndicator size="large"/>)
               )
               :
-              <PaymentMethodPicker onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}}/>
+              <PaymentMethodPicker panelWidth={Number(this.props.settingdatalist[10].datainput)} panelHeight={Number(this.props.settingdatalist[11].datainput)} panelFontSize={Number(this.props.settingdatalist[12].datainput)} onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}}/>
             }
           </View>
         </Modal>

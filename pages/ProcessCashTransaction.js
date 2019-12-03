@@ -29,6 +29,7 @@ class ProcessCashTransaction extends Component {
         this.state = {
             isVisible: false,
             isNotif: false,
+            notifButton: [],
             isCash: true,
             transactionstarted: true,
             servisStarted: false,
@@ -55,7 +56,7 @@ class ProcessCashTransaction extends Component {
     
     //#region - Testing Purposes
     testFunction(){
-        this.goBackHome("none");
+        this.showUiGivingBackInputDisability();
     }
     //#endregion
 
@@ -84,11 +85,15 @@ class ProcessCashTransaction extends Component {
         }
     }
 
-    showUiNotification(title, description){
+    showUiNotification(title, description, buttonOptions){
+        if(buttonOptions == null) {
+            buttonOptions = [];
+        }
         this.setState(
           {
            notifTitle: title,
            notifDescription: description,
+           notifButton: buttonOptions,
            isVisible: true,
            isNotif: true,
           }
@@ -100,7 +105,7 @@ class ProcessCashTransaction extends Component {
     }
 
     showLoadingUi() {
-        this.setState({ isVisible: true });
+        this.setState({ isVisible: true, isNotif: false });
     }
 
     hideLoadingUi() {
@@ -115,7 +120,7 @@ class ProcessCashTransaction extends Component {
     }
 
     showUiGivingBackInputDisability() {
-        Alert.alert("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào. Quý khách có muốn mua mà không cần thối tiền lẻ",
+        this.showUiNotification("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào. Quý khách có muốn mua mà không cần thối tiền lẻ",
             [
                 { text: "Không cần thối", onPress: () => { this.feedbackAboutDisabledGivingBackCash(true) } },
                 { text: "Rút tiền", onPress: () => { this.feedbackAboutDisabledGivingBackCash(false) } }
@@ -126,7 +131,7 @@ class ProcessCashTransaction extends Component {
     }
 
     showUiContinueOrCancel() {
-        Alert.alert("Thông báo", "Có muốn tiếp tục không",
+        this.showUiNotification("Thông báo", "Có muốn tiếp tục không",
             [
                 { text: "Tiếp tục", onPress: () => { sendContinueOrCancelTransaction(0, this.sendSerialData) } },
                 { text: "Hủy", onPress: () => { sendContinueOrCancelTransaction(1, this.sendSerialData) } }
@@ -137,7 +142,7 @@ class ProcessCashTransaction extends Component {
     }
 
     showUiCannotGiveCashRemain(a,b){
-        Alert.alert(
+        this.showUiNotification(
         "Thông báo", 
         "Không thể thối tiền thừa cho Quý Khách!",
         [
@@ -386,7 +391,7 @@ class ProcessCashTransaction extends Component {
                     <View style={{ display: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
                         {this.state.isNotif
                             ?
-                            (<Notification title={this.state.notifTitle} description={this.state.notifDescription} />)
+                            (<Notification  buttonArray={this.state.notifButton} title={this.state.notifTitle} description={this.state.notifDescription} panelWidth={Number(this.props.settingdatalist[10].datainput)} panelHeight={Number(this.props.settingdatalist[11].datainput)} notifFontSize={Number(this.props.settingdatalist[12].datainput)} />)
                             :
                             (<ActivityIndicator size="large" />)
                         }
@@ -417,7 +422,7 @@ class ProcessCashTransaction extends Component {
                     </View>
 
                     <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
-                        <Button title="Test" onPress={()=>{this.testFunction()}}/>
+                        {/*<Button title="Test" onPress={()=>{this.testFunction()}}/> */}
                     </View>
                 </View>
             </View>
