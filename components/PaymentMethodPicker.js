@@ -25,11 +25,12 @@ class PaymentMethodPicker extends Component {
                     Vui lòng chọn phương thức thanh toán
                 </Text>
                 <View style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-                    <View style={{ minWidth: 300, display: "flex", flexDirection: "row", justifyContent: "center" }}>
+                    <View style={{ minWidth: this.props.panelWidth/1.5, display: "flex", flexDirection: "row", justifyContent: "center" }}>
                         <View style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent:"flex-end" }}>
                             <CheckBox
                                 left
-                                containerStyle={{ backgroundColor: "transparent", borderWidth: 0, paddingTop: 15 }}
+                                size={this.props.panelFontSize * 2.5}
+                                containerStyle={{ backgroundColor: "transparent", borderWidth: 0 }}
                                 title='TIỀN MẶT'
                                 checkedIcon='dot-circle-o'
                                 uncheckedIcon='circle-o'
@@ -40,7 +41,8 @@ class PaymentMethodPicker extends Component {
                             />
                             <CheckBox
                                 left
-                                containerStyle={{ backgroundColor: "transparent", borderWidth: 0, paddingTop:15 }}
+                                containerStyle={{ backgroundColor: "transparent", borderWidth: 0}}
+                                size={this.props.panelFontSize * 2.5}
                                 title='VÍ MOMO'
                                 checkedIcon='dot-circle-o'
                                 uncheckedIcon='circle-o'
@@ -50,7 +52,7 @@ class PaymentMethodPicker extends Component {
                                 
                             />
                         </View>
-                        <View style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", paddingTop: 20, }}>
+                        <View style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", paddingTop: 20, marginLeft: 50 }}>
                             {
                                 this.state.isCash
                                     ? <Image style={{ width: 5*this.props.panelFontSize, height: 5*this.props.panelFontSize }} source={require('./cash.png')} />
