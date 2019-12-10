@@ -31,6 +31,7 @@ import {onReceivedUiRequirement,
         onReceivedQrCode,
         onSlotStatus} from '../business/FirmwareToAppFunctions';
 import Notification from './Notifications';
+import { cloneWithoutLoc } from '@babel/types';
 //#endregion
 
 class HomePage extends Component {
@@ -606,12 +607,19 @@ class HomePage extends Component {
       var fakearray = createFakeArray(this.state.numberofpages); 
       this.setState({numberofpages_fakearray: fakearray});
     },1);
-    return noofpages
+    console.log(`Window Height ${Dimensions.get('window').height}`);
+    console.log(`Header Height ${this.props.settingdatalist[6].datainput}`);
+    console.log(`Footer Height ${this.props.settingdatalist[7].datainput}`);
+    console.log(`Item Height ${this.props.settingdatalist[4].datainput}`);
+    console.log(`Maxnumber of Row ${maxnumberofrow}`);
+    return {noofpages: noofpages, maxnumberofrow: maxnumberofrow}
   }
 
   renderBeverageData(noofcol, noofslot, data, pagenumber){
-    var numberofpages = this.initializeLayout(noofcol, noofslot);
-    var processedData = processFullData(noofcol, noofslot, data, pagenumber, numberofpages);
+    var returnedLayout = this.initializeLayout(noofcol, noofslot);
+    var numberofpages = returnedLayout.noofpages;
+    var noofrow = returnedLayout.maxnumberofrow;
+    var processedData = processFullData(noofcol, noofslot, data, pagenumber, numberofpages, noofrow);
     console.log(processedData);
     this.setState({importantdata: processedData});
   }
@@ -754,10 +762,15 @@ class HomePage extends Component {
 
           <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
             <View style={{ height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row" }}>
-              <Button
+              {
+                /*
+                <Button
                 title="   TEST   "
                 onPress= {()=>{this.testFunction();}}
-              />
+                />
+                */
+              }
+              
               <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,false, this.state.numberofpages);this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
                   <Icon

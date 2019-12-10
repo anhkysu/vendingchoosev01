@@ -39,8 +39,8 @@ export const findNextPage = function (currentpagenumber, forwarddirection, numbe
     return nextpage;
 }
 
-export const processFullData = function (noofcol, noofslot, data, pagenumber, noofpages) {
-    var noofrow = Math.ceil(noofslot / (noofpages * noofcol));
+export const processFullData = function (noofcol, noofslot, data, pagenumber, noofpages, noofrow) {
+//    var noofrow = Math.ceil(noofslot / (noofpages * noofcol));
     var count = 1;
     if (pagenumber > 1) {
         count = count + noofrow * noofcol * (pagenumber - 1);
