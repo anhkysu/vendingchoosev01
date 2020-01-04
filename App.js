@@ -51,7 +51,7 @@ const StackNavigatorPublic = createStackNavigator({
   CashTransaction: {
     screen: ProcessCashTransaction,
     navigationOptions: ({navigation})=>({
-      headerLeft: null,
+      header: null,
       headerStyle: {backgroundColor: "lightblue"}
     }),
   },

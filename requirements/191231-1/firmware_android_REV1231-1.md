@@ -6,7 +6,7 @@
 {
   "topic":"slots",
   "type":"event",
-  "content":{"value":int}
+  "content":{"value": "unsigned int number"}
 }
 ```
 Value: số thứ tự slot
@@ -15,14 +15,16 @@ Value: số thứ tự slot
 {
   "topic":"slots",
   "type":"response",
-  "content":{"value":int}
+  "content":{"value": int}
 }
 ```
 Trong đó giá trị value như sau:
-+ 0: Slot hết sản phẩm
-+ 1: Slot bị lỗi
++ 0: Slot hết sản phẩm -> hiển thị slot hết hàng
++ 1: Slot bị lỗi -> hiển thị slot lỗi
++ 2: Slot ok - none process (App không cần hiển thị)
 + n: Sẽ thêm nếu có
 ---
+
 ## Thông tin giao diện hiển thị
 + ### Firmware gửi lên app yêu cầu hiển thị giao diện
 >Firmware request
@@ -45,13 +47,10 @@ Value:
 + 8: Màn hình mời nhận tiền thối (10)
 + 9: Màn hình chính chọn sản phẩm (10 - 1)
 + 10: Màn hình hiển thị không thể thối tiền thừa (10-2)
-+ n: Thêm sau nếu có
 + 11: Màn hình hiển thị tiền đưa vào lớn hơn 50k (14-2),
 + 12: Màn hình hiển thị không đủ tiền thối (14-1),
-+ 13: Màn hình hiển thị slot hết hàng,
-+ 14: Màn hình hiển thị slot lỗi,
-+ 15: Màn hình mời nhận lại tiền
-
++ 13: Màn hình mời nhận lại tiền
++ n: Thêm sau nếu có
 
 >Android reponds
 ```json
@@ -143,6 +142,7 @@ Trong đó giá trị value như sau:
   "content": "ok"
 }
 ```
+
 + ### Firmware truyền xuống android hiển thị giao diện thông báo không thể thối tiền vừa đưa vào để người dùng chọn (15)
 >Firmware request
 ```json
@@ -179,6 +179,7 @@ Value: 0: Không chấp nhận, 1: Chấp nhận
 }
 ```
 ---
+
 ## Thông tin thanh toán momo
 + ### Firmware gửi hình qr code lên app (17)
 >Firmware request
@@ -186,7 +187,7 @@ Value: 0: Không chấp nhận, 1: Chấp nhận
 {
   "topic":"momoMethod",
   "type":"update",
-  "content":{"base64":int}
+  "content":{"base64": string}
 }
 ```
 Value: chuỗi dữ liệu hình qr code định dạng base64
@@ -198,43 +199,9 @@ Value: chuỗi dữ liệu hình qr code định dạng base64
   "content":{"status":"ok"}
 }
 ```
----
-## Thông tin cài đặt máy
-+ ### Android gửi các thông số cài đặt xuống máy (18)
->Android request
-```json
-{
-  "topic":"setting",
-  "type":"update",
-  "content":{"device":int, "value":int}
-}
-```
->Firmware reponds
-```json
-{
-  "topic":"setting",
-  "type":"response",
-  "content":{"status":"ok"}
-}
-```
-+ ### Android yêu cầu các thông số cài đặt của thiết bị (19)
->Android request
-```json
-{
-  "topic":"setting",
-  "type":"request",
-  "content":{"device":int}
-}
-```
->Firmware reponds
-```json
-{
-  "topic":"setting",
-  "type":"response",
-  "content":{"device":int, "value":int}
-}
-```
-Thông tin cài đặt tham khảo file setting đính kèm(sẽ thêm sau)
+
+
+
 
 ## Thông tin tiếp tục/hủy giao dịch
 + ### Android gửi xuống firmware tiếp tục hay hủy giao dịch (20)
@@ -250,6 +217,7 @@ Value:
 + 0: Hủy giao dịch
 + 1: Tiếp tục giao dịch
 + 2: ..
+
 >Firmware reponds
 ```json
 {

@@ -26,7 +26,7 @@ export default class BeverageItem extends Component {
         
         return (
             <View style={{ backgroundColor: "#d0e0fb", marginHorizontal: 5, display: "flex", width: this.props.itemWidth, height: "100%", borderRadius: 7, borderWidth: 0.5, borderColor: "#3e81f4" }}>
-                <TouchableOpacity style={{ flex: 1 }} onPress={()=>{this.props.myMethod1({slotSetting:slotSetting, validSlots:validSlots, name: name, price: price})}}>
+                <TouchableOpacity style={{ flex: 1 }} onPress={()=>{this.props.myMethod1({slotSetting:slotSetting, validSlots:validSlots, name: name, price: price, image: imageSource})}}>
                     <View style={{ display: "flex", flex: 1 }}>
                         <View style={{ height: 20, display: "flex", flexDirection: "row", paddingHorizontal: 5, marginTop: 5 }}>
                             <View style={{ flex: 1 }}>

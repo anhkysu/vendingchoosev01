@@ -31,7 +31,7 @@ import {onReceivedUiRequirement,
         onReceivedQrCode,
         onSlotStatus} from '../business/FirmwareToAppFunctions';
 import Notification from './Notifications';
-import { cloneWithoutLoc } from '@babel/types';
+
 //#endregion
 
 class HomePage extends Component {
@@ -53,7 +53,7 @@ class HomePage extends Component {
       currentpagenumber: 1,
       numberofpages_fakearray: [],
       importantdata: [],
-      cashavailable: 15000,
+      cashavailable: 0,
       pickedItem: {},
       servisStarted: false,
       connected: false,
@@ -83,7 +83,7 @@ class HomePage extends Component {
     this.hideLoadingUi();
     switch (uiId) {
       case 0:
-        this.showUiPickedProduct(uiDescription, params);
+        this.showUiPickedProduct(uiDescription, "CashTransaction");
         break;
       case 1:
         this.showUiPleaseGetProduct(uiDescription, params);
@@ -104,6 +104,7 @@ class HomePage extends Component {
         this.showUiPleaseGetCashRemain(uiDescription, params);
         break;
       case 9:
+        this.hideUiNotification();
         break;
       case 10:
         this.showUiCannotGiveCashRemain(uiDescription, params);
@@ -120,6 +121,15 @@ class HomePage extends Component {
       case 14:
         this.showUiSlotOver(uiDescription, params);
         break;
+      case 15:
+        this.showUiPleaseGetCash(uiDescription, params);
+        break;
+      case 99:
+        this.showLoadingUi();
+        break;
+      default: 
+        break;
+        
     }
   }
 
@@ -151,22 +161,27 @@ class HomePage extends Component {
     this.setState({isVisible: false, notifButton:[]});
   }
 
+  showUiPleaseGetCash(a, b) {
+    this.showUiNotification("Thông báo", "Mời bạn nhận lại tiền");
+  }
+
   showUiPickedProduct(thisUiDescription, cashOrMomo){
     console.log(thisUiDescription);
     if(cashOrMomo == "CashTransaction"){
       this.props.navigation.navigate('CashTransaction', 
       {onReturnHome: (data) => this.onReturnHome(data), 
-        itemid:`${this.state.pickedItem.slotSetting}`,
         itemname:`${this.state.pickedItem.name}`, 
-        itemprice:`${this.state.pickedItem.price}`, 
-        cashavailable:`${this.state.cashavailable}`});
+        itemimage: `${this.state.pickedItem.image}`,       
+        cashavailable:`${this.state.cashavailable}`,
+        isDirect: true,
+      });
     }
     else if(cashOrMomo == "MomoTransaction"){
       this.props.navigation.navigate('MomoTransaction',  
       {onReturnHome: (data) => this.onReturnHome(data), 
-        itemid:`${this.state.pickedItem.slotSetting}`, 
         itemname:`${this.state.pickedItem.name}`,
-        itemprice:`${this.state.pickedItem.price}`});
+        cashavailable:`${this.state.cashavailable}`,
+      })
     }
   }
 
@@ -210,7 +225,7 @@ class HomePage extends Component {
     this.showUiNotification("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào. Quý khách có muốn mua mà không cần thối tiền lẻ",
     [
       {text: "Không cần thối", onPress: () => {this.feedbackAboutDisabledGivingBackCash(true)}},
-      {text: "Rút tiền", onPress: () => {this.feedbackAboutDisabledGivingBackCash(false)}}
+      {text: "Hủy giao dịch", onPress: () => {this.feedbackAboutDisabledGivingBackCash(false)}}
     ]
     ,
     { cancelable: false }
@@ -369,29 +384,37 @@ class HomePage extends Component {
               return;
             }
             else {
+              this.sendSerialData(JSON.stringify({topic:"interface", type:"response", content: {status: "ok"} }), true);
               onReceivedUiRequirement(content.value, 'none', this.pickUi);
             }
             break;
             
           case 'paymentMethod':
-            if(type != 'request'){
-              this.showError("Firmware should respond with type of request");
-              return;
+            if(type == 'request') {
+              this.hideLoadingUi();
+              this.sendSerialData(JSON.stringify({topic:"paymentMethod", type:"response", content: {status: "ok"} }), true);
+              onPaymentMethodDisplayRequirement(this.showUiPaymentMethod);
+            }
+            else if (type == 'response'){
+
             }
             else {
-              this.hideLoadingUi();
-              onPaymentMethodDisplayRequirement(this.showUiPaymentMethod);
+              this.showError('Firmware sent a request of ambiguous type');
+              return;
             }
             break;
 
           case 'cashMethod':
             if (type == 'updateMoney') {
+              this.sendSerialData(JSON.stringify({topic:"cashMethod", type:"response", content: {status: "ok"}}), true);
               onUpdateCashAvailable("refreshCash", content.value, this.updateCashAvailable);
             }
             else if (type == 'warning') {
+              this.sendSerialData(JSON.stringify({topic:"cashMethod", type:"response", content: {status: "ok"}}), true);
               onReceivedUiRequirement(11, "", this.pickUi);
             }
             else if (type == 'request') {
+              this.sendSerialData(JSON.stringify({topic:"cashMethod", type:"response", content: {status: "ok"}}), true);
               onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);
             }
             break;
@@ -410,30 +433,36 @@ class HomePage extends Component {
     }
   }
 
-  sendSerialData(string){
-    this.showLoadingUi();
-    if(this.state.connected){
-      RNSerialport.writeString(string);
+  sendSerialData(string, notStrict) {
+    if (notStrict) {
+      if (this.state.connected) {
+        RNSerialport.writeString(string);
+      }
     }
     else {
-      setTimeout(()=>{this.hideLoadingUi();},3000);
+      this.showLoadingUi();
+      if (this.state.connected) {
+        RNSerialport.writeString(string);
+      }
+      else {
+        setTimeout(() => { this.hideLoadingUi(); }, 3000);
+      }
     }
   }
   //#endregion
 
   //#region - Testing Function
   testFunction() {
-    //this.showUiPickedProduct("asd","CashTransaction")
-    //onReceivedUiRequirement(7, "none", this.pickUi)
-    //this.onReadData({"topic":"paymentMethod","type":"request","content":null});
-    //this.processTransaction(true,true,10000);
-    this.showUiPaymentMethod();
+    this.showUiPickedProduct("asd","CashTransaction");
+    // onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);    
+    
   }
   //#endregion
 
   //#region - Categorized 
   onOneItemTouched(itemInfoObject) {
     sendSelectedSlot(itemInfoObject.slotSetting, this.sendSerialData);
+    this.setState({pickedItem: itemInfoObject});
   }
 
   updateCashAvailable(inputCashOrRefreshCash, cashValue){
@@ -448,7 +477,7 @@ class HomePage extends Component {
   }
 
   onCancelTransaction() {
-    sendContinueOrCancelTransaction(0, this.sendSerialData);
+    sendContinueOrCancelTransaction(0, this.sendSerialData, true);
   }
 
   feedbackAboutDisabledGivingBackCash(userAccept){
@@ -476,25 +505,39 @@ class HomePage extends Component {
     }, 3000);
   }
   
-  processTransaction(transactionApproved, isCash, cashavailable){
-    if(transactionApproved){
-      if(isCash) {
+  processTransaction(transactionApproved, isCash, cashavailable) {
+    if (transactionApproved) {
+
+      if (isCash) {
         sendPaymentMethod("cash", this.sendSerialData);
         this.stopUsbListener();
         this.hideLoadingUi();
-        this.props.navigation.navigate('CashTransaction', {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`,itemname:`${this.state.pickedItem.name}`, itemprice:`${this.state.pickedItem.price}`, cashavailable:`${cashavailable}`});
+        this.props.navigation.navigate('CashTransaction',
+          {
+            onReturnHome: (data) => this.onReturnHome(data),
+            itemname: `${this.state.pickedItem.name}`,
+            itemimage: `${this.state.pickedItem.image}`,
+            cashavailable: `${cashavailable}`,
+            isDirect: false
+          });
       }
+
       else {
         sendPaymentMethod("momo", this.sendSerialData);
         this.stopUsbListener();
         this.hideLoadingUi();
-        this.props.navigation.navigate('MomoTransaction',  {onReturnHome: (data) => this.onReturnHome(data), itemid:`${this.state.pickedItem.slotSetting}`, itemname:`${this.state.pickedItem.name}`,itemprice:`${this.state.pickedItem.price}`});
+        this.props.navigation.navigate('MomoTransaction',
+          {
+            onReturnHome: (data) => this.onReturnHome(data),
+            itemname: `${this.state.pickedItem.name}`,
+            cashavailable: `${cashavailable}`,
+          });
       }
     }
     else {
       this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
     }
-    this.setState({isVisible: false});
+    this.setState({ isVisible: false });
   }
 
   //#endregion 
@@ -707,7 +750,7 @@ class HomePage extends Component {
                 (<ActivityIndicator size="large"/>)
               )
               :
-              <PaymentMethodPicker panelWidth={Number(this.props.settingdatalist[10].datainput)} panelHeight={Number(this.props.settingdatalist[11].datainput)} panelFontSize={Number(this.props.settingdatalist[12].datainput)} onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash)}}/>
+              <PaymentMethodPicker panelWidth={Number(this.props.settingdatalist[10].datainput)} panelHeight={Number(this.props.settingdatalist[11].datainput)} panelFontSize={Number(this.props.settingdatalist[12].datainput)} onTransactionRequired={(transactionApproved, isCash)=>{this.processTransaction(transactionApproved, isCash, this.state.cashavailable)}}/>
             }
           </View>
         </Modal>
@@ -762,16 +805,13 @@ class HomePage extends Component {
 
           <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
             <View style={{ height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row" }}>
-              {
-                /*
-                <Button
-                title="   TEST   "
-                onPress= {()=>{this.testFunction();}}
-                />
-                */
-              }
               
-              <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {/* <Button
+                title="   TEST   "
+                onPress={() => { this.testFunction(); }}
+              />  */}
+                
+               <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,false, this.state.numberofpages);this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
                   <Icon
                     size={2.5* Number(this.props.settingdatalist[9].datainput)}
@@ -785,8 +825,8 @@ class HomePage extends Component {
                 {
                   this.state.numberofpages_fakearray.map((pageArray) => {
                     return (
-                      <TouchableOpacity key={pageArray.id} onPress={(index) => { this.renderBeverageData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, pageArray.id, this.state.numberofpages); this.setState({currentpagenumber: pageArray.id});this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
-                        <PageButtonItem pagenumber={pageArray.id} pageNumberFontSize={Number(this.props.settingdatalist[9].datainput)+2}/>
+                      <TouchableOpacity disabled={pageArray.id == this.state.currentpagenumber} key={pageArray.id} onPress={(index) => { this.renderBeverageData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, pageArray.id, this.state.numberofpages); this.setState({currentpagenumber: pageArray.id});this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
+                        <PageButtonItem disabledStyle={pageArray.id == this.state.currentpagenumber} pagenumber={pageArray.id} pageNumberFontSize={Number(this.props.settingdatalist[9].datainput)+2}/>
                       </TouchableOpacity>
                     )
                   })

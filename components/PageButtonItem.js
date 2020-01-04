@@ -11,7 +11,7 @@ export default class PageButtonItem extends Component {
         const pagenumber = this.props.pagenumber;
         return (
             <View style={{ padding: 5, marginHorizontal: 5, borderRadius: 10, backgroundColor: "white", width: 30 }}>
-                <Text style={{ fontSize: this.props.pageNumberFontSize, textAlign: "center" }}>{pagenumber}</Text>
+                <Text style={{ fontSize: this.props.pageNumberFontSize, textAlign: "center", color: (this.props.disabledStyle ? "gray" : "black") }}>{pagenumber}</Text>
             </View>
         )
     }

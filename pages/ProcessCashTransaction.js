@@ -1,4 +1,4 @@
-//#region IMPORt 
+//#region IMPORt
 import React, { Component } from 'react';
 import {
     View,
@@ -19,7 +19,8 @@ import {
     sendContinueOrCancelTransaction
     } from '../business/AppToFirmwareFunctions';
 import { onReceivedUiRequirement,
-         onGivingBackInputDisabilityDisplayRequirement } from '../business/FirmwareToAppFunctions';
+         onGivingBackInputDisabilityDisplayRequirement,
+         onUpdateCashAvailable,  } from '../business/FirmwareToAppFunctions';
 import Notification from './Notifications';
 //#endregion
 
@@ -27,6 +28,7 @@ class ProcessCashTransaction extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            cashavailable: this.props.navigation.state.params.cashavailable,
             isVisible: false,
             isNotif: false,
             notifButton: [],
@@ -45,18 +47,20 @@ class ProcessCashTransaction extends Component {
         this.startUsbListener = this.startUsbListener.bind(this);
         this.stopUsbListener = this.stopUsbListener.bind(this);
         this.itemname = this.props.navigation.state.params.itemname;
-        this.itemprice = this.props.navigation.state.params.itemprice;
-        this.itemid = this.props.navigation.state.params.itemid;
         this.cashavailable = this.props.navigation.state.params.cashavailable;
+        this.isDirectCashTransaction = this.props.navigation.state.params.isDirect;
         this.sendSerialData = this.sendSerialData.bind(this);
         this.showUiGivingBackInputDisability = this.showUiGivingBackInputDisability.bind(this);
         this.pickUi = this.pickUi.bind(this);
-        //this.processCashChange(this.cashavailable, this.itemprice);
+        this.updateCashAvailable = this.updateCashAvailable.bind(this);
+        this.imageSource = this.props.navigation.state.params.itemimage;
     }
-    
+
     //#region - Testing Purposes
     testFunction(){
-        this.showUiGivingBackInputDisability();
+        //this.sendSerialData(JSON.stringify({topic:"cashMethod", type:"response", content: {status: "ok"}}));
+        this.sendSerialData(JSON.stringify({ topic: "cashMethod", type: "response", content: { status: "ok" } }), true);
+        onUpdateCashAvailable("refreshCash", 230000, this.updateCashAvailable);
     }
     //#endregion
 
@@ -80,7 +84,10 @@ class ProcessCashTransaction extends Component {
             case 12:
                 this.showUiNotEnoughToGiveBack(uiDescription, params);
                 break;
-            default: 
+            case 15:
+                this.showUiPleaseGetCash(uiDescription, params);
+                break;
+            default:
                 break;
         }
     }
@@ -111,19 +118,24 @@ class ProcessCashTransaction extends Component {
     hideLoadingUi() {
         this.setState({ isVisible: false });
     }
+
+    showUiPleaseGetCash(a, b) {
+        this.showUiNotification("Thông báo", "Mời bạn nhận lại tiền");
+    }
+
     showUiMoreThan50000(a, b) {
-        this.showUiNotification("Thông báo", "Tổng tiền lớn hơn 50000 vnđ rồi!");
+        this.showUiNotification("Thông báo", "Tổng tiền lớn hơn 50000 vnđ rồi... Mời bạn nhận lại tiền!");
     }
 
     showUiNotEnoughToGiveBack(a, b) {
-        this.showUiNotification("Thông báo", "Không đủ tiền thối rồi");
+        this.showUiNotification("Thông báo", "Máy không đủ tiền thối rồi... Mời bạn nhận lại tiền!");
     }
 
     showUiGivingBackInputDisability() {
         this.showUiNotification("Thông báo", "Xin lỗi, không thể thối tiền vừa đưa vào. Quý khách có muốn mua mà không cần thối tiền lẻ",
             [
                 { text: "Không cần thối", onPress: () => { this.feedbackAboutDisabledGivingBackCash(true) } },
-                { text: "Rút tiền", onPress: () => { this.feedbackAboutDisabledGivingBackCash(false) } }
+                { text: "Hủy giao dịch", onPress: () => { this.feedbackAboutDisabledGivingBackCash(false) } }
             ]
             ,
             { cancelable: false }
@@ -143,11 +155,11 @@ class ProcessCashTransaction extends Component {
 
     showUiCannotGiveCashRemain(a,b){
         this.showUiNotification(
-        "Thông báo", 
+        "Thông báo",
         "Không thể thối tiền thừa cho Quý Khách!",
         [
           {text:"Không cần thối tiền lẻ", onPress: ()=>{this.feedbackAboutDisabledGivingBackCash(true)}},
-          {text:"Nạp thêm", onPress: ()=>{this.showUiContinueOrCancel()}}
+          {text:"Hủy giao dịch", onPress: ()=>{this.feedbackAboutDisabledGivingBackCash(false)}}
         ]
         );
     }
@@ -162,6 +174,17 @@ class ProcessCashTransaction extends Component {
     feedbackAboutDisabledGivingBackCash(userAccept) {
         sendUserFeedbackAboutDisabilityOfGivingBackCashChange(userAccept, this.sendSerialData);
     }
+
+    updateCashAvailable(inputCashOrRefreshCash, cashValue){
+        this.showLoadingUi();
+        if(inputCashOrRefreshCash == "inputCash"){
+          this.setState({cashavailable: this.state.cashavailable + cashValue});
+        }
+        else if(inputCashOrRefreshCash == "refreshCash"){
+          this.setState({cashavailable: cashValue});
+        }
+        this.hideLoadingUi();
+      }
     //#endregion
 
     //#region - Uncategorized Code
@@ -188,8 +211,8 @@ class ProcessCashTransaction extends Component {
             this.showError(errorIfExists);
             this.goBackHome("FAILED");
         }
-        
-    }   
+
+    }
 
     goBackHome(data){
         this.props.navigation.goBack();
@@ -209,7 +232,7 @@ class ProcessCashTransaction extends Component {
             Alert.alert("Thông báo", "Chúc bạn ngon miệng");
         }
         else {
-            Alert.alert("Thông báo", "Lỗi máy! Mời quý khách thực hiện lại giao dịch");   
+            Alert.alert("Thông báo", "Lỗi máy! Mời quý khách thực hiện lại giao dịch");
         }
         this.checkRemainderFromVendingMachine()
         this.props.navigation.navigate('Home');
@@ -352,16 +375,19 @@ class ProcessCashTransaction extends Component {
             else {
                 switch (topic) {
                     case 'interface':
-                        if (type != 'request') {
-                            this.showError('Firmware should send a request with type of request');
-                            return;
-                        }
-                        else {
+                        if (type == 'request') {
+                            this.sendSerialData(JSON.stringify({topic:"interface", type:"response", content: {status: "ok"} }), true);
                             onReceivedUiRequirement(content.value, 'none', this.pickUi);
                         }
                         break;
+
                     case 'cashMethod':
-                        if (type == 'request') {
+                        if (type == 'updateMoney') {
+                            this.sendSerialData(JSON.stringify({ topic: "cashMethod", type: "response", content: { status: "ok" } }), true);
+                            onUpdateCashAvailable("refreshCash", content.value, this.updateCashAvailable);
+                        }
+                        else if (type == 'request') {
+                            this.sendSerialData(JSON.stringify({ topic: "cashMethod", type: "response", content: { status: "ok" } }), true);
                             onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);
                         }
                         break;
@@ -372,17 +398,24 @@ class ProcessCashTransaction extends Component {
         }
     }
 
-    sendSerialData(string) {
-        this.showLoadingUi();
-        if (this.state.connected) {
-            RNSerialport.writeString(string);
+    sendSerialData(string, notStrict) {
+        if(notStrict){
+            if (this.state.connected) {
+                RNSerialport.writeString(string);
+            }
         }
         else {
-            setTimeout(() => { this.hideLoadingUi(); }, 3000);
+            this.showLoadingUi();
+            if (this.state.connected) {
+                RNSerialport.writeString(string);
+            }
+            else {
+                setTimeout(() => { this.hideLoadingUi(); }, 3000);
+            }
         }
     }
     //#endregion
-    
+
     //#region - Main View
     render() {
         return (
@@ -397,12 +430,37 @@ class ProcessCashTransaction extends Component {
                         }
                     </View>
                 </Modal>
-                <View style={{ display: "flex", flex: 1, padding: 5, flexDirection: "row" }}>
-
-                    <View style={{ displat: "flex", flex: 1, alignItems: "center", justifyContent: "center" }}>
-                        <Text style={{ fontSize: 20 }}>
-                            Mời Quý Khách Chờ Một Lát Để Mua Được 1 {this.itemname}
+                <View style={{ height: Number(this.props.settingdatalist[6].datainput), alignItems: "center", justifyContent: "flex-start", paddingLeft: 20, flexDirection: "row" }}>
+                    <View style={{ flex: 1, display: "flex", alignItems: "flex-end", paddingRight: 30 }}>
+                        <Text style={{ fontWeight: "bold", fontSize: Number(this.props.settingdatalist[8].datainput), color: "green" }}>
+                            ĐÃ NẠP: {this.state.cashavailable} VNĐ
                         </Text>
+                    </View>
+                </View>
+                <View style={{ display: "flex", flex: 1, padding: 5, flexDirection: "row" }}>
+                    <View style={{ displat: "flex", flex: 1, alignItems: "center", justifyContent: "center"}}>
+                        <View style={{alignItems: "center", justifyContent: "center" }}>
+                            <Text style={{ fontSize: 1.3 * Number(this.props.settingdatalist[12].datainput), paddingTop: 20, fontWeight: "bold", color: "dodgerblue" }}>
+                                THÔNG TIN GIAO DỊCH SẢN PHẨM
+                            </Text>
+                        </View>
+                        <View style={{ flex: 3, alignItems: "center", justifyContent: "center" }}>
+                            <View style={{ paddingVertical: Number(this.props.settingdatalist[6].datainput)/2 }}>
+                                <Text style={{ fontSize: 1.2 * Number(this.props.settingdatalist[12].datainput) }}>
+                                    Sản phẩm: {this.itemname}
+                                </Text>
+                                <Text style={{ fontSize: 1.2 * Number(this.props.settingdatalist[12].datainput) }}>
+                                    Số lượng: 1
+                                </Text>
+                            </View>
+                            <View>
+                                <Image
+                                    style={{ height: Number(this.props.settingdatalist[7].datainput) *2 , width: Number(this.props.settingdatalist[7].datainput) *2 }}
+                                    source={{ uri: `${this.imageSource}` }}
+                                    resizeMode="contain"
+                                />
+                            </View>
+                        </View>
                     </View>
                 </View>
 
@@ -417,12 +475,22 @@ class ProcessCashTransaction extends Component {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
-
+                    <View style={{ flex: 1,flexDirection: 'row', height: "100%", justifyContent: "center", alignItems: "center" }}>
+                        <TouchableOpacity onPress={() => {sendContinueOrCancelTransaction(0, this.sendSerialData)}} style={{ backgroundColor: "dodgerblue", borderRadius: 5, padding: 7, paddingVertical: 10, justifyContent: "center", marginHorizontal: 10 }} >
+                            <Text style={{ fontSize: Number(this.props.settingdatalist[9].datainput), color: "white" }}>
+                                TIẾP TỤC
+                            </Text>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity onPress={() => { sendContinueOrCancelTransaction(1, this.sendSerialData)}} style={{ backgroundColor: "dodgerblue", borderRadius: 5, padding: 7, paddingVertical: 10, justifyContent: "center" }} >
+                            <Text style={{ fontSize: Number(this.props.settingdatalist[9].datainput), color: "white" }}>
+                                HỦY GIAO DỊCH
+                            </Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={{ width: 150, height: "100%", backgroundColor: "lightblue", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingRight: 10 }}>
-                        {/*<Button title="Test" onPress={()=>{this.testFunction()}}/> */}
+                        {/* <Button title="Test" onPress={() => { this.testFunction() }} /> */}
                     </View>
                 </View>
             </View>
@@ -432,14 +500,12 @@ class ProcessCashTransaction extends Component {
     //#endregion
 
     componentDidMount() {
-        
         this.showLoadingUi();
         setTimeout(()=>{
             this.startUsbListener();
             this.hideLoadingUi();
-            this.showUiContinueOrCancel();
+            // if(!this.isDirectCashTransaction) {this.showUiContinueOrCancel()};
         },3000);
-        
     }
 
     componentWillUnmount() {

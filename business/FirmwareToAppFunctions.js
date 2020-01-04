@@ -18,7 +18,9 @@ const ListOfUi = [
 "Màn hình hiển thị không đủ tiền thối (14-1)",
 
 "Màn hình hiển thị slot hết hàng",
-"Màn hình hiển thị slot lỗi"
+"Màn hình hiển thị slot lỗi",
+
+"Màn hình mời nhận lại tiền"
 ]
 
 export const onReceivedUiRequirement = function (uiId, additionalParams,subsequenceFunction) {
@@ -58,7 +60,10 @@ export const onSlotStatus = function( slotStatus){
             
         case 1:
             return 13;
-            
+
+        case 2: 
+            return 99;
+
         default:
             break;
     }
