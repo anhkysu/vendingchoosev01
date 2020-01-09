@@ -23,7 +23,7 @@ export default class LoginPage extends Component {
         }
     }
     test(){
-        this.props.navigation.navigate('SettingPage1');
+        this.props.navigation.navigate('SettingMenuPage');
     }
 
     attemptToLogin(token) {
@@ -32,7 +32,7 @@ export default class LoginPage extends Component {
             Alert.alert("Thông tin nhập chưa chính xác");
         }
         else {
-            this.props.navigation.navigate('SettingPage1');
+            this.props.navigation.navigate('SettingMenuPage');
         }
     }
 
@@ -46,7 +46,7 @@ export default class LoginPage extends Component {
         else if (username == adminCredential.username && passwords == adminCredential.passwords) {
             setTimeout(() => {
                 this.setState({ loading: false });
-                this.props.navigation.navigate('SettingPage1');
+                this.props.navigation.navigate('SettingMenuPage');
             }, 1000);
         }
 

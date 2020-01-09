@@ -230,6 +230,127 @@ var initialState = {
       datainput: "1",
     },
   ],
+  machineSettings: [
+    {
+      itemlabel: "ID máy",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "1"
+    },
+    {
+      itemlabel: "IP Server",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "Trà xanh không độ"
+    },
+    {
+      itemlabel: "Version Firmware",
+      datainputtype: "TextLabel",
+      options: { "nope": "nope" },
+      datainput: "AKCBB"
+    },
+    {
+      itemlabel: "Tổng số Slot",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+    {
+      itemlabel: "Trạng thái Server",
+      datainputtype: "Switch",
+      options: { "nope": "nope" },
+      datainput: false,
+    },
+    {
+      itemlabel: "Thời gian Start Máy Lạnh Buổi 1",
+      datainputtype: "TimePicker",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+    {
+      itemlabel: "Thời gian Stop Máy Lạnh Buổi 1",
+      datainputtype: "TimePicker",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+    {
+      itemlabel: "Nhiệt độ Start Máy Lạnh Buổi 1",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+    {
+      itemlabel: "Nhiệt độ Stop Máy Lạnh Buổi 1",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+    {
+      itemlabel: "Nhiệt độ Stop Máy Lạnh Buổi 1",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+    {
+      itemlabel: "Nhiệt độ Stop Máy Lạnh Buổi 2",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+    {
+      itemlabel: "Nhiệt độ Stop Máy Lạnh Buổi 2",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+  ],
+  paymentSettings: [
+    {
+      itemlabel: "Trạng thái thanh toán online",
+      datainputtype: "Switch",
+      options: { "nope": "nope" },
+      datainput: false,
+    },
+    {
+      itemlabel: "Mệnh giá tiền mặt tối đa cho phép",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "Trà xanh không độ"
+    },
+    {
+      itemlabel: "Trạng thái cho phép thối tiền",
+      datainputtype: "Switch",
+      options: { "nope": "nope" },
+      datainput: false,
+    },
+    {
+      itemlabel: "Tổng tiền mặt cho phép nhận",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+    {
+      itemlabel: "Số lượng tờ tiến tối đa dưới ngăn chứa",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "10000",
+    },
+  ],
+  slotLinks: [
+    {
+      itemlabel: "Slot được Link",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "1",
+    },
+    {
+      itemlabel: "Phím đang chọn",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "Trà xanh không độ"
+    },
+  ]
+  ,
   testvar: "notok"
 }
 
