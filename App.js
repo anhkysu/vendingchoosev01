@@ -12,7 +12,7 @@ import SettingPage1 from "./pages/SettingPage1";
 import SettingPage2 from "./pages/SettingPage2";
 import SettingMenuPage from "./pages/SettingMenuPage";
 import settingpage1reducer from "./redux/reducers/SettingPage1Reducer"
-import { SlotsManagement, Passwords, PaymentSettings, SerialPortSettings, InformationSettings ,ProgramUpdate, SlotLinks, MachineSettings } from "./pages/setting";
+import { SlotsManagement, Passwords, PaymentSettings, SerialPortSettings, InformationSettings ,ProgramUpdate, SlotLinks, MachineSettings, LayoutSettings } from "./pages/setting";
 
 
 
@@ -88,6 +88,13 @@ const StackNavigator = createStackNavigator({
     navigationOptions: ({navigation})=>({
       headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
       title: "SLOTS MANAGEMENT"
+    }),
+  },
+  LayoutSettings: {
+    screen: LayoutSettings,
+    navigationOptions: ({navigation})=>({
+      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
+      title: "LAYOUT SETTINGS"
     }),
   },
   SettingPage1: {

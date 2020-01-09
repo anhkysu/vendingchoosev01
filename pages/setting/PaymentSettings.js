@@ -59,7 +59,7 @@ class PaymentSettings extends Component {
                     <ScrollView style={{ flex: 1 }}>
                         {
                             this.props.paymentSettings.map((datainput, index) => {
-                                return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options} />)
+                                return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options} constraint={datainput.constraint}/>)
                             })
                         }
                     </ScrollView>

@@ -55,6 +55,11 @@ const menuList = [
         label: "Machine Settings",
         icon: require("./setting.png"),
     },
+    {
+        id: 8,
+        label: "Layout Settings",
+        icon: require("./setting.png"),
+    },
 ]
 
 
@@ -78,7 +83,7 @@ class SettingMenuPage extends Component {
     }
 
     componentDidMount(){
-        this.processMenu(menuList, 4, 2);
+        this.processMenu(menuList, 5, 2);
     }
 
     processMenuTouch(data){
@@ -101,8 +106,8 @@ class SettingMenuPage extends Component {
                                                 return (
                                                     <View key={subindex} style={{ flex: 1, backgroundColor: "whitesmoke", alignItems: "center", justifyContent: "center", paddingBottom: 20 }}>
                                                         <TouchableOpacity onPress={()=>{this.processMenuTouch(subitem.label)}} style={{flex: 1, alignItems:"center", justifyContent:"center"}}>
-                                                            <View style={{ width: 100, height: 100, padding: 20, borderRadius: 30, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                                                <Image source={subitem.icon} resizeMode={'contain'} style={{ width: 80, height: 80 }} />
+                                                            <View style={{ width: Number(this.props.settingdatalist[7].datainput) * 2, height: Number(this.props.settingdatalist[7].datainput) * 2, padding: 20, borderRadius: 30, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                                                                <Image source={subitem.icon} resizeMode={'contain'} style={{ width: Number(this.props.settingdatalist[7].datainput) * 2, height: Number(this.props.settingdatalist[7].datainput) * 2, }} />
                                                             </View>
 
                                                             <Text style={{ fontSize: 20 }}>

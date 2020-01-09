@@ -98,43 +98,17 @@ class SlotsManagement extends Component {
                 <View style={{ flex: 1, marginBottom: 10 }}>
                     <ScrollView style={{ flex: 1 }}>
                         {
-                            this.props.oneslotdata.map((datainput, index) => {
-                                return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options} />)
+                            this.props.slotsManagement.map((datainput, index) => {
+                                return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options} constraint={datainput.constraint}/>)
                             })
                         }
-                        <View style={{ height: 300, width: "100%", marginTop: 5, display: "flex" }}>
-                            <View style={{ height: 40, width: 300, display: "flex", flexDirection: "row", marginBottom: 5, marginLeft: 15 }}>
-                                <Text style={{ fontSize: 17 }}>Chọn hình hiển thị</Text>
-                            </View>
-                            <View style={{ flex: 1, backgroundColor: "whitesmoke", display: "flex", flexDirection: "row", marginLeft: "5%" }}>
-                                <View style={{ flex: 1, paddingVertical: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                    <View style={{ width: 200, height: 200, backgroundColor: 'white' }}>
-                                        <Image
-                                            style={{ height: "100%", width: "auto", backgroundColor: "transparent" }}
-                                            source={{ uri: this.state.avatarSource }}
-                                            resizeMode="contain"
-                                            overlayColor="blue"
-                                        />
-                                    </View>
-                                </View>
-                                <View style={{ width: 70, height: "100%", alignItems: "flex-end", justifyContent: "flex-end", paddingBottom: 5, paddingRight: 5 }}>
-                                    <Button title="Chọn" onPress={() => { this.handleImagePicker() }} />
-                                </View>
-                            </View>
-                        </View>
                     </ScrollView>
                 </View>
                 <View style={{ height: 40, width: "100%", display: "flex", flexDirection: "row", justifyContent: "flex-end", paddingVertical: 2 }}>
                     
                     <View style={{ paddingRight: 10 }}>
-                        <Button title="Lưu thông tin"
-                            onPress={() => {
-                                this.saveBeverageItemData(this.props.oneslotdata[0].datainput,
-                                    this.props.oneslotdata[1].datainput,
-                                    this.props.oneslotdata[2].datainput,
-                                    this.props.oneslotdata[3].datainput,
-                                    this.state.avatarSource)
-                            }}
+                        <Button title="Cập nhật thông số máy"
+                            
                         />
                     </View>
                 </View>
@@ -151,7 +125,7 @@ class SlotsManagement extends Component {
 function mapStateToProps(state){
     return {
         settingdatalist: state.settingdatalist,
-        currentslotsetting: state.currentslotsetting,
+        slotsManagement: state.slotsManagement,
         oneslotdata: state.oneslotdata,
         initialbeveragestate: state.initialbeveragestate,
     }

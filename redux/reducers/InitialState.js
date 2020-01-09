@@ -80,36 +80,6 @@ var initialState = {
       options: { "nope": "nope" },
       datainput: "18",
     },
-    {
-      itemlabel: "COM",
-      datainputtype: "Picker",
-      options: { "COM1": "COM1", "COM2": "COM2" },
-      datainput: "COM1",
-    },
-    {
-      itemlabel: "Baudrate",
-      datainputtype: "Picker",
-      options: { "115200": "115200", "62500": "62500" },
-      datainput: "115200",
-    },
-    {
-      itemlabel: "Databits",
-      datainputtype: "Picker",
-      options: { "8": "8", "16": "16" },
-      datainput: "16",
-    },
-    {
-      itemlabel: "Parity",
-      datainputtype: "Picker",
-      options: { "odd": "odd", "even": "even" },
-      datainput: "odd",
-    },
-    {
-      itemlabel: "Stop Bit",
-      datainputtype: "Picker",
-      options: { "1": "1", "2": "2" },
-      datainput: "1",
-    },
   ],
   initialbeveragestate: [
     {
@@ -349,6 +319,63 @@ var initialState = {
       options: { "nope": "nope" },
       datainput: "Trà xanh không độ"
     },
+  ],
+  serialPortSettings: [
+    {
+      itemlabel: "COM",
+      datainputtype: "Picker",
+      options: { "COM1": "COM1", "COM2": "COM2" },
+      datainput: "COM1",
+    },
+    {
+      itemlabel: "Baudrate",
+      datainputtype: "Picker",
+      options: { "115200": "115200", "62500": "62500" },
+      datainput: "115200",
+    },
+    {
+      itemlabel: "Databits",
+      datainputtype: "Picker",
+      options: { "8": "8", "16": "16" },
+      datainput: "16",
+    },
+    {
+      itemlabel: "Parity",
+      datainputtype: "Picker",
+      options: { "odd": "odd", "even": "even" },
+      datainput: "odd",
+    },
+    {
+      itemlabel: "Stop Bit",
+      datainputtype: "Picker",
+      options: { "1": "1", "2": "2" },
+      datainput: "1",
+    },
+  ],
+  slotsManagement: [
+    {
+      itemlabel: "Giá sản phẩm",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "10000",
+      constraint: {type:"number", minValue: 1000, maxValue: 1000000}
+    },
+    {
+      itemlabel: "Số lượng đang có",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "50",
+      constraint: {type:"number", minValue: 1, maxValue: 99}
+    },
+    {
+      itemlabel: "Số lượng tối đa",
+      datainputtype: "TextInput",
+      options: {  "nope": "nope" },
+      datainput: "99",
+      constraint: {type:"number", minValue: 1, maxValue: 99}
+    },
+    
+    
   ]
   ,
   testvar: "notok"

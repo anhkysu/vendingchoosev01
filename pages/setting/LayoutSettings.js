@@ -13,7 +13,7 @@ import { updateOneSlotData, saveBeverageInfoChanges } from '../../redux/actions'
 import DataInputItem from "../../components/DataInputItem";
 
 
-class SerialPortSettings extends Component {
+class LayoutSettings extends Component {
     constructor(props){
         super(props);
         this.state = {
@@ -30,7 +30,7 @@ class SerialPortSettings extends Component {
                 <View style={{ flex: 1, marginBottom: 10 }}>
                     <ScrollView style={{ flex: 1 }}>
                         {
-                            this.props.serialPortSettings.map((datainput, index) => {
+                            this.props.settingdatalist.map((datainput, index) => {
                                 return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options} constraint={datainput.constraint}/>)
                             })
                         }
@@ -68,4 +68,4 @@ function mapDispatchToProps(dispatch){
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SerialPortSettings);
+export default connect(mapStateToProps, mapDispatchToProps)(LayoutSettings);

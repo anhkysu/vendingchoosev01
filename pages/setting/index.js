@@ -6,7 +6,7 @@ import ProgramUpdate from "./SerialPortSettings";
 import SlotLinks from "./SlotLinks";
 import MachineSettings from "./MachineSettings";
 import SerialPortSettings from "./SerialPortSettings";
-
+import LayoutSettings from "./LayoutSettings";
 
 module.exports = {
     SlotsManagement: SlotsManagement,
@@ -17,4 +17,5 @@ module.exports = {
     ProgramUpdate: ProgramUpdate,
     SlotLinks: SlotLinks,
     MachineSettings: MachineSettings,
+    LayoutSettings:LayoutSettings
 }
