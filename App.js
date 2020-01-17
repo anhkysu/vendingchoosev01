@@ -4,140 +4,191 @@ import {Provider} from 'react-redux';
 import {createStore} from 'redux';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
-import LoginPage from "./pages/LoginPage";
-import HomePage from "./pages/HomePage";
-import ProcessCashTransaction from "./pages/ProcessCashTransaction";
-import ProcessMomoTransaction from "./pages/ProcessMomoTransaction";
-import SettingPage1 from "./pages/SettingPage1";
-import SettingPage2 from "./pages/SettingPage2";
-import SettingMenuPage from "./pages/SettingMenuPage";
-import settingpage1reducer from "./redux/reducers/SettingPage1Reducer"
-import { SlotsManagement, Passwords, PaymentSettings, SerialPortSettings, InformationSettings ,ProgramUpdate, SlotLinks, MachineSettings, LayoutSettings } from "./pages/setting";
-
-
+import LoginPage from './pages/LoginPage';
+import HomePage from './pages/HomePage';
+import ProcessCashTransaction from './pages/ProcessCashTransaction';
+import ProcessMomoTransaction from './pages/ProcessMomoTransaction';
+import SettingPage1 from './pages/SettingPage1';
+import SettingPage2 from './pages/SettingPage2';
+import SettingMenuPage from './pages/SettingMenuPage';
+import settingpage1reducer from './redux/reducers/SettingPage1Reducer';
+import {
+  SlotsManagement,
+  SubSlotsManagement,
+  Passwords,
+  PaymentSettings,
+  SerialPortSettings,
+  InformationSettings,
+  ProgramUpdate,
+  SlotLinks,
+  MachineSettings,
+  LayoutSettings,
+  ProductSettings,
+  SubProductSettings,
+  TestMachine,
+  ErrorSlots
+} from './pages/setting';
 
 const store = createStore(settingpage1reducer);
 
-const StackNavigator = createStackNavigator({
-  LoginPage: {
-    screen: LoginPage,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "LOGIN PAGE"
-    }),
-  },
-  SettingMenuPage: {
-    screen: SettingMenuPage,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "MAIN SETTING PAGE"
-    }),
-  },
-  InformationSettings: {
-    screen: InformationSettings,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "INFORMATION SETTINGS"
-    }),
-  },
-  MachineSettings: {
-    screen: MachineSettings,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "MACHINE SETTINGS"
-    }),
-  },
-  Passwords: {
-    screen: Passwords,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "PASSWORDS"
-    }),
-  },
-  PaymentSettings: {
-    screen: PaymentSettings,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "PAYMENT SETTINGS"
-    }),
-  },
-  ProgramUpdate: {
-    screen: ProgramUpdate,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "PROGRAM UPDATE"
-    }),
-  },
-  
-  SerialPortSettings: {
-    screen: SerialPortSettings,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "SERIAL PORT SETTINGS"
-    }),
-  },
-  SlotLinks: {
-    screen: SlotLinks,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "SLOT LINKS"
-    }),
-  },
-  SlotsManagement: {
-    screen: SlotsManagement,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "SLOTS MANAGEMENT"
-    }),
-  },
-  LayoutSettings: {
-    screen: LayoutSettings,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "LAYOUT SETTINGS"
-    }),
-  },
-  SettingPage1: {
-    screen: SettingPage1,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "SETTING PAGE 1"
-    }),
-  },
-  SettingPage2: {
-    screen: SettingPage2,
-    navigationOptions: ({navigation})=>({
-      headerTitleStyle :{color: "#3e81f4", fontWeight: "bold"},
-      title: "SETTING PAGE 2"
-    }),
-  },
-}, {
-  initialRouteName: "SettingMenuPage"
-});
+const StackNavigator = createStackNavigator(
+  {
+    LoginPage: {
+      screen: LoginPage,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'LOGIN PAGE',
+      }),
+    },
+    SettingMenuPage: {
+      screen: SettingMenuPage,
+      navigationOptions: ({navigation}) => ({
+        headerLeft: null,
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'MAIN SETTING PAGE',
+      }),
+    },
+    InformationSettings: {
+      screen: InformationSettings,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'INFORMATION SETTINGS',
+      }),
+    },
+    MachineSettings: {
+      screen: MachineSettings,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'MACHINE SETTINGS',
+      }),
+    },
+    Passwords: {
+      screen: Passwords,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'PASSWORDS',
+      }),
+    },
+    PaymentSettings: {
+      screen: PaymentSettings,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'PAYMENT SETTINGS',
+      }),
+    },
+    ProgramUpdate: {
+      screen: ProgramUpdate,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'PROGRAM UPDATE',
+      }),
+    },
 
+    SerialPortSettings: {
+      screen: SerialPortSettings,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'SERIAL PORT SETTINGS',
+      }),
+    },
+    SlotLinks: {
+      screen: SlotLinks,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'SLOT LINKS',
+      }),
+    },
+    SlotsManagement: {
+      screen: SlotsManagement,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'SLOTS MANAGEMENT',
+      }),
+    },
+    SubSlotsManagement: {
+      screen: SubSlotsManagement,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'SPECIFIC SLOTS MANAGEMENT',
+      }),
+    },
+    LayoutSettings: {
+      screen: LayoutSettings,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'LAYOUT SETTINGS',
+      }),
+    },
+    ProductSettings: {
+      screen: ProductSettings,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'PRODUCT SETTINGS',
+      }),
+    },
+    SubProductSettings: {
+      screen: SubProductSettings,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'SPECIFIC PRODUCT SETTINGS',
+      }),
+    },
+    TestMachine: {
+      screen: TestMachine,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'TEST MACHINE',
+      }),
+    },
+    ErrorSlots: {
+      screen: ErrorSlots,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'ERROR SLOTS',
+      }),
+    },
+    SettingPage1: {
+      screen: SettingPage1,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'SETTING PAGE 1',
+      }),
+    },
+    SettingPage2: {
+      screen: SettingPage2,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'SETTING PAGE 2',
+      }),
+    },
+  },
+  {
+    initialRouteName: 'Passwords',  //LoginPage
+  },
+);
 
 const StackNavigatorPublic = createStackNavigator({
   Home: {
     screen: HomePage,
-    navigationOptions: ({navigation})=>({
+    navigationOptions: ({navigation}) => ({
       header: null,
     }),
   },
   CashTransaction: {
     screen: ProcessCashTransaction,
-    navigationOptions: ({navigation})=>({
+    navigationOptions: ({navigation}) => ({
       header: null,
-      headerStyle: {backgroundColor: "lightblue"}
+      headerStyle: {backgroundColor: 'lightblue'},
     }),
   },
   MomoTransaction: {
     screen: ProcessMomoTransaction,
-    navigationOptions: ({navigation})=>({
+    navigationOptions: ({navigation}) => ({
       headerLeft: null,
-      headerStyle: {backgroundColor: "lightblue"}
+      headerStyle: {backgroundColor: 'lightblue'},
     }),
   },
-})
+});
 
 const SwitchNavigator = createSwitchNavigator({
   Public: {
@@ -148,13 +199,13 @@ const SwitchNavigator = createSwitchNavigator({
   },
 });
 
-const AppContainer = createAppContainer(SwitchNavigator);
+const AppContainer = createAppContainer(StackNavigator);
 
-export default class App extends Component{
-  render(){
+export default class App extends Component {
+  render() {
     return (
       <Provider store={store}>
-          <AppContainer/>
+        <AppContainer />
       </Provider>
     );
   }

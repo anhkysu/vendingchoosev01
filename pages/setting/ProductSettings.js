@@ -23,7 +23,7 @@ import {
 import PageButtonItem from '../../components/PageButtonItem';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-class SlotsManagement extends Component {
+class ProductSettings extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -74,23 +74,29 @@ class SlotsManagement extends Component {
     };
   }
 
+  onCreateNewProduct() {
+    this.props.navigation.navigate('SubProductSettings', {
+      onReturn: data => this.onReturn(data),
+    });
+  }
+
   onReturn(data) {
     if (data == 'new') {
-        setTimeout(()=>{
-            this.renderBeverageData(
-                this.props.settingdatalist[1].datainput,
-                this.props.settingdatalist[0].datainput,
-                this.props.initialbeveragestate,
-                this.state.currentpagenumber,
-                this.state.numberofpages,
-              );
-        },10)
+      setTimeout(()=>{
+        this.renderBeverageData(
+          this.props.settingdatalist[1].datainput,
+          this.props.settingdatalist[0].datainput,
+          this.props.initialbeveragestate,
+          1,
+          this.state.numberofpages,
+        );
+      },10)
     }
   }
 
-  onItemTouched(data) {
-    this.props.navigation.navigate('SubSlotsManagement', {
-      slotObject: data,
+  onItemTouched(data){
+    this.props.navigation.navigate('SubProductSettings', {
+      itemObject: data,
       onReturn: data => this.onReturn(data),
     });
   }
@@ -110,11 +116,8 @@ class SlotsManagement extends Component {
             {this.state.importantdata.map(dataItem => {
               return (
                 <RenderRow
-                  myMethod={data => {
-                    this.onItemTouched(data);
-                  }}
+                  myMethod={data => {this.onItemTouched(data)}}
                   key={dataItem.rowid}
-                  itemStyle="slotOriented"
                   rowDataInput={dataItem.rowdata}
                   height={Number(this.props.settingdatalist[4].datainput)}
                   width={Number(this.props.settingdatalist[3].datainput)}
@@ -184,27 +187,16 @@ class SlotsManagement extends Component {
               style={{
                 height: '100%',
                 display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
+                alignItems: 'flex-end',
+                justifyContent: 'center',
                 paddingRight: 10,
               }}>
-              <View style={{paddingRight: 10}}>
-                <Button
-                  title="Hiển thị slot lỗi"
-                  onPress={() => {
-                    this.props.navigation.navigate('ErrorSlots');
-                  }}
-                />
-              </View>
-              <View style={{paddingRight: 10}}>
-                <Button
-                  title="Lấy dữ liệu từ server"
-                  onPress={() => {
-                    
-                  }}
-                />
-              </View>
+              <Button
+                title="Tạo sản phẩm"
+                onPress={() => {
+                  this.onCreateNewProduct();
+                }}
+              />
             </View>
           </View>
         </View>
@@ -257,4 +249,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SlotsManagement);
+export default connect(mapStateToProps, mapDispatchToProps)(ProductSettings);

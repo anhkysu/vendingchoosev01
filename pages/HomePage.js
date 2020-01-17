@@ -60,7 +60,8 @@ class HomePage extends Component {
       usbAttached: false,
       output: "",
       outputArray: [],
-      baudRate: "9600",
+      baudRate: this.props.serialPortSettings[1].datainput,
+      parity: this.props.serialPortSettings[3].datainput,
       interface: "-1",
       sendText: "HELLO",
       returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING
@@ -303,7 +304,8 @@ class HomePage extends Component {
     RNSerialport.setReturnedDataType(this.state.returnedDataType);
     RNSerialport.setDataBit(definitions.DATA_BITS.DATA_BITS_8);
     RNSerialport.setStopBit(definitions.STOP_BITS.STOP_BITS_1);
-    RNSerialport.setAutoConnectBaudRate(9600);
+    RNSerialport.setAutoConnectBaudRate(Number(this.state.baudRate));
+    RNSerialport.setParity(Number(this.state.parity));
     RNSerialport.setInterface(parseInt(this.state.interface, 10));
     RNSerialport.setAutoConnect(true);
     RNSerialport.startUsbService();
@@ -454,14 +456,16 @@ class HomePage extends Component {
   //#region - Testing Function
   testFunction() {
     this.showUiPickedProduct("asd","CashTransaction");
-    // onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);    
     
+    //this.processTransaction(false);
+    // onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);    
   }
   //#endregion
 
   //#region - Categorized 
   onOneItemTouched(itemInfoObject) {
-    sendSelectedSlot(itemInfoObject.slotSetting, this.sendSerialData);
+    var sendThisSlotId = itemInfoObject.slotSetting;
+    sendSelectedSlot(sendThisSlotId.toString(), this.sendSerialData);
     this.setState({pickedItem: itemInfoObject});
   }
 
@@ -502,7 +506,7 @@ class HomePage extends Component {
         default:
           break;
       }
-    }, 3000);
+    }, 1500);
   }
   
   processTransaction(transactionApproved, isCash, cashavailable) {
@@ -535,6 +539,7 @@ class HomePage extends Component {
       }
     }
     else {
+      sendPaymentMethod("cancel", this.sendSerialData);
       this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
     }
     this.setState({ isVisible: false });
@@ -854,11 +859,11 @@ class HomePage extends Component {
   }
 
   //#endregion
-
 };
 
 function mapStateToProps(state){
   return {
+    serialPortSettings: state.serialPortSettings,
     settingdatalist: state.settingdatalist,
     initialbeveragestate: state.initialbeveragestate,
   }

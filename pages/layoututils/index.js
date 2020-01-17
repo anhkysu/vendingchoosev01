@@ -57,8 +57,8 @@ export const processFullData = function (noofcol, noofslot, data, pagenumber, no
                     {
                         slotsetting: count,
                         validslots: "6",
-                        name: "Not found",
-                        price: "10000",
+                        name: "notfound",
+                        price: "0",
                         imagesource: "https://i.ibb.co/svNhV97/bohuc.png"
                     }
                 );

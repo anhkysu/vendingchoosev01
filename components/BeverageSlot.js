@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {View, Text, TouchableOpacity, Image} from 'react-native';
 
-export default class BeverageItem extends Component {
+export default class BeverageSlot extends Component {
   constructor(props) {
     super(props);
   }
@@ -16,12 +16,14 @@ export default class BeverageItem extends Component {
     const name = this.props.name;
     const price = this.props.price;
     const imageSource = this.props.imageSource;
+    const slotFrom = this.props.slotFrom;
+    const slotTo = this.props.slotTo;
     const uid = this.props.uid;
 
     return (
       <View
         style={{
-          backgroundColor: '#d0e0fb',
+          backgroundColor: 'white',
           marginHorizontal: 5,
           display: 'flex',
           width: this.props.itemWidth,
@@ -37,6 +39,8 @@ export default class BeverageItem extends Component {
               this.props.myMethod1({
                 slotSetting: slotSetting,
                 validSlots: validSlots,
+                from: slotFrom,
+                to: slotTo,
                 name: name,
                 price: price,
                 image: imageSource,
@@ -49,19 +53,10 @@ export default class BeverageItem extends Component {
                   height: 20,
                   display: 'flex',
                   flexDirection: 'row',
+                  justifyContent: 'center',
                   paddingHorizontal: 5,
                   marginTop: 5,
                 }}>
-                <View style={{flex: 1}}>
-                  <Text
-                    style={{
-                      fontWeight: 'bold',
-                      fontSize: this.props.itemFontSize,
-                    }}>
-                    {slotSetting} 
-                  </Text>
-                </View>
-                <View style={{}}>
                   <Text
                     style={{
                       textAlign: 'right',
@@ -70,9 +65,9 @@ export default class BeverageItem extends Component {
                       paddingHorizontal: 15,
                       borderRadius: 5,
                     }}>
-                    Còn: {validSlots}
+                    Vị trí slot: {slotFrom} - {slotTo}
                   </Text>
-                </View>
+                
               </View>
 
               <View

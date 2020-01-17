@@ -1,3 +1,25 @@
+export const changeCoupleInputNew = (parentkey, itemlabel, datainput) => (
+    {
+        type: 'CHANGE_COUPLE_INPUT_' + parentkey,
+        parentkey: parentkey,
+        itemlabel: itemlabel,
+        datainput: datainput,
+    }
+)
+
+export const createBeverageItem = (slotsetting, name, price, validslots, imagesource, uid) => (
+    {
+        type: 'CREATE_BEVERAGE_ITEM',
+        slotsetting: slotsetting,
+        name: name,
+        price: price,
+        validslots: validslots,
+        imagesource: imagesource,
+        uid: uid
+  
+    }
+)
+
 export const changeCoupleInput = (itemlabel, datainput) => ({
     type: 'CHANGE_COUPLE_INPUT',
     itemlabel: itemlabel,
@@ -20,13 +42,17 @@ export const changeSlotData = (itemlabel, datainput) => ({
     datainput: datainput,
 })
 
-export const saveBeverageInfoChanges = (slotsetting, name, price, validslots, imagesource) => ({
+export const saveBeverageInfoChanges = (slotsetting, name, price, validslots, imagesource,uid, slotfrom, slotto) => ({
     type: 'SAVE_BEVERAGE_INFO_CHANGES',
     slotsetting: slotsetting,
     name: name,
     price: price,
     validslots: validslots,
     imagesource: imagesource,
+    uid: uid,
+    slotfrom: slotfrom,
+    slotto: slotto,
+    
 })
 
 export const changeCurrentSlotSetting = currentnumber => ({

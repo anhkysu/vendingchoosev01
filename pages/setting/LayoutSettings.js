@@ -31,17 +31,14 @@ class LayoutSettings extends Component {
                     <ScrollView style={{ flex: 1 }}>
                         {
                             this.props.settingdatalist.map((datainput, index) => {
-                                return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options} constraint={datainput.constraint}/>)
+                                return (<DataInputItem key={index} parentDataKey="layoutSettings" itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options} constraint={datainput.constraint}/>)
                             })
                         }
                     </ScrollView>
                 </View>
                 <View style={{ height: 40, width: "100%", display: "flex", flexDirection: "row", justifyContent: "flex-end", paddingVertical: 2 }}>
-                    
                     <View style={{ paddingRight: 10 }}>
-                        <Button title="Lưu thông tin"
-                            
-                        />
+                        <Button title="Lưu thông tin"/>
                     </View>
                 </View>
             </View>

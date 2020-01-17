@@ -45,7 +45,8 @@ class ProcessMomoTransaction extends Component {
             usbAttached: false,
             output: "",
             outputArray: [],
-            baudRate: "9600",
+            baudRate: this.props.serialPortSettings[1].datainput,
+            parity: this.props.serialPortSettings[3].datainput,
             interface: "-1",
             sendText: "HELLO",
             returnedDataType: definitions.RETURNED_DATA_TYPES.HEXSTRING
@@ -338,7 +339,8 @@ class ProcessMomoTransaction extends Component {
         RNSerialport.setReturnedDataType(this.state.returnedDataType);
         RNSerialport.setDataBit(definitions.DATA_BITS.DATA_BITS_8);
         RNSerialport.setStopBit(definitions.STOP_BITS.STOP_BITS_1);
-        RNSerialport.setAutoConnectBaudRate(9600);
+        RNSerialport.setAutoConnectBaudRate(Number(this.state.baudRate));
+        RNSerialport.setParity(Number(this.state.parity));
         RNSerialport.setInterface(parseInt(this.state.interface, 10));
         RNSerialport.setAutoConnect(true);
         RNSerialport.startUsbService();
@@ -451,7 +453,7 @@ class ProcessMomoTransaction extends Component {
             RNSerialport.writeString(string);
           }
           else {
-            setTimeout(() => { this.hideLoadingUi(); }, 3000);
+            setTimeout(() => { this.hideLoadingUi(); }, 1500);
           }
         }
       }
@@ -522,7 +524,7 @@ class ProcessMomoTransaction extends Component {
         //this.showLoadingUi();
         setTimeout(() => {
             this.startUsbListener();
-        }, 3000);
+        }, 1500);
     }
 
     componentWillUnmount() {

@@ -60,17 +60,19 @@ const menuList = [
         label: "Layout Settings",
         icon: require("./setting.png"),
     },
+    {
+        id: 9,
+        label: "Product Settings",
+        icon: require("./setting.png"),
+    },
 ]
-
 
 class SettingMenuPage extends Component {
     constructor(props){
         super(props);
         this.state = {
            processedMenuList: [],
-           
         }
-        
     }
 
     processMenu(menuListData, noOfRow, noOfCol){
@@ -94,9 +96,7 @@ class SettingMenuPage extends Component {
     render() {
         return (
             <View style={{ flex: 1 }}>
-                
                 <ScrollView style={{ flex: 1, backgroundColor: "whitesmoke" }}>
-                    
                         {
                             this.state.processedMenuList.map((item,index)=>{
                                 return (
@@ -122,14 +122,11 @@ class SettingMenuPage extends Component {
                                 );
                             })                            
                         }
-                    
                 </ScrollView>
                 <View style={{ height: 50, width: "100%", alignItems: "center", backgroundColor: "white", justifyContent: "center", flexDirection: "row" }}>
                     <View style={{ height: "100%", display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", paddingLeft: 10 }}>
                         <Button title="Quay lại Home" onPress={()=>{this.props.navigation.navigate("Home")}}/>
-
                     </View>
-                  
                 </View>
             </View>
         );

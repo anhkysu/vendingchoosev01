@@ -9,6 +9,54 @@ const settingpage1reducer = (state = initialState, action) => {
                     (item.itemlabel == action.itemlabel ? { ...item, datainput: action.datainput } : item)
                 )
             }
+        
+        case 'CHANGE_COUPLE_INPUT_layoutSettings':
+            return {
+                ...state,
+                settingdatalist: state.settingdatalist.map((item) =>
+                    (item.itemlabel == action.itemlabel ? { ...item, datainput: action.datainput } : item)
+                )
+            }
+
+        case 'CHANGE_COUPLE_INPUT_slotsManagement':
+            return {
+                ...state,
+                slotsManagement: state.slotsManagement.map((item) =>
+                    (item.itemlabel == action.itemlabel ? { ...item, datainput: action.datainput } : item)
+                )
+            }
+
+        case 'CHANGE_COUPLE_INPUT_machineSettings':
+            return {
+                ...state,
+                machineSettings: state.machineSettings.map((item) =>
+                    (item.itemlabel == action.itemlabel ? { ...item, datainput: action.datainput } : item)
+                )
+            }
+
+        case 'CHANGE_COUPLE_INPUT_paymentSettings':
+            return {
+                ...state,
+                paymentSettings: state.paymentSettings.map((item) =>
+                    (item.itemlabel == action.itemlabel ? { ...item, datainput: action.datainput } : item)
+                )
+            }
+
+        case 'CHANGE_COUPLE_INPUT_serialPortSettings':
+            return {
+                ...state,
+                serialPortSettings: state.serialPortSettings.map((item) =>
+                    (item.itemlabel == action.itemlabel ? { ...item, datainput: action.datainput } : item)
+                )
+            }
+
+        case 'CHANGE_COUPLE_INPUT_oneslotdata':
+            return {
+                ...state,
+                oneslotdata: state.oneslotdata.map((item) =>
+                    (item.itemlabel == action.itemlabel ? { ...item, datainput: action.datainput } : item)
+                )
+            }
 
         case 'UPDATE_ONE_SLOT_DATA':
             return {
@@ -34,17 +82,36 @@ const settingpage1reducer = (state = initialState, action) => {
         case 'SAVE_BEVERAGE_INFO_CHANGES':
             return {
                 ...state,
-                initialbeveragestate: state.initialbeveragestate.map((item)=>
-                    (item.slotsetting == action.slotsetting ? 
+                initialbeveragestate: state.initialbeveragestate.map((item) =>
+                    (item.slotsetting == action.slotsetting ?
                         {
                             ...item,
                             validslots: action.validslots,
                             name: action.name,
                             price: action.price,
-                            imagesource: action.imagesource
-                        } 
+                            imagesource: action.imagesource,
+                            uid: action.uid,
+                            from: action.slotfrom,
+                            to: action.slotto
+                        }
                         : item)
                 )
+            }
+
+        case 'CREATE_BEVERAGE_ITEM':
+            return {
+                ...state,
+                initialbeveragestate: [
+                    ...state.initialbeveragestate,
+                    {
+                            slotsetting: action.slotsetting,
+                            validslots: action.validslots,
+                            name: action.name,
+                            price: action.price,
+                            imagesource: action.imagesource,
+                            uid: action.uid
+                    }
+                ]
             }
 
         case 'CHANGE_SLOT_DATA':
@@ -66,6 +133,7 @@ const settingpage1reducer = (state = initialState, action) => {
                         name: action.name,
                         price: action.price,
                         imagesource: action.imagesource,
+                        uid: action.uid
                     }
                 ]
             }

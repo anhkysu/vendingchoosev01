@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View } from 'react-native';
 import BeverageItem from './BeverageItem';
+import BeverageSlot from './BeverageSlot';
 
 
 
@@ -22,18 +23,39 @@ export default class RenderRow extends Component {
                 {
                     DATA.map((dataItem) => {
                         return (
-                            <BeverageItem
+                            this.props.itemStyle == "slotOriented" 
+                            ?
+                            (<BeverageSlot
                                 myMethod1={(data)=> {this.props.myMethod(data)}}
                                 key={dataItem.slotsetting}
                                 slotSetting={dataItem.slotsetting}
+                                uid={dataItem.uid}
                                 validSlots={dataItem.validslots}
+                                slotFrom = {dataItem.from}
+                                slotTo = {dataItem.to}
                                 name={dataItem.name}
                                 price={dataItem.price}
                                 imageSource={dataItem.imagesource}
                                 itemWidth={this.props.width}
                                 itemHeight={this.props.height}
                                 itemFontSize={this.props.itemFontSize}
-                            />
+                            />)
+                            :
+                            (<BeverageItem
+                                myMethod1={(data)=> {this.props.myMethod(data)}}
+                                key={dataItem.slotsetting}
+                                uid={dataItem.uid}
+                                slotSetting={dataItem.slotsetting}
+                                validSlots={dataItem.validslots}
+                                slotFrom = {dataItem.from}
+                                slotTo = {dataItem.to}
+                                name={dataItem.name}
+                                price={dataItem.price}
+                                imageSource={dataItem.imagesource}
+                                itemWidth={this.props.width}
+                                itemHeight={this.props.height}
+                                itemFontSize={this.props.itemFontSize}
+                            />)
                         )
                     })
                 }

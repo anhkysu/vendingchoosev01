@@ -59,7 +59,7 @@ class SlotLinks extends Component {
                     <ScrollView style={{ flex: 1 }}>
                         {
                             this.props.slotLinks.map((datainput, index) => {
-                                return (<DataInputItem key={index} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options} constraint={datainput.constraint}/>)
+                                return (<DataInputItem key={index} parentDataKey={"slotLinks"} itemlabel={datainput.itemlabel} datainputtype={datainput.datainputtype} defaultvalue={datainput.datainput} pickeroptions={datainput.options} constraint={datainput.constraint}/>)
                             })
                         }
                     </ScrollView>
