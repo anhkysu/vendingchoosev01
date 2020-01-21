@@ -186,6 +186,28 @@ class DataInputItem extends Component {
     );
   }
 
+  renderTextInputCustomFunction() {
+    return (
+      <View style={{flex: 1}}>
+        <TextInput
+          style={{
+            height: 50,
+            borderRadius: 3,
+            borderWidth: 0.5,
+            borderColor: 'gray',
+            backgroundColor: 'white',
+            textAlign: 'center',
+            fontSize: 17,
+          }}
+          onChangeText={text => {
+            this.props.customFunction(text);
+          }}
+          value={this.props.defaultvalue}
+        />
+      </View>
+    );
+  }
+
   renderLockedLabel() {
     return (
       <View style={{flex: 1}}>
@@ -271,6 +293,25 @@ class DataInputItem extends Component {
     );
   }
 
+  renderSwitchCustomFunction() {
+    return (
+      <View
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+        }}>
+        <Switch
+          onValueChange={data => {
+            this.props.customFunction(data);
+          }}
+          value={this.props.defaultvalue}
+        />
+      </View>
+    );
+  }
+
   render() {
     const itemlabel = this.props.itemlabel;
     const datainputtype = this.props.datainputtype; //TextInput //Picker
@@ -315,7 +356,13 @@ class DataInputItem extends Component {
           ? this.renderLockedLabel()
           : datainputtype == 'Range'
           ? this.renderRange()
-          : this.renderPicker()}
+          : datainputtype == 'CustomFunctionTextInput'
+          ? this.renderTextInputCustomFunction()
+          : datainputtype == 'CustomFunctionSwitch'
+          ? this.renderSwitchCustomFunction()
+          : this.renderPicker()
+          
+          }
       </View>
     );
   }

@@ -30,6 +30,7 @@ class SlotsManagement extends Component {
       importantdata: [],
       numberofpages: 1,
       numberofpages_fakearray: [],
+      currentpagenumber: 1,
     };
   }
 
@@ -61,7 +62,7 @@ class SlotsManagement extends Component {
       Number(this.props.settingdatalist[4].datainput),
     );
 
-    var noofpages = Math.ceil(noofslot / (maxnumberofrow * maxnumberofcol));
+    var noofpages = Math.ceil(this.props.initialbeveragestate.length / (maxnumberofrow * maxnumberofcol));
     this.setState({numberofpages: noofpages});
     setTimeout(() => {
       var fakearray = createFakeArray(this.state.numberofpages);
@@ -82,7 +83,6 @@ class SlotsManagement extends Component {
                 this.props.settingdatalist[0].datainput,
                 this.props.initialbeveragestate,
                 this.state.currentpagenumber,
-                this.state.numberofpages,
               );
         },10)
     }
@@ -161,7 +161,6 @@ class SlotsManagement extends Component {
                           this.props.settingdatalist[0].datainput,
                           this.props.initialbeveragestate,
                           pageArray.id,
-                          this.state.numberofpages,
                         );
                         this.setState({currentpagenumber: pageArray.id});
                       }}>
@@ -201,7 +200,7 @@ class SlotsManagement extends Component {
                 <Button
                   title="Lấy dữ liệu từ server"
                   onPress={() => {
-                    
+                    this.props.navigation.navigate('GetDataSettings')
                   }}
                 />
               </View>
@@ -217,8 +216,7 @@ class SlotsManagement extends Component {
       this.props.settingdatalist[1].datainput,
       this.props.settingdatalist[0].datainput,
       this.props.initialbeveragestate,
-      1,
-      this.state.numberofpages,
+      this.state.currentpagenumber,
     );
   }
 }

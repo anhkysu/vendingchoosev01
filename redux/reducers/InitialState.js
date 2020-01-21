@@ -228,36 +228,29 @@ var initialState = {
   ],
   oneslotdata: [
     {
-      itemlabel: "Slot Setting",
-      datainputtype: "TextLabel",
-      options: { "nope": "nope" },
-      datainput: "1",
-      constraint: {type:"number", minValue: 1, maxValue: 199}
-    },
-    {
-      itemlabel: "Tên Nước",
+      itemlabel: "Tên sản phẩm",
       datainputtype: "TextInput",
       options: { "nope": "nope" },
       datainput: "Nước gì",
       constraint: {type:"text", maxLength: 36}
     },
     {
-      itemlabel: "Giá Tiền",
+      itemlabel: "Giá sản phẩm",
       datainputtype: "TextInput",
       options: { "nope": "nope" },
       datainput: "5000",
       constraint: {type:"number", minValue: 1000, maxValue: 1000000}
     },
     {
-      itemlabel: "Số Lượng",
-      datainputtype: "TextInput",
+      itemlabel: "ID sản phẩm",
+      datainputtype: "TextLabel",
       options: { "nope": "nope" },
       datainput: "1",
       constraint: {type:"number", minValue: 1, maxValue: 199}
     },
     {
-      itemlabel: "UID",
-      datainputtype: "TextInput",
+      itemlabel: "UID sản phẩm",
+      datainputtype: "TextLabel",
       options: { "nope": "nope" },
       datainput: "1",
       constraint: {type:"number", minValue: 1, maxValue: 199}
@@ -530,6 +523,36 @@ var initialState = {
       options: {  "nope": "nope" },
       datainput: ["03", "08"],
       constraint: {type:"number", minValue: 1, maxValue: 99}
+    },
+  ],
+  newProductData: [
+    {
+      itemlabel: "Cài đặt sản phẩm",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "Nước gì",
+      constraint: {type:"text", maxLength: 36}
+    },
+    {
+      itemlabel: "UID sản phẩm",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "5000",
+      constraint: {type:"number", minValue: 1000, maxValue: 1000000}
+    },
+    {
+      itemlabel: "Tên sản phẩm",
+      datainputtype: "TextLabel",
+      options: { "nope": "nope" },
+      datainput: "1",
+      constraint: {type:"number", minValue: 1, maxValue: 199}
+    },
+    {
+      itemlabel: "Hình sản phẩm",
+      datainputtype: "TextLabel",
+      options: { "nope": "nope" },
+      datainput: "1",
+      constraint: {type:"number", minValue: 1, maxValue: 199}
     },
   ],
   testvar: "notok"

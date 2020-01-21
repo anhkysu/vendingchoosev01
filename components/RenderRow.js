@@ -21,13 +21,13 @@ export default class RenderRow extends Component {
         return (
             <View style={{ height: this.props.height, width: "100%", display: "flex", flexDirection: "row", marginBottom: 10, justifyContent: "center" }}>
                 {
-                    DATA.map((dataItem) => {
+                    DATA.map((dataItem, index) => {
                         return (
                             this.props.itemStyle == "slotOriented" 
                             ?
                             (<BeverageSlot
                                 myMethod1={(data)=> {this.props.myMethod(data)}}
-                                key={dataItem.slotsetting}
+                                key={index}
                                 slotSetting={dataItem.slotsetting}
                                 uid={dataItem.uid}
                                 validSlots={dataItem.validslots}
@@ -43,7 +43,7 @@ export default class RenderRow extends Component {
                             :
                             (<BeverageItem
                                 myMethod1={(data)=> {this.props.myMethod(data)}}
-                                key={dataItem.slotsetting}
+                                key={index}
                                 uid={dataItem.uid}
                                 slotSetting={dataItem.slotsetting}
                                 validSlots={dataItem.validslots}

@@ -26,7 +26,8 @@ import {
   ProductSettings,
   SubProductSettings,
   TestMachine,
-  ErrorSlots
+  ErrorSlots,
+  GetDataSettings
 } from './pages/setting';
 
 const store = createStore(settingpage1reducer);
@@ -147,6 +148,13 @@ const StackNavigator = createStackNavigator(
         title: 'ERROR SLOTS',
       }),
     },
+    GetDataSettings: {
+      screen: GetDataSettings,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'GETTING DATA',
+      }),
+    },
     SettingPage1: {
       screen: SettingPage1,
       navigationOptions: ({navigation}) => ({
@@ -163,7 +171,7 @@ const StackNavigator = createStackNavigator(
     },
   },
   {
-    initialRouteName: 'Passwords',  //LoginPage
+    initialRouteName: 'LoginPage',  //LoginPage
   },
 );
 
@@ -199,7 +207,7 @@ const SwitchNavigator = createSwitchNavigator({
   },
 });
 
-const AppContainer = createAppContainer(StackNavigator);
+const AppContainer = createAppContainer(SwitchNavigator);
 
 export default class App extends Component {
   render() {

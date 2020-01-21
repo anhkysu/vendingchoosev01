@@ -649,7 +649,7 @@ class HomePage extends Component {
     if (noofcol > maxnumberofcol) {
       noofcol = maxnumberofcol;
     }
-    var noofpages = Math.ceil(noofslot / (maxnumberofrow * noofcol));
+    var noofpages = Math.ceil(this.props.initialbeveragestate.length / (maxnumberofrow * noofcol));
     this.setState({numberofpages: noofpages});
     setTimeout(() => { 
       var fakearray = createFakeArray(this.state.numberofpages); 

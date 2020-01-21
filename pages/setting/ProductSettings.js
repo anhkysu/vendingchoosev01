@@ -23,6 +23,7 @@ import {
 import PageButtonItem from '../../components/PageButtonItem';
 import Icon from 'react-native-vector-icons/Ionicons';
 
+
 class ProductSettings extends Component {
   constructor(props) {
     super(props);
@@ -30,6 +31,7 @@ class ProductSettings extends Component {
       importantdata: [],
       numberofpages: 1,
       numberofpages_fakearray: [],
+      currentpagenumber: 1
     };
   }
 
@@ -47,6 +49,7 @@ class ProductSettings extends Component {
       noofrow,
     );
     this.setState({importantdata: processedData});
+ 
   }
 
   initializeLayout(noofcol, noofslot) {
@@ -61,7 +64,7 @@ class ProductSettings extends Component {
       Number(this.props.settingdatalist[4].datainput),
     );
 
-    var noofpages = Math.ceil(noofslot / (maxnumberofrow * maxnumberofcol));
+    var noofpages = Math.ceil(this.props.initialbeveragestate.length / (maxnumberofrow * maxnumberofcol));
     this.setState({numberofpages: noofpages});
     setTimeout(() => {
       var fakearray = createFakeArray(this.state.numberofpages);
@@ -87,10 +90,9 @@ class ProductSettings extends Component {
           this.props.settingdatalist[1].datainput,
           this.props.settingdatalist[0].datainput,
           this.props.initialbeveragestate,
-          1,
-          this.state.numberofpages,
+          this.state.currentpagenumber,
         );
-      },10)
+      },10);
     }
   }
 
@@ -113,11 +115,11 @@ class ProductSettings extends Component {
               paddingHorizontal: 10,
               marginVertical: 5,
             }}>
-            {this.state.importantdata.map(dataItem => {
+            {this.state.importantdata.map((dataItem, index) => {
               return (
                 <RenderRow
                   myMethod={data => {this.onItemTouched(data)}}
-                  key={dataItem.rowid}
+                  key={index}
                   rowDataInput={dataItem.rowdata}
                   height={Number(this.props.settingdatalist[4].datainput)}
                   width={Number(this.props.settingdatalist[3].datainput)}
@@ -164,7 +166,6 @@ class ProductSettings extends Component {
                           this.props.settingdatalist[0].datainput,
                           this.props.initialbeveragestate,
                           pageArray.id,
-                          this.state.numberofpages,
                         );
                         this.setState({currentpagenumber: pageArray.id});
                       }}>
@@ -209,8 +210,7 @@ class ProductSettings extends Component {
       this.props.settingdatalist[1].datainput,
       this.props.settingdatalist[0].datainput,
       this.props.initialbeveragestate,
-      1,
-      this.state.numberofpages,
+      this.state.currentpagenumber,
     );
   }
 }

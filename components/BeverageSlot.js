@@ -65,7 +65,7 @@ export default class BeverageSlot extends Component {
                       paddingHorizontal: 15,
                       borderRadius: 5,
                     }}>
-                    Vị trí slot: {slotFrom} - {slotTo}
+                    Vị trí slot: {slotFrom}
                   </Text>
                 
               </View>

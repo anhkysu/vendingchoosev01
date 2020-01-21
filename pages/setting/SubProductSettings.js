@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import DataInputItem from '../../components/DataInputItem';
 import {connect} from 'react-redux';
-import {changeCoupleInputNew, saveBeverageInfoChanges, createBeverageItem} from '../../redux/actions';
+import {changeCoupleInputNew, saveBeverageInfoChanges, createBeverageItem, deleteItem} from '../../redux/actions';
 import ImagePicker from 'react-native-image-picker';
 
 const options = {
@@ -84,36 +84,31 @@ class SubProductSettings extends Component {
     var currentNumberOfProduct = this.props.initialbeveragestate.length;
     this.props.changeCoupleInputNew(
       'oneslotdata',
-      'Slot Setting',
+      'ID sản phẩm',
       String(currentNumberOfProduct + 1),
     );
-    this.props.changeCoupleInputNew('oneslotdata', 'Tên Nước', 'Nhập tên nước');
+    this.props.changeCoupleInputNew('oneslotdata', 'Tên sản phẩm', 'Nhập tên nước');
   }
 
   loadProduct() {
     this.props.changeCoupleInputNew(
       'oneslotdata',
-      'Slot Setting',
-      this.defaultItemObject.slotSetting,
-    );
-    this.props.changeCoupleInputNew(
-      'oneslotdata',
-      'Tên Nước',
+      'Tên sản phẩm',
       this.defaultItemObject.name,
     );
     this.props.changeCoupleInputNew(
       'oneslotdata',
-      'Giá Tiền',
+      'Giá sản phẩm',
       this.defaultItemObject.price,
     );
     this.props.changeCoupleInputNew(
       'oneslotdata',
-      'Số Lượng',
-      this.defaultItemObject.validSlots,
+      'ID sản phẩm',
+      this.defaultItemObject.slotSetting,
     );
     this.props.changeCoupleInputNew(
       'oneslotdata',
-      'UID',
+      'UID sản phẩm',
       this.defaultItemObject.uid,
     );
     this.setState({avatarSource: this.defaultItemObject.image});
@@ -122,12 +117,12 @@ class SubProductSettings extends Component {
   onCreateNewProduct() {
     var data = this.props.oneslotdata;
     this.createBeverageItemData(
+      data[2].datainput,
       data[0].datainput,
       data[1].datainput,
-      data[2].datainput,
+      "0",
+      this.state.avatarSource,
       data[3].datainput,
-      this.state.imagesource,
-      data[4].datainput,
     );
     this.goBack('new');
   }
@@ -135,16 +130,26 @@ class SubProductSettings extends Component {
   onUpdateProduct() {
     var data = this.props.oneslotdata;
     this.props.saveBeverageInfoChanges(
+      data[2].datainput,
       data[0].datainput,
       data[1].datainput,
-      data[2].datainput,
-      data[3].datainput,
+      null,
       this.state.avatarSource,
-      data[4].datainput,
+      data[3].datainput,
+
     );
     Alert.alert('Notification', 'New changes was saved succesfully');
     this.goBack('new');
   }
+
+  onDeleteProduct(){
+    this.props.deleteItem(this.defaultItemObject.slotSetting);
+    Alert.alert('Notification', 
+    'New changes was saved succesfully',[
+      {text: "OK", onPress: ()=>{this.goBack('new')}}
+    ]);
+    
+  }  
 
   componentDidMount() {
     if (this.defaultItemObject == 'new') {
@@ -325,6 +330,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
+    deleteItem: (slotsetting) =>
+    dispatch(deleteItem(slotsetting)),
     changeCoupleInputNew: (parentkey, itemlabel, datainput) =>
     dispatch(changeCoupleInputNew(parentkey, itemlabel, datainput)),
     saveBeverageInfoChanges: (

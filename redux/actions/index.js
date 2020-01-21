@@ -16,7 +16,6 @@ export const createBeverageItem = (slotsetting, name, price, validslots, imageso
         validslots: validslots,
         imagesource: imagesource,
         uid: uid
-  
     }
 )
 
@@ -24,6 +23,11 @@ export const changeCoupleInput = (itemlabel, datainput) => ({
     type: 'CHANGE_COUPLE_INPUT',
     itemlabel: itemlabel,
     datainput: datainput,
+})
+
+export const deleteItem = (slotsetting) => ({
+    type: 'DELETE_ITEM',
+    slotsetting: slotsetting,
 })
 
 export const testFunc = testVar => ({

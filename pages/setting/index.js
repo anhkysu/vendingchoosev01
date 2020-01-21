@@ -12,6 +12,7 @@ import SubProductSettings from "./SubProductSettings";
 import SubSlotsManagement from "./SubSlotsManagement";
 import TestMachine from "./TestMachine";
 import ErrorSlots from "./ErrorSlots";
+import GetDataSettings from "./GetDataSettings";
 
 module.exports = {
     SlotsManagement: SlotsManagement,
@@ -28,4 +29,5 @@ module.exports = {
     SubProductSettings: SubProductSettings,
     TestMachine: TestMachine,
     ErrorSlots: ErrorSlots,
+    GetDataSettings: GetDataSettings
 }

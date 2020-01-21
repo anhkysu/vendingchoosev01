@@ -19,7 +19,45 @@ const options = {
 class Passwords extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      updatingUser: {
+        username: '',
+        passwords: '',
+        passconfirm: '',
+      },
+      newUser: {
+        username: 'a',
+        passwords: 'a',
+        passconfirm: 'a',
+      },
+      updateAccountPermission: false,
+      newAccountPermission: false,
+    };
+  }
+
+  handleUpdateUser(data) {
+    this.setState({updateAccountPermission: data});
+  }
+
+  handleNewAccount(data) {
+    this.setState({newAccountPermission: data});
+  }
+
+  handleInfoChange(myCase, label, data) {
+    var info = (myCase=="newUser" ? this.state.newUser : this.state.updatingUser);
+    switch (label) {
+      case 'username':
+        info = {...info, username: data};
+        break;
+      case 'passwords':
+        info = {...info, passwords: data};
+        break;
+      case 'passconfirm':
+        info = {...info, passconfirm: data};
+        break;
+    }
+
+    this.setState({[myCase]:info});
   }
 
   render() {
@@ -37,51 +75,85 @@ class Passwords extends Component {
         }}>
         <View style={{flex: 1, marginBottom: 10}}>
           <ScrollView style={{flex: 1}}>
-            <View >
+            <View>
               <DataInputItem
-                parentDataKey={'passwords'}
-                itemlabel="Cập nhật thông tin tài khoản"
-                datainputtype="Switch"
-                defaultvalue={true}
+                itemlabel={'Cập nhật thông tin tài khoản'}
+                datainputtype={'CustomFunctionSwitch'}
+                defaultvalue={this.state.updateAccountPermission}
+                customFunction={data => {
+                  this.handleUpdateUser(data);
+                }}
               />
             </View>
             <View>
-              {this.props.passwords.map((datainput, index) => {
-                return (
+              {this.state.updateAccountPermission && (
+                <>
                   <DataInputItem
-                    key={index}
-                    parentDataKey={'passwords'}
-                    itemlabel={datainput.itemlabel}
-                    datainputtype={datainput.datainputtype}
-                    defaultvalue={datainput.datainput}
-                    pickeroptions={datainput.options}
-                    constraint={datainput.constraint}
+                    itemlabel={'Tên tài khoản'}
+                    datainputtype={'CustomFunctionTextInput'}
+                    defaultvalue={this.state.updatingUser.username}
+                    customFunction={data => {
+                      this.handleInfoChange('updatingUser', 'username', data);
+                    }}
                   />
-                );
-              })}
+                  <DataInputItem
+                    itemlabel={'Mật khẩu'}
+                    datainputtype={'CustomFunctionTextInput'}
+                    defaultvalue={this.state.updatingUser.passwords}
+                    customFunction={data => {
+                      this.handleInfoChange('updatingUser', 'passwords', data);
+                    }}
+                  />
+                  <DataInputItem
+                    itemlabel={'Xác nhận mật khẩu'}
+                    datainputtype={'CustomFunctionTextInput'}
+                    defaultvalue={this.state.updatingUser.passconfirm}
+                    customFunction={data => {
+                      this.handleInfoChange('updatingUser', 'passconfirm', data);
+                    }}
+                  />
+                </>
+              )}
             </View>
-            <View >
+            <View>
               <DataInputItem
-                parentDataKey={'passwords'}
-                itemlabel="Tạo tài khoản"
-                datainputtype="Switch"
-                defaultvalue={true}
+                itemlabel={'Tạo tài khoản'}
+                datainputtype={'CustomFunctionSwitch'}
+                defaultvalue={this.state.newAccountPermission}
+                customFunction={data => {
+                  this.handleNewAccount(data);
+                }}
               />
             </View>
             <View>
-              {this.props.passwords.map((datainput, index) => {
-                return (
+              {this.state.newAccountPermission && (
+                <>
                   <DataInputItem
-                    key={index}
-                    parentDataKey={'passwords'}
-                    itemlabel={datainput.itemlabel}
-                    datainputtype={datainput.datainputtype}
-                    defaultvalue={datainput.datainput}
-                    pickeroptions={datainput.options}
-                    constraint={datainput.constraint}
+                    itemlabel={'Tên tài khoản'}
+                    datainputtype={'CustomFunctionTextInput'}
+                    defaultvalue={this.state.newUser.username}
+                    customFunction={data => {
+                      this.handleInfoChange('newUser', 'username', data);
+                    }}
                   />
-                );
-              })}
+                  <DataInputItem
+                    itemlabel={'Mật khẩu'}
+                    datainputtype={'CustomFunctionTextInput'}
+                    defaultvalue={this.state.newUser.passwords}
+                    customFunction={data => {
+                      this.handleInfoChange('newUser', 'passwords', data);
+                    }}
+                  />
+                  <DataInputItem
+                    itemlabel={'Xác nhận mật khẩu'}
+                    datainputtype={'CustomFunctionTextInput'}
+                    defaultvalue={this.state.newUser.passconfirm}
+                    customFunction={data => {
+                      this.handleInfoChange('newUser', 'passconfirm', data);
+                    }}
+                  />
+                </>
+              )}
             </View>
           </ScrollView>
         </View>
@@ -95,7 +167,7 @@ class Passwords extends Component {
             paddingVertical: 2,
           }}>
           <View style={{paddingRight: 10}}>
-            <Button title="Cập nhật thông tin" />
+            <Button title="Cập nhật thông tin" onPress={()=>{console.log(this.state.updatingUser)}}/>
           </View>
         </View>
       </View>
