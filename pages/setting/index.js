@@ -2,7 +2,7 @@ import InformationSettings from "./InformationSettings";
 import SlotsManagement from "./SlotsManagement";
 import Passwords from "./Passwords";
 import PaymentSettings from "./PaymentSettings";
-import ProgramUpdate from "./SerialPortSettings";
+import ProgramUpdate from "./ProgramUpdate";
 import SlotLinks from "./SlotLinks";
 import MachineSettings from "./MachineSettings";
 import SerialPortSettings from "./SerialPortSettings";
@@ -13,6 +13,7 @@ import SubSlotsManagement from "./SubSlotsManagement";
 import TestMachine from "./TestMachine";
 import ErrorSlots from "./ErrorSlots";
 import GetDataSettings from "./GetDataSettings";
+import PushCashSetting from "./PushCashSetting";
 
 module.exports = {
     SlotsManagement: SlotsManagement,
@@ -29,5 +30,6 @@ module.exports = {
     SubProductSettings: SubProductSettings,
     TestMachine: TestMachine,
     ErrorSlots: ErrorSlots,
-    GetDataSettings: GetDataSettings
+    GetDataSettings: GetDataSettings,
+    PushCashSetting: PushCashSetting
 }

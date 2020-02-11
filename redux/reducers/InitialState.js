@@ -353,7 +353,7 @@ var initialState = {
       constraint: {type:"number", minValue: 1000, maxValue: 1000000}
     },
     {
-      itemlabel: "Mệnh giá tiền mặt tối đa cho phép",
+      itemlabel: "Mệnh giá tiền mặt tối thiểu cho phép",
       datainputtype: "Picker",
       options: { "10000": "10000","20000": "20000",  },
       datainput: "10000",
@@ -511,13 +511,6 @@ var initialState = {
       constraint: {type:"number", minValue: 1, maxValue: 99}
     },
     {
-      itemlabel: "Chạy thử đèn QR",
-      datainputtype: "Switch",
-      options: {  "nope": "nope" },
-      datainput: "99",
-      constraint: {type:"number", minValue: 1, maxValue: 99}
-    },
-    {
       itemlabel: "Chạy thử Slot",
       datainputtype: "Range",
       options: {  "nope": "nope" },
@@ -555,6 +548,53 @@ var initialState = {
       constraint: {type:"number", minValue: 1, maxValue: 199}
     },
   ],
+  newProductData: [
+    {
+      itemlabel: "Cài đặt sản phẩm",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "Nước gì",
+      constraint: {type:"text", maxLength: 36}
+    },
+    {
+      itemlabel: "UID sản phẩm",
+      datainputtype: "TextInput",
+      options: { "nope": "nope" },
+      datainput: "5000",
+      constraint: {type:"number", minValue: 1000, maxValue: 1000000}
+    },
+    {
+      itemlabel: "Tên sản phẩm",
+      datainputtype: "TextLabel",
+      options: { "nope": "nope" },
+      datainput: "1",
+      constraint: {type:"number", minValue: 1, maxValue: 199}
+    },
+    {
+      itemlabel: "Hình sản phẩm",
+      datainputtype: "TextLabel",
+      options: { "nope": "nope" },
+      datainput: "1",
+      constraint: {type:"number", minValue: 1, maxValue: 199}
+    },
+  ],
+  programUpdate: [
+    {
+      itemlabel: "Phiên bản hiện tại",
+      datainputtype: "TextLabel",
+      options: { "nope": "nope" },
+      datainput: "1.1.1",
+      constraint: {type:"number", minValue: 0, maxValue: 100}
+    },
+    {
+      itemlabel: "Phiên bản mới nhất",
+      datainputtype: "TextLabel",
+      options: { "nope": "nope" },
+      datainput: "1.2.2",
+      constraint: {type:"number", minValue: 0, maxValue: 100}
+    },
+  ],
+
   testvar: "notok"
 }
 

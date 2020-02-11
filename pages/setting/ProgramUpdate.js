@@ -1,54 +1,51 @@
 import React, {Component} from 'react';
-import {
-  Picker,
-  ScrollView,
-  View,
-  Text,
-  Image,
-  Button,
-  Alert
-} from 'react-native';
+import {TouchableOpacity, Text, View} from 'react-native';
 
-import {connect} from "react-redux";
-import { updateOneSlotData, saveBeverageInfoChanges } from '../../redux/actions';
-
+import {connect} from 'react-redux';
+import DataInputItem from '../../components/DataInputItem';
 
 class ProgramUpdate extends Component {
-    constructor(props){
-        super(props);
-        this.state = {
-           
-        }
-    }
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
-    render() {    
-        return (
-            <View style={{ flex: 1 }}>
-                
-            </View>
-        );
-    }
+  render() {
+    return (
+      <View style={{flex: 1, marginTop: 10,marginHorizontal: 20, display:"flex", alignItems:"center"}}>
+        {this.props.programUpdate.map((datainput, index) => {
+          return (
+            <DataInputItem
+              key={index}
+              parentDataKey={'updateProgram'}
+              itemlabel={datainput.itemlabel}
+              datainputtype={datainput.datainputtype}
+              defaultvalue={datainput.datainput}
+              pickeroptions={datainput.options}
+              constraint={datainput.constraint}
+            />
+          );
+        })}
+        <TouchableOpacity style={{backgroundColor: "dodgerblue", marginTop: 20, padding: 10, paddingHorizontal: 20, borderRadius: 5}}>
+            <Text style={{fontSize: 18, color: 'white'}}>
+                Cập nhật
+            </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
-    componentDidMount(){
-        
-    }
-};
-
-
-function mapStateToProps(state){
-    return {
-        settingdatalist: state.settingdatalist,
-        currentslotsetting: state.currentslotsetting,
-        oneslotdata: state.oneslotdata,
-        initialbeveragestate: state.initialbeveragestate,
-    }
+  componentDidMount() {}
 }
 
-function mapDispatchToProps(dispatch){
-    return {
-        updateOneSlotData: data => {dispatch(updateOneSlotData(data))},
-        saveBeverageInfoChanges: (slotsetting, name, price, validslots, imagesource) => {dispatch(saveBeverageInfoChanges(slotsetting, name, price, validslots, imagesource))},
-    }
+function mapStateToProps(state) {
+  return {
+    programUpdate: state.programUpdate,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {};
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProgramUpdate);

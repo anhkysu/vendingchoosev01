@@ -27,7 +27,8 @@ import {
   SubProductSettings,
   TestMachine,
   ErrorSlots,
-  GetDataSettings
+  GetDataSettings,
+  PushCashSetting
 } from './pages/setting';
 
 const store = createStore(settingpage1reducer);
@@ -75,6 +76,13 @@ const StackNavigator = createStackNavigator(
       navigationOptions: ({navigation}) => ({
         headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
         title: 'PAYMENT SETTINGS',
+      }),
+    },
+    PushCashSetting: {
+      screen: PushCashSetting,
+      navigationOptions: ({navigation}) => ({
+        headerTitleStyle: {color: '#3e81f4', fontWeight: 'bold'},
+        title: 'Push Cash',
       }),
     },
     ProgramUpdate: {

@@ -44,21 +44,43 @@ class PaymentSettings extends Component {
     });
   }
 
-  handleGetCash(){
-      Alert.alert("Thông báo", "Bạn muốn lấy tiền từ ngăn thối?",[
-          {
-              text: "Yes",
-              onPress: ()=>{Alert.alert("Thông báo","Mời bạn lấy tiền từ ngăn thối")}
-          },
-          {
-            text: "No",
-            onPress: ()=>{Alert.alert("Thông báo","Fine")}
-          }
-      ])
+  giveCash(){
+    Alert.alert('Thông báo', 'Đã lấy hết tiền từ ngăn thối!')
   }
 
-  handleInputCash(){
-      Alert.alert("Thông báo", "Số tờ tiền ngăn thối hiện có: 3 tờ");
+  getCash() {
+    Alert.alert('Thông báo', 'Mời bạn nhận tiền từ ngăn thối!', [{
+      text: 'Hủy',
+      onPress: () => {
+        clearTimeout(this.getCashTimeout);
+      },
+    }]);
+  }
+
+  handleGetCash() {
+    var a = this;
+    Alert.alert('Thông báo', 'Bạn muốn lấy tiền từ ngăn thối?', [
+      {
+        text: 'Yes',
+        onPress: () => {
+          this.getCash();
+          this.getCashTimeout =  setTimeout(()=>{
+            this.giveCash();
+          }, 3000);
+        },
+      },
+      {
+        text: 'No',
+        onPress: () => {
+          Alert.alert('Thông báo', 'Fine');
+        },
+      },
+    ]);
+  }
+
+  handleInputCash() {
+    //Alert.alert('Thông báo', 'Số tờ tiền ngăn thối hiện có: 3 tờ');
+    this.props.navigation.navigate('PushCashSetting');
   }
 
   render() {
@@ -101,10 +123,20 @@ class PaymentSettings extends Component {
             paddingVertical: 2,
           }}>
           <View style={{paddingRight: 10}}>
-            <Button title="Nạp Tiền Thối"  onPress={()=>{this.handleInputCash()}}/>
+            <Button
+              title="Nạp Tiền Thối"
+              onPress={() => {
+                this.handleInputCash();
+              }}
+            />
           </View>
           <View style={{paddingRight: 10}}>
-            <Button title="Lấy Tiền Thối" onPress={() => {this.handleGetCash()}}/>
+            <Button
+              title="Lấy Tiền Thối"
+              onPress={() => {
+                this.handleGetCash();
+              }}
+            />
           </View>
           <View style={{paddingRight: 10}}>
             <Button title="Reset Tiền" />

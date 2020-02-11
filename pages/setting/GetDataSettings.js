@@ -73,30 +73,10 @@ class GetDataSettings extends Component {
             flex: 1,
             marginBottom: 10,
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: 'column',
           }}>
-          <View style={{flex: 1}}>
-            <ScrollView style={{flex: 1, display: "flex"}}>
-              {
-                  this.props.initialbeveragestate.map((item, index)=>{
-                      return (
-                        <TouchableOpacity  key={index}>
-                        <View style={{ margin: 12, padding:10, backgroundColor: "whitesmoke",borderWidth: 1, borderColor: "dodgerblue", borderRadius: 10, display: "flex", alignItems:"center",  justifyContent:"center",}}>
-                            <Text style={{fontSize:18,}}>
-                                {item.name}
-                            </Text>
-                            <Text style={{fontSize:18,}}>
-                                {item.price} VND
-                            </Text>
-                        </View>
-                        </TouchableOpacity>
-                      );
-                  })
-              }
-            </ScrollView>
-          </View>
 
-          <View style={{flex: 2}}>
+          <View style={{flex: 1}}>
             <ScrollView style={{flex: 1}}>
                 <Text style={{fontSize: 20, fontWeight:"bold", marginLeft: 20, marginBottom: 10}}>
                     Cài đặt thông tin sản phẩm
@@ -185,6 +165,30 @@ class GetDataSettings extends Component {
               </View>
             </ScrollView>
             
+          </View>
+
+          <View style={{flex: 1}}>
+            <ScrollView style={{flex: 1, display: "flex"}} horizontal={true}>
+              {
+                  this.props.initialbeveragestate.map((item, index)=>{
+                      return (
+                        <TouchableOpacity  key={index}>
+                        <View style={{ margin: 12, padding:10, backgroundColor: "whitesmoke",borderWidth: 1, borderColor: "dodgerblue", borderRadius: 10, display: "flex", alignItems:"center",  justifyContent:"center",}}>
+                            <Text style={{fontSize:18,}}>
+                                Vị trí: {item.slotsetting}
+                            </Text>
+                            <Text style={{fontSize:18,}}>
+                                Tên: {item.name}
+                            </Text>
+                            <Text style={{fontSize:18,}}>
+                                Giá: {item.price} VND
+                            </Text>
+                        </View>
+                        </TouchableOpacity>
+                      );
+                  })
+              }
+            </ScrollView>
           </View>
         </View>
         <View
