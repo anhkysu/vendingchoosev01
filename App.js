@@ -11,7 +11,8 @@ import ProcessMomoTransaction from './pages/ProcessMomoTransaction';
 import SettingPage1 from './pages/SettingPage1';
 import SettingPage2 from './pages/SettingPage2';
 import SettingMenuPage from './pages/SettingMenuPage';
-import settingpage1reducer from './redux/reducers/SettingPage1Reducer';
+import reducers from './redux/reducers';
+import Uart from './communication/Uart';
 import {
   SlotsManagement,
   SubSlotsManagement,
@@ -28,10 +29,10 @@ import {
   TestMachine,
   ErrorSlots,
   GetDataSettings,
-  PushCashSetting
+  PushCashSetting,
 } from './pages/setting';
 
-const store = createStore(settingpage1reducer);
+const store = createStore(reducers);
 
 const StackNavigator = createStackNavigator(
   {
@@ -179,7 +180,7 @@ const StackNavigator = createStackNavigator(
     },
   },
   {
-    initialRouteName: 'LoginPage',  //LoginPage
+    initialRouteName: 'LoginPage', //LoginPage
   },
 );
 
@@ -221,7 +222,10 @@ export default class App extends Component {
   render() {
     return (
       <Provider store={store}>
-        <AppContainer />
+        <View style={{flex:1}}>
+          <AppContainer />
+          <Uart />
+        </View>
       </Provider>
     );
   }

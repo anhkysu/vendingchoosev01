@@ -1,6 +1,6 @@
 import initialState from './InitialState';
 
-const settingpage1reducer = (state = initialState, action) => {
+export default function (state = initialState, action) {
   switch (action.type) {
     case 'CHANGE_COUPLE_INPUT':
       return {
@@ -163,9 +163,11 @@ const settingpage1reducer = (state = initialState, action) => {
           },
         ],
       };
+
+
     default:
       return state;
   }
 };
 
-export default settingpage1reducer;
+

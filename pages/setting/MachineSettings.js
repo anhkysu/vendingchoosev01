@@ -32,6 +32,12 @@ class MachineSettings extends Component {
         }
     }
 
+    componentDidUpdate(prevProps, prevState){
+        if(prevProps.machineSettings !== this.props.machineSettings){
+            Alert.alert("Changed");
+        }
+    }
+
     loadBeverageItem(slotsetting){
         //console.log(this.props.currentslotsetting);
         this.props.initialbeveragestate.map((item)=>{

@@ -56,7 +56,6 @@ export const saveBeverageInfoChanges = (slotsetting, name, price, validslots, im
     uid: uid,
     slotfrom: slotfrom,
     slotto: slotto,
-    
 })
 
 export const changeCurrentSlotSetting = currentnumber => ({
@@ -68,4 +67,9 @@ export const updateDataInput = (datatag, data) => ({
     type: 'UDPATE_DATA_INPUT',
     datatag: datatag,
     newdata: data,
+})
+
+export const receiveUartData = (uartData) => ({
+    type: 'RECEIVE_UART_DATA',
+    data: uartData
 })

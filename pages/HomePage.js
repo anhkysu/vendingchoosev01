@@ -427,6 +427,11 @@ class HomePage extends Component {
               onReceivedUiRequirement(displayUiId,'none',this.pickUi);
             }
             break;
+
+          case 'login':
+            if(type == 'request'){
+              this.processLoginRequest();
+            }
           
           default: 
             break;
@@ -455,7 +460,7 @@ class HomePage extends Component {
 
   //#region - Testing Function
   testFunction() {
-    this.showUiPickedProduct("asd","CashTransaction");
+    this.processLoginRequest();
     
     //this.processTransaction(false);
     // onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);    
@@ -463,6 +468,10 @@ class HomePage extends Component {
   //#endregion
 
   //#region - Categorized 
+  processLoginRequest(){
+    this.props.navigation.navigate('LoginPage');
+  }
+
   onOneItemTouched(itemInfoObject) {
     var sendThisSlotId = itemInfoObject.slotSetting;
     sendSelectedSlot(sendThisSlotId.toString(), this.sendSerialData);
@@ -545,6 +554,74 @@ class HomePage extends Component {
     this.setState({ isVisible: false });
   }
 
+
+  processUartData(inputObject){
+      var topic = inputObject.topic || 'none';
+      var type = inputObject.type || 'none';
+      var content = inputObject.content || 'none';
+      if(topic == 'none' || content == 'none'){
+        console.log("Firmware requests unrecognized!");
+      }
+      else {
+        switch(topic){
+          case 'interface':
+            if(type != 'request') {
+              this.showError('Firmware should send a request with type of request');
+              return;
+            }
+            else {
+              this.sendSerialData(JSON.stringify({topic:"interface", type:"response", content: {status: "ok"} }), true);
+              onReceivedUiRequirement(content.value, 'none', this.pickUi);
+            }
+            break;
+            
+          case 'paymentMethod':
+            if(type == 'request') {
+              this.hideLoadingUi();
+              this.sendSerialData(JSON.stringify({topic:"paymentMethod", type:"response", content: {status: "ok"} }), true);
+              onPaymentMethodDisplayRequirement(this.showUiPaymentMethod);
+            }
+            else if (type == 'response'){
+
+            }
+            else {
+              this.showError('Firmware sent a request of ambiguous type');
+              return;
+            }
+            break;
+
+          case 'cashMethod':
+            if (type == 'updateMoney') {
+              this.sendSerialData(JSON.stringify({topic:"cashMethod", type:"response", content: {status: "ok"}}), true);
+              onUpdateCashAvailable("refreshCash", content.value, this.updateCashAvailable);
+            }
+            else if (type == 'warning') {
+              this.sendSerialData(JSON.stringify({topic:"cashMethod", type:"response", content: {status: "ok"}}), true);
+              onReceivedUiRequirement(11, "", this.pickUi);
+            }
+            else if (type == 'request') {
+              this.sendSerialData(JSON.stringify({topic:"cashMethod", type:"response", content: {status: "ok"}}), true);
+              onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);
+            }
+            break;
+
+          case 'slots':
+            if(type == "response"){
+              var displayUiId = onSlotStatus(content.value);
+              onReceivedUiRequirement(displayUiId,'none',this.pickUi);
+            }
+            break;
+
+          case 'login':
+            if(type == 'request'){
+              this.processLoginRequest();
+            }
+          
+          default: 
+            break;
+        }
+  }
+}
   //#endregion 
 
   //#region - Uncategorized Code
@@ -655,11 +732,11 @@ class HomePage extends Component {
       var fakearray = createFakeArray(this.state.numberofpages); 
       this.setState({numberofpages_fakearray: fakearray});
     },1);
-    console.log(`Window Height ${Dimensions.get('window').height}`);
-    console.log(`Header Height ${this.props.settingdatalist[6].datainput}`);
-    console.log(`Footer Height ${this.props.settingdatalist[7].datainput}`);
-    console.log(`Item Height ${this.props.settingdatalist[4].datainput}`);
-    console.log(`Maxnumber of Row ${maxnumberofrow}`);
+    // console.log(`Window Height ${Dimensions.get('window').height}`);
+    // console.log(`Header Height ${this.props.settingdatalist[6].datainput}`);
+    // console.log(`Footer Height ${this.props.settingdatalist[7].datainput}`);
+    // console.log(`Item Height ${this.props.settingdatalist[4].datainput}`);
+    // console.log(`Maxnumber of Row ${maxnumberofrow}`);
     return {noofpages: noofpages, maxnumberofrow: maxnumberofrow}
   }
 
@@ -668,7 +745,7 @@ class HomePage extends Component {
     var numberofpages = returnedLayout.noofpages;
     var noofrow = returnedLayout.maxnumberofrow;
     var processedData = processFullData(noofcol, noofslot, data, pagenumber, numberofpages, noofrow);
-    console.log(processedData);
+    //console.log(processedData);
     this.setState({importantdata: processedData});
   }
 
@@ -726,14 +803,25 @@ class HomePage extends Component {
   //#region - Component
 
   componentDidMount() {
-    this.startUsbListener();
+    //this.startUsbListener();
+    
+    console.log(this.props.setting)
     this.renderBeverageData(this.props.settingdatalist[1].datainput, this.props.settingdatalist[0].datainput, this.props.initialbeveragestate, 1, this.state.numberofpages);
     this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));
   }
 
   componentWillUnmount(){
     clearInterval(this.slidinginterval);
-    this.stopUsbListener();
+    //this.stopUsbListener();
+  }
+
+  componentDidUpdate(prevProps){
+    if( JSON.stringify(this.props.uart) !== JSON.stringify(prevProps.uart) ){
+      this.a = this.props.uart;
+      this.b = prevProps.uart;
+      Alert.alert("Yeah",JSON.stringify(this.a) + "&" + JSON.stringify(this.b));
+      this.processUartData(this.props.uart);
+    }
   }
 
   //#endregion 
@@ -799,23 +887,15 @@ class HomePage extends Component {
                 color="#3e81f4"
               />
             </TouchableOpacity>
-            <TouchableOpacity style={{ marginRight: 15 }} onPress={() => { this.props.navigation.navigate('LoginPage') }}>
-              <Icon
-                size={2.5* Number(this.props.settingdatalist[9].datainput)}
-                name="md-settings"
-                color="#3e81f4"
-              />
-            </TouchableOpacity>
+            
           </View>
 
           <View style={{ flex: 1, height: "100%", justifyContent: "center", alignItems: "center" }}>
             <View style={{ height: "100%", backgroundColor: "lightblue", display: "flex", flexDirection: "row" }}>
-              
-              {/* <Button
+              <Button
                 title="   TEST   "
                 onPress={() => { this.testFunction(); }}
-              />  */}
-                
+              />                
                <View style={{ width: 45, height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <TouchableOpacity onPress={()=>{this.navigateBetweenPages(this.state.currentpagenumber,false, this.state.numberofpages);this.processSlidingInterval(Number(this.props.settingdatalist[2].datainput));}}>
                   <Icon
@@ -863,9 +943,10 @@ class HomePage extends Component {
 
 function mapStateToProps(state){
   return {
-    serialPortSettings: state.serialPortSettings,
-    settingdatalist: state.settingdatalist,
-    initialbeveragestate: state.initialbeveragestate,
+    uart: state.uart,
+    serialPortSettings: state.settingpage1reducer.serialPortSettings,
+    settingdatalist: state.settingpage1reducer.settingdatalist,
+    initialbeveragestate: state.settingpage1reducer.initialbeveragestate,
   }
 }
 
