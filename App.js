@@ -180,7 +180,8 @@ const StackNavigator = createStackNavigator(
     },
   },
   {
-    initialRouteName: 'LoginPage', //LoginPage
+    //initialRouteName: 'LoginPage',
+    initialRouteName: 'ProductSettings',
   },
 );
 
@@ -216,7 +217,8 @@ const SwitchNavigator = createSwitchNavigator({
   },
 });
 
-const AppContainer = createAppContainer(SwitchNavigator);
+//const AppContainer = createAppContainer(SwitchNavigator);
+const AppContainer = createAppContainer(StackNavigator);
 
 export default class App extends Component {
   render() {

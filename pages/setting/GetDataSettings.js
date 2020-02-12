@@ -216,9 +216,9 @@ class GetDataSettings extends Component {
 
 function mapStateToProps(state) {
   return {
-    passwords: state.passwords,
-    newProductData: state.newProductData,
-    initialbeveragestate: state.initialbeveragestate
+    passwords: state.settingpage1reducer.passwords,
+    newProductData: state.settingpage1reducer.newProductData,
+    initialbeveragestate: state.settingpage1reducer.initialbeveragestate
   };
 }
 

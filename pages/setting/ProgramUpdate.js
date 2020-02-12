@@ -40,7 +40,7 @@ class ProgramUpdate extends Component {
 
 function mapStateToProps(state) {
   return {
-    programUpdate: state.programUpdate,
+    programUpdate: state.settingpage1reducer.programUpdate,
   };
 }
 

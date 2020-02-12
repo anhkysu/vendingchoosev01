@@ -135,10 +135,10 @@ class MachineSettings extends Component {
 
 function mapStateToProps(state){
     return {
-        settingdatalist: state.settingdatalist,
-        currentslotsetting: state.currentslotsetting,
-        machineSettings: state.machineSettings,
-        initialbeveragestate: state.initialbeveragestate,
+        settingdatalist: state.settingpage1reducer.settingdatalist,
+        currentslotsetting: state.settingpage1reducer.currentslotsetting,
+        machineSettings: state.settingpage1reducer.machineSettings,
+        initialbeveragestate: state.settingpage1reducer.initialbeveragestate,
     }
 }
 

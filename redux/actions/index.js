@@ -73,3 +73,9 @@ export const receiveUartData = (uartData) => ({
     type: 'RECEIVE_UART_DATA',
     data: uartData
 })
+
+export const sendUartData = (uartData, notStrict) => ({
+    type: 'SEND_UART_DATA',
+    data: uartData,
+    notStrict: notStrict
+})

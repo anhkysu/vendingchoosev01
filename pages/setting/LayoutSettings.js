@@ -53,8 +53,8 @@ class LayoutSettings extends Component {
 
 function mapStateToProps(state){
     return {
-        settingdatalist: state.settingdatalist,
-        serialPortSettings: state.serialPortSettings
+        settingdatalist: state.settingpage1reducer.settingdatalist,
+        serialPortSettings: state.settingpage1reducer.serialPortSettings
     }
 }
 

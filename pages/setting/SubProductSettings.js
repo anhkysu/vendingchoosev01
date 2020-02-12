@@ -12,6 +12,7 @@ import DataInputItem from '../../components/DataInputItem';
 import {connect} from 'react-redux';
 import {changeCoupleInputNew, saveBeverageInfoChanges, createBeverageItem, deleteItem} from '../../redux/actions';
 import ImagePicker from 'react-native-image-picker';
+import {sendUartData} from '../../redux/actions';
 
 const options = {
   title: 'Select Avatar',
@@ -19,6 +20,7 @@ const options = {
   storageOptions: {
     skipBackup: true,
     path: 'images',
+    
   },
   allowsEditing: false,
 };
@@ -29,9 +31,35 @@ class SubProductSettings extends Component {
     this.state = {
       avatarSource: 'content://media/external/images/media/47',
       isNew: true,
+      refreshTime: 1,
     };
     this.defaultItemObject =
       this.props.navigation.state.params.itemObject || 'new';
+  }
+
+  isJson(str) {
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return true;
+  }
+
+  sendSerialData(string, notStrict) {
+    if (!this.isJson(string)) return;
+    var sendObject = JSON.parse(string);
+    if (typeof sendObject !== 'object') return;
+
+    if (string === JSON.stringify(this.props.uartSend)) {
+      sendObject.refresh = this.state.refreshTime;
+      this.props.sendUartData(sendObject, notStrict);
+      this.setState({refreshTime: this.state.refreshTime + 1});
+      return;
+    }
+
+    this.props.sendUartData(sendObject, notStrict);
+    this.setState({refreshTime: 1});
   }
 
   goBack(data) {
@@ -124,6 +152,7 @@ class SubProductSettings extends Component {
       this.state.avatarSource,
       data[3].datainput,
     );
+
     this.goBack('new');
   }
 
@@ -317,14 +346,48 @@ class SubProductSettings extends Component {
       </View>
     );
   }
+
+  componentDidUpdate(prevProps) {
+    if (
+      JSON.stringify(this.props.uartReceive) !==
+      JSON.stringify(prevProps.uartReceive)
+    ) {
+           this.processUartData(this.props.uartReceive);
+        
+    }
+  }
+
+  processUartData(inputObject) {
+    var topic = inputObject.topic || 'none';
+    var type = inputObject.type || 'none';
+    var content = inputObject.content || 'none';
+    if (topic == 'none' || content == 'none') {
+      console.log('Firmware requests unrecognized!');
+    } else {
+      switch (topic) {
+        case 'loginAppSetting':
+          if (type === 'response' && content.status === 'ok') {
+            this.setState({loading: false});
+            this.props.navigation.navigate('SettingMenuPage');
+          } else if (type === 'response' && content.status === false) {
+            this.setState({loading: false});
+            Alert.alert('THÔNG BÁO', 'ĐĂNG NHẬP THẤT BẠI, MỜI THỬ LẠI!');
+          }
+          break;
+      }
+    }
+  }
+
 }
 
 function mapStateToProps(state) {
   return {
-    settingdatalist: state.settingdatalist,
-    currentslotsetting: state.currentslotsetting,
-    oneslotdata: state.oneslotdata,
-    initialbeveragestate: state.initialbeveragestate,
+    uartSend: state.uart.send,
+    uartReceive: state.uart.receive,
+    settingdatalist: state.settingpage1reducer.settingdatalist,
+    currentslotsetting: state.settingpage1reducer.currentslotsetting,
+    oneslotdata: state.settingpage1reducer.oneslotdata,
+    initialbeveragestate: state.settingpage1reducer.initialbeveragestate,
   };
 }
 
@@ -376,6 +439,7 @@ function mapDispatchToProps(dispatch) {
         ),
       );
     },
+    sendUartData: (data, notStrict) => dispatch(sendUartData(data, notStrict)),
   };
 }
 

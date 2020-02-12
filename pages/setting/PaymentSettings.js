@@ -154,10 +154,10 @@ class PaymentSettings extends Component {
 
 function mapStateToProps(state) {
   return {
-    settingdatalist: state.settingdatalist,
-    currentslotsetting: state.currentslotsetting,
-    paymentSettings: state.paymentSettings,
-    initialbeveragestate: state.initialbeveragestate,
+    settingdatalist: state.settingpage1reducer.settingdatalist,
+    currentslotsetting: state.settingpage1reducer.currentslotsetting,
+    paymentSettings: state.settingpage1reducer.paymentSettings,
+    initialbeveragestate: state.settingpage1reducer.initialbeveragestate,
   };
 }
 

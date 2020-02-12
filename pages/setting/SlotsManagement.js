@@ -223,10 +223,10 @@ class SlotsManagement extends Component {
 
 function mapStateToProps(state) {
   return {
-    settingdatalist: state.settingdatalist,
-    currentslotsetting: state.currentslotsetting,
-    oneslotdata: state.oneslotdata,
-    initialbeveragestate: state.initialbeveragestate,
+    settingdatalist: state.settingpage1reducer.settingdatalist,
+    currentslotsetting: state.settingpage1reducer.currentslotsetting,
+    oneslotdata: state.settingpage1reducer.oneslotdata,
+    initialbeveragestate: state.settingpage1reducer.initialbeveragestate,
   };
 }
 

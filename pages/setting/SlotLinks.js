@@ -85,10 +85,10 @@ class SlotLinks extends Component {
 
 function mapStateToProps(state){
     return {
-        settingdatalist: state.settingdatalist,
-        currentslotsetting: state.currentslotsetting,
-        slotLinks: state.slotLinks,
-        initialbeveragestate: state.initialbeveragestate,
+        settingdatalist: state.settingpage1reducer.settingdatalist,
+        currentslotsetting: state.settingpage1reducer.currentslotsetting,
+        slotLinks: state.settingpage1reducer.slotLinks,
+        initialbeveragestate: state.settingpage1reducer.initialbeveragestate,
     }
 }
 

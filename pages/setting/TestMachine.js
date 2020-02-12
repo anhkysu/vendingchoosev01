@@ -57,7 +57,7 @@ class TestMachine extends Component {
 
 function mapStateToProps(state){
     return {
-        testMachine: state.testMachine
+        testMachine: state.settingpage1reducer.testMachine
     }
 }
 

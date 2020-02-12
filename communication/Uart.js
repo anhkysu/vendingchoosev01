@@ -1,6 +1,6 @@
 //#region Import
 import React, {Component} from 'react';
-import {DeviceEventEmitter} from 'react-native';
+import {DeviceEventEmitter, Alert} from 'react-native';
 
 import {RNSerialport, definitions, actions} from 'react-native-serialport';
 import {receiveUartData} from '../redux/actions';
@@ -133,7 +133,7 @@ class Uart extends Component {
   }
 
   onError(error) {
-    console.error(error);
+    console.log(String(error));
   }
 
   isJson(str) {
@@ -159,7 +159,7 @@ class Uart extends Component {
       var inputObject = JSON.parse(payload);
       if(typeof(inputObject) !== 'object') return;
 
-      if (payload === JSON.stringify(this.props.uart)) {
+      if (payload === JSON.stringify(this.props.uartReceive)) {
         inputObject.refresh = this.state.refreshTime;
         this.props.receiveUartData(inputObject);
         this.setState({refreshTime: this.state.refreshTime + 1});
@@ -172,19 +172,7 @@ class Uart extends Component {
   }
 
   sendSerialData(string, notStrict) {
-    if (notStrict) {
-      if (this.state.connected) {
-        RNSerialport.writeString(string);
-      }
-    } else {
-      if (this.state.connected) {
-        RNSerialport.writeString(string);
-      } else {
-        setTimeout(() => {
-          this.hideLoadingUi();
-        }, 3000);
-      }
-    }
+    RNSerialport.writeString(string);
   }
   //#endregion
 
@@ -198,10 +186,20 @@ class Uart extends Component {
 
   componentDidMount() {
     this.startUsbListener();
+    setTimeout(()=>{console.log(JSON.stringify(this.props.uart))},5000)
   }
 
   componentWillUnmount() {
     this.stopUsbListener();
+  }
+
+  componentDidUpdate(prevProps){
+    const uartSendData = JSON.stringify(this.props.uartSend);
+    const notStrictMode = this.props.notStrictMode || false;
+    if(uartSendData !== JSON.stringify(prevProps.uartSend))
+    {
+       this.sendSerialData(uartSendData, notStrictMode);
+    }
   }
 
   //#endregion
@@ -218,7 +216,9 @@ class Uart extends Component {
 function mapStateToProps(state) {
   return {
     yeah: state.settingpage1reducer,
-    uart: state.uart,
+    notStrictMode: state.uart.notStrict,
+    uartReceive: state.uart.receive,
+    uartSend: state.uart.send,
     serialPortSettings: state.settingpage1reducer.serialPortSettings,
   };
 }

@@ -204,10 +204,10 @@ class SubSlotsManagement extends Component {
 
 function mapStateToProps(state) {
   return {
-    settingdatalist: state.settingdatalist,
-    currentslotsetting: state.currentslotsetting,
-    slotsManagement: state.slotsManagement,
-    initialbeveragestate: state.initialbeveragestate,
+    settingdatalist: state.settingpage1reducer.settingdatalist,
+    currentslotsetting: state.settingpage1reducer.currentslotsetting,
+    slotsManagement: state.settingpage1reducer.slotsManagement,
+    initialbeveragestate: state.settingpage1reducer.initialbeveragestate,
   };
 }
 
