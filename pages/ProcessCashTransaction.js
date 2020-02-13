@@ -341,6 +341,7 @@ class ProcessCashTransaction extends Component {
   }
 
   sendSerialData(string, notStrict) {
+    console.log("sent");
     if (!this.isJson(string)) return;
     var sendObject = JSON.parse(string);
     if (typeof sendObject !== 'object') return;
@@ -624,6 +625,11 @@ class ProcessCashTransaction extends Component {
       JSON.stringify(prevProps.uartReceive)
     ) {
       this.processUartData(this.props.uartReceive);
+    }
+
+    else if (
+      JSON.stringify(this.props.uartSend) !== JSON.stringify(prevProps.uartSend)) {
+      Alert.alert("Sent", JSON.stringify(this.props.uartSend));
     }
   }
 }

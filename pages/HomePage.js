@@ -40,6 +40,7 @@ import {
 } from '../business/FirmwareToAppFunctions';
 import Notification from './Notifications';
 import {sendUartData} from '../redux/actions/';
+import {serializeUartData, isValidUartData} from "../communication/uartUtils"
 
 //#endregion
 
@@ -302,37 +303,13 @@ class HomePage extends Component {
 
   //#region - Usb Serial Interface
 
-  isJson(str) {
-    try {
-      JSON.parse(str);
-    } catch (e) {
-      return false;
-    }
-    return true;
-  }
-
-  sendSerialData(string, notStrict) {
-    if (!this.isJson(string)) return;
-    var sendObject = JSON.parse(string);
-    if (typeof sendObject !== 'object') return;
-
-    if (string === JSON.stringify(this.props.uartSend)) {
-      sendObject.refresh = this.state.refreshTime;
-      this.props.sendUartData(sendObject, notStrict);
-      this.setState({refreshTime: this.state.refreshTime + 1});
-      return;
-    }
-
-    this.props.sendUartData(sendObject, notStrict);
-    this.setState({refreshTime: 1});
-  }
-
   //#endregion
 
   //#region - Testing Function
   testFunction() {
-    this.props.navigation.navigate('LoginPage');
-    //this.processTransaction(true, false, 0);
+    //this.props.navigation.navigate('LoginPage');
+    
+    this.processTransaction(true, true, 0);
     
     // onGivingBackInputDisabilityDisplayRequirement(this.showUiGivingBackInputDisability);
   }
@@ -419,14 +396,17 @@ class HomePage extends Component {
     this.setState({isVisible: false});
   }
 
+  sendSerialData(string, notStrict){
+    const prevString = JSON.stringify(this.props.uartSend);
+    const available = serializeUartData({currString: string, prevString, notStrict});
+    if(!available) {Alert.alert("Failed", "Send uart Failed"); return}
+    this.props.sendUartData(available.sendObject, available.notStrict);
+  }
+
   processUartData(inputObject) {
-    var topic = inputObject.topic || 'none';
-    var type = inputObject.type || 'none';
-    var content = inputObject.content || 'none';
-    if (topic == 'none' || content == 'none') {
-      console.log('Firmware requests unrecognized!');
-    } else {
-      switch (topic) {
+    if(!isValidUartData(inputObject)) return;
+    const {topic, type, content} = inputObject;
+      switch(topic){
         case 'interface':
           if (type != 'request') {
             this.showError(
@@ -521,8 +501,10 @@ class HomePage extends Component {
         default:
           break;
       }
-    }
+    
   }
+
+  
   //#endregion
 
   //#region - Uncategorized Code
@@ -764,6 +746,10 @@ class HomePage extends Component {
     if (
       JSON.stringify(this.props.uartReceive) !== JSON.stringify(prevProps.uartReceive)) {
       this.processUartData(this.props.uartReceive);
+    }
+    else if (
+      JSON.stringify(this.props.uartSend) !== JSON.stringify(prevProps.uartSend)) {
+      Alert.alert("Yeah", JSON.stringify(this.props.uartSend));
     }
   }
 

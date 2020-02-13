@@ -10,9 +10,15 @@ import {
 } from 'react-native';
 import DataInputItem from '../../components/DataInputItem';
 import {connect} from 'react-redux';
-import {changeCoupleInputNew, saveBeverageInfoChanges, createBeverageItem, deleteItem} from '../../redux/actions';
+import {
+  changeCoupleInputNew,
+  saveBeverageInfoChanges,
+  createBeverageItem,
+  deleteItem,
+} from '../../redux/actions';
 import ImagePicker from 'react-native-image-picker';
 import {sendUartData} from '../../redux/actions';
+import { isValidUartData, serializeUartData } from '../../communication/uartUtils';
 
 const options = {
   title: 'Select Avatar',
@@ -20,7 +26,6 @@ const options = {
   storageOptions: {
     skipBackup: true,
     path: 'images',
-    
   },
   allowsEditing: false,
 };
@@ -35,31 +40,6 @@ class SubProductSettings extends Component {
     };
     this.defaultItemObject =
       this.props.navigation.state.params.itemObject || 'new';
-  }
-
-  isJson(str) {
-    try {
-      JSON.parse(str);
-    } catch (e) {
-      return false;
-    }
-    return true;
-  }
-
-  sendSerialData(string, notStrict) {
-    if (!this.isJson(string)) return;
-    var sendObject = JSON.parse(string);
-    if (typeof sendObject !== 'object') return;
-
-    if (string === JSON.stringify(this.props.uartSend)) {
-      sendObject.refresh = this.state.refreshTime;
-      this.props.sendUartData(sendObject, notStrict);
-      this.setState({refreshTime: this.state.refreshTime + 1});
-      return;
-    }
-
-    this.props.sendUartData(sendObject, notStrict);
-    this.setState({refreshTime: 1});
   }
 
   goBack(data) {
@@ -115,7 +95,11 @@ class SubProductSettings extends Component {
       'ID sản phẩm',
       String(currentNumberOfProduct + 1),
     );
-    this.props.changeCoupleInputNew('oneslotdata', 'Tên sản phẩm', 'Nhập tên nước');
+    this.props.changeCoupleInputNew(
+      'oneslotdata',
+      'Tên sản phẩm',
+      'Nhập tên nước',
+    );
   }
 
   loadProduct() {
@@ -142,22 +126,34 @@ class SubProductSettings extends Component {
     this.setState({avatarSource: this.defaultItemObject.image});
   }
 
-  onCreateNewProduct() {
+  submitNewProduct() {
     var data = this.props.oneslotdata;
     this.createBeverageItemData(
       data[2].datainput,
       data[0].datainput,
       data[1].datainput,
-      "0",
+      '0',
       this.state.avatarSource,
       data[3].datainput,
     );
-
     this.goBack('new');
   }
 
-  onUpdateProduct() {
-    var data = this.props.oneslotdata;
+  onSubmitNewProduct(productObject) {
+    if (typeof productObject !== 'object') return;
+    const sendData = {
+      topic: 'settingCreateProducts',
+      type: 'request',
+      content: productObject,
+    };
+    this.sendSerialData(JSON.stringify(sendData), false);
+  }
+
+  onUpdateProduct(data){
+    this.updateProduct(data);
+  }
+
+  updateProduct(data) {
     this.props.saveBeverageInfoChanges(
       data[2].datainput,
       data[0].datainput,
@@ -165,26 +161,43 @@ class SubProductSettings extends Component {
       null,
       this.state.avatarSource,
       data[3].datainput,
-
     );
     Alert.alert('Notification', 'New changes was saved succesfully');
     this.goBack('new');
   }
 
-  onDeleteProduct(){
-    this.props.deleteItem(this.defaultItemObject.slotSetting);
-    Alert.alert('Notification', 
-    'New changes was saved succesfully',[
-      {text: "OK", onPress: ()=>{this.goBack('new')}}
+  onDeleteProduct(productId){
+    this.deleteProduct(productId);
+  }
+
+
+  deleteProduct(productId) {
+    this.props.deleteItem(productId);
+    Alert.alert('Notification', 'New changes was saved succesfully', [
+      {
+        text: 'OK',
+        onPress: () => {
+          this.goBack('new');
+        },
+      },
     ]);
-    
-  }  
+  }
+
+  sendSelectedProduct(productObject){
+    const sendData = {
+      topic:"settingProductsChosen",
+      type:"request",
+      content: productObject
+    };
+    this.sendSerialData(JSON.stringify(sendData), false);
+  }
 
   componentDidMount() {
     if (this.defaultItemObject == 'new') {
       this.initializeNewProduct();
     } else {
       this.loadProduct();
+      this.sendSelectedProduct(this.defaultItemObject);
     }
   }
 
@@ -317,7 +330,7 @@ class SubProductSettings extends Component {
                 <Button
                   title="Thêm sản phẩm"
                   onPress={() => {
-                    this.onCreateNewProduct();
+                    this.onSubmitNewProduct(this.props.oneslotdata);
                   }}
                 />
               </View>
@@ -327,7 +340,7 @@ class SubProductSettings extends Component {
                   <Button
                     title="Cập nhật thông tin"
                     onPress={() => {
-                      this.onUpdateProduct();
+                      this.onUpdateProduct(this.props.oneslotdata);
                     }}
                   />
                 </View>
@@ -335,7 +348,7 @@ class SubProductSettings extends Component {
                   <Button
                     title="Xóa sản phẩm"
                     onPress={() => {
-                      this.onDeleteProduct();
+                      this.onDeleteProduct(this.defaultItemObject.slotSetting);
                     }}
                   />
                 </View>
@@ -352,30 +365,33 @@ class SubProductSettings extends Component {
       JSON.stringify(this.props.uartReceive) !==
       JSON.stringify(prevProps.uartReceive)
     ) {
-           this.processUartData(this.props.uartReceive);
-        
+      this.processUartData(this.props.uartReceive);
+    }
+    else if (
+      JSON.stringify(this.props.uartSend) !== JSON.stringify(prevProps.uartSend)) {
+      Alert.alert("Yeah", JSON.stringify(this.props.uartSend));
     }
   }
 
+  sendSerialData(string, notStrict){
+    const prevString = JSON.stringify(this.props.uartSend);
+    const available = serializeUartData({currString: string, prevString, notStrict});
+    if(!available) {Alert.alert("Failed", "Send uart Failed"); return}
+    this.props.sendUartData(available.sendObject, available.notStrict);
+  }
+
   processUartData(inputObject) {
-    var topic = inputObject.topic || 'none';
-    var type = inputObject.type || 'none';
-    var content = inputObject.content || 'none';
-    if (topic == 'none' || content == 'none') {
-      console.log('Firmware requests unrecognized!');
-    } else {
-      switch (topic) {
-        case 'loginAppSetting':
-          if (type === 'response' && content.status === 'ok') {
-            this.setState({loading: false});
-            this.props.navigation.navigate('SettingMenuPage');
-          } else if (type === 'response' && content.status === false) {
-            this.setState({loading: false});
-            Alert.alert('THÔNG BÁO', 'ĐĂNG NHẬP THẤT BẠI, MỜI THỬ LẠI!');
-          }
+    if(!isValidUartData(inputObject)) return;
+    const {topic, type, content} = inputObject;
+      switch(topic){
+        case 'settingCreateProducts':
+          if(type !== 'response') return;
+          if(typeof(content.productName) == 'undefined')return;
+          this.submitNewProduct();
+        break;
+        default:
           break;
       }
-    }
   }
 
 }
@@ -393,10 +409,9 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    deleteItem: (slotsetting) =>
-    dispatch(deleteItem(slotsetting)),
+    deleteItem: slotsetting => dispatch(deleteItem(slotsetting)),
     changeCoupleInputNew: (parentkey, itemlabel, datainput) =>
-    dispatch(changeCoupleInputNew(parentkey, itemlabel, datainput)),
+      dispatch(changeCoupleInputNew(parentkey, itemlabel, datainput)),
     saveBeverageInfoChanges: (
       slotsetting,
       name,

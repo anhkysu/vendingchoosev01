@@ -172,7 +172,10 @@ class Uart extends Component {
   }
 
   sendSerialData(string, notStrict) {
-    RNSerialport.writeString(string);
+    if(this.state.connected){
+      RNSerialport.writeString(string);
+    }
+    
   }
   //#endregion
 

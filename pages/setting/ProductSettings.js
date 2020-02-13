@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {
-  Picker,
-  ScrollView,
+  Alert,
   View,
   Text,
   TouchableOpacity,
@@ -21,7 +20,8 @@ import {
   isNotZero,
 } from '../layoututils';
 import PageButtonItem from '../../components/PageButtonItem';
-import Icon from 'react-native-vector-icons/Ionicons';
+import {sendUartData} from '../../redux/actions';
+import { isValidUartData, serializeUartData } from '../../communication/uartUtils';
 
 
 class ProductSettings extends Component {
@@ -49,7 +49,6 @@ class ProductSettings extends Component {
       noofrow,
     );
     this.setState({importantdata: processedData});
- 
   }
 
   initializeLayout(noofcol, noofslot) {
@@ -205,6 +204,43 @@ class ProductSettings extends Component {
     );
   }
 
+  processReceivedProducts(productArray){
+    
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      JSON.stringify(this.props.uartReceive) !==
+      JSON.stringify(prevProps.uartReceive)
+    ) {
+      this.processUartData(this.props.uartReceive);
+    }
+    else if (
+      JSON.stringify(this.props.uartSend) !== JSON.stringify(prevProps.uartSend)) {
+      Alert.alert("Yeah", JSON.stringify(this.props.uartSend));
+    }
+  }
+
+  sendSerialData(string, notStrict){
+    const prevString = JSON.stringify(this.props.uartSend);
+    const available = serializeUartData({currString: string, prevString, notStrict});
+    if(!available) {Alert.alert("Failed", "Send uart Failed"); return}
+    this.props.sendUartData(available.sendObject, available.notStrict);
+  }
+
+  processUartData(inputObject) {
+    if(!isValidUartData(inputObject)) return;
+    const {topic, type, content} = inputObject;
+      switch(topic){
+        case '':
+          if(type !== 'response') return;
+          
+        break;
+        default:
+          break;
+      }
+  }
+
   componentDidMount() {
     this.renderBeverageData(
       this.props.settingdatalist[1].datainput,
@@ -217,6 +253,8 @@ class ProductSettings extends Component {
 
 function mapStateToProps(state) {
   return {
+    uartSend: state.uart.send,
+    uartReceive: state.uart.receive,
     settingdatalist: state.settingpage1reducer.settingdatalist,
     currentslotsetting: state.settingpage1reducer.currentslotsetting,
     oneslotdata: state.settingpage1reducer.oneslotdata,
@@ -226,6 +264,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
+    sendUartData: (data, notStrict) => dispatch(sendUartData(data, notStrict)),
     updateOneSlotData: data => {
       dispatch(updateOneSlotData(data));
     },
